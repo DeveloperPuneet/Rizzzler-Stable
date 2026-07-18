@@ -1,0 +1,309 @@
+<% pageTitle = "Rizzzler — Show yourself off" %>
+<%- include('partials/header') %>
+
+<!-- ========== HERO ========== -->
+<section class="rz-hero">
+  <!-- floating blobs -->
+  <div class="rz-hero-blob rz-hero-blob--1"></div>
+  <div class="rz-hero-blob rz-hero-blob--2"></div>
+  <div class="rz-hero-blob rz-hero-blob--3"></div>
+  <div class="rz-hero-blob rz-hero-blob--4"></div>
+  <!-- mouse glow -->
+  <div class="rz-hero-glow" id="heroGlow"></div>
+
+  <div class="rz-hero-content">
+    <div class="rz-hero-badge">
+      <span class="rz-hero-badge-pulse"></span>
+      🚀 Now in beta — free usernames available
+    </div>
+    <h1 class="rz-hero-title">
+      <span class="rz-hero-title-line">One link to</span>
+      <span class="rz-hero-title-gradient">rule them all.</span>
+    </h1>
+    <p class="rz-tagline">
+      Build a stunning showcase page in seconds. Themes, music, photos, links —<br class="rz-hide-mobile" />
+      all wrapped in <strong>your</strong> personal Rizzzler URL. Drop it anywhere.
+    </p>
+    <div class="rz-hero-actions">
+      <a href="/register" class="rz-btn rz-btn-primary rz-btn-glow">
+        Claim your username
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="/login" class="rz-btn rz-btn-ghost rz-btn-ghost-glow">Login</a>
+    </div>
+    <p class="rz-hero-subtle">No credit card • 100% free • 30 seconds setup</p>
+  </div>
+
+  <!-- floating showcase preview cards -->
+  <div class="rz-hero-float rz-hero-float--left">
+    <div class="rz-float-card">
+      <div class="rz-float-card-avatar"></div>
+      <div class="rz-float-card-lines">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+  <div class="rz-hero-float rz-hero-float--right">
+    <div class="rz-float-card rz-float-card--sm">
+      <div class="rz-float-card-img"></div>
+      <div class="rz-float-card-meta">🎵 Now Playing</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FEATURES ========== -->
+<section class="rz-section rz-features" id="features">
+  <div class="rz-section-header">
+    <span class="rz-section-eyebrow">Why Rizzzler</span>
+    <h2>Everything you need to <span class="rz-gradient-text">flex online</span></h2>
+    <p class="rz-section-sub">Your personality, your link. Fully customizable. Dead simple.</p>
+  </div>
+  <div class="rz-features-grid">
+    <article class="rz-feature-card">
+      <div class="rz-feature-icon">🎨</div>
+      <h3>Custom Themes</h3>
+      <p>Pick from gorgeous presets or tweak colors until it's <em>so you</em>.</p>
+      <div class="rz-feature-swatches">
+        <span style="background:#a855f7"></span>
+        <span style="background:#ec4899"></span>
+        <span style="background:#06b6d4"></span>
+        <span style="background:#f59e0b"></span>
+        <span style="background:#10b981"></span>
+      </div>
+    </article>
+    <article class="rz-feature-card">
+      <div class="rz-feature-icon">🎵</div>
+      <h3>Music Embed</h3>
+      <p>Drop a Spotify or SoundCloud link — your page gets a <strong>vibe</strong>.</p>
+      <div class="rz-feature-mini-player">
+        <span class="rz-mini-bar"></span><span class="rz-mini-bar active"></span><span class="rz-mini-bar"></span><span class="rz-mini-bar"></span><span class="rz-mini-bar"></span>
+      </div>
+    </article>
+    <article class="rz-feature-card">
+      <div class="rz-feature-icon">🖼️</div>
+      <h3>Photo Gallery</h3>
+      <p>Show off your best shots in a clean, tappable grid layout.</p>
+      <div class="rz-feature-gallery-preview">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </article>
+    <article class="rz-feature-card">
+      <div class="rz-feature-icon">🔗</div>
+      <h3>Unlimited Links</h3>
+      <p>Socials, projects, shops — stack 'em all. Your page, your rules.</p>
+      <div class="rz-feature-links-preview">
+        <span>🐦 Twitter</span><span>📸 Instagram</span><span>💬 Discord</span>
+      </div>
+    </article>
+    <article class="rz-feature-card">
+      <div class="rz-feature-icon">🏷️</div>
+      <h3>Custom Badges</h3>
+      <p>Verified? Premium? Just flexing? Slap a badge on your profile.</p>
+      <div class="rz-feature-badge-row">
+        <span class="rz-feature-badge-demo">✓ Verified</span>
+        <span class="rz-feature-badge-demo rz-feature-badge-demo--alt">⭐ Pro</span>
+      </div>
+    </article>
+    <article class="rz-feature-card">
+      <div class="rz-feature-icon">📊</div>
+      <h3>View Count</h3>
+      <p>See how many people checked you out. <strong>Real-time stats.</strong></p>
+      <div class="rz-feature-stat-demo">
+        <span class="rz-stat-number">12.4k</span>
+        <span class="rz-stat-label">total views</span>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ========== HOW IT WORKS ========== -->
+<section class="rz-section rz-how" id="how">
+  <div class="rz-section-header">
+    <span class="rz-section-eyebrow">How it works</span>
+    <h2>Three steps. <span class="rz-gradient-text">That's it.</span></h2>
+  </div>
+  <div class="rz-how-steps">
+    <div class="rz-how-step">
+      <div class="rz-how-step-num">01</div>
+      <div class="rz-how-step-card">
+        <div class="rz-how-step-icon">🔖</div>
+        <h3>Claim your username</h3>
+        <p>Pick a unique handle. First come, first served — grab yours before it's gone.</p>
+      </div>
+    </div>
+    <div class="rz-how-connector">
+      <span class="rz-how-connector-dot"></span>
+      <span class="rz-how-connector-dot"></span>
+      <span class="rz-how-connector-dot"></span>
+    </div>
+    <div class="rz-how-step">
+      <div class="rz-how-step-num">02</div>
+      <div class="rz-how-step-card">
+        <div class="rz-how-step-icon">✨</div>
+        <h3>Customize your page</h3>
+        <p>Theme, avatar, bio, links, music, gallery — all from a clean dashboard.</p>
+      </div>
+    </div>
+    <div class="rz-how-connector">
+      <span class="rz-how-connector-dot"></span>
+      <span class="rz-how-connector-dot"></span>
+      <span class="rz-how-connector-dot"></span>
+    </div>
+    <div class="rz-how-step">
+      <div class="rz-how-step-num">03</div>
+      <div class="rz-how-step-card">
+        <div class="rz-how-step-icon">🌍</div>
+        <h3>Share everywhere</h3>
+        <p>Drop your Rizzzler link in Discord, TikTok bio, Twitter — anywhere you exist.</p>
+      </div>
+    </div>
+  </div>
+  <div class="rz-how-cta-row">
+    <a href="/register" class="rz-btn rz-btn-primary rz-btn-glow">Start building — free</a>
+  </div>
+</section>
+
+<!-- ========== LIVE PREVIEW MOCKUP ========== -->
+<section class="rz-section rz-preview-section">
+  <div class="rz-section-header">
+    <span class="rz-section-eyebrow">Live preview</span>
+    <h2>This could be <span class="rz-gradient-text">your page</span></h2>
+    <p class="rz-section-sub">A real Rizzzler showcase. Clean. Fast. Yours.</p>
+  </div>
+  <div class="rz-preview-mockup">
+    <div class="rz-preview-phone">
+      <div class="rz-preview-phone-notch"></div>
+      <div class="rz-preview-phone-screen">
+        <div class="rz-preview-banner"></div>
+        <div class="rz-preview-avatar"></div>
+        <div class="rz-preview-name">alex.dev</div>
+        <div class="rz-preview-bio">building cool stuff • 22 • dev & designer</div>
+        <div class="rz-preview-links">
+          <span>🐦 Twitter / alexdotdev</span>
+          <span>💬 Discord / alex#1234</span>
+          <span>🎵 Spotify Playlist</span>
+          <span>📸 Instagram / alex.dev</span>
+        </div>
+      </div>
+    </div>
+    <div class="rz-preview-glow-behind"></div>
+  </div>
+</section>
+
+<!-- ========== STATS ========== -->
+<section class="rz-section rz-stats-section" id="stats-section">
+  <div class="rz-stats-grid">
+    <div class="rz-stat-item">
+      <span class="rz-stat-big" data-stat-type="totalUsers">0</span>
+      <span class="rz-stat-desc">Rizzzlers created</span>
+    </div>
+    <div class="rz-stat-item">
+      <span class="rz-stat-big" data-stat-type="totalViews">0</span>
+      <span class="rz-stat-desc">Total profile views</span>
+    </div>
+    <div class="rz-stat-item">
+      <span class="rz-stat-big" data-stat-type="activeUsers">0</span>
+      <span class="rz-stat-desc">Active showcases</span>
+    </div>
+    <div class="rz-stat-item">
+      <span class="rz-stat-big" data-stat-type="avgViewsPerUser">0</span>
+      <span class="rz-stat-suffix"></span>
+      <span class="rz-stat-desc">Avg views per user</span>
+    </div>
+  </div>
+</section>
+
+<!-- ========== BOTTOM CTA ========== -->
+<section class="rz-section rz-cta-bottom">
+  <div class="rz-cta-bottom-card">
+    <div class="rz-cta-bottom-blob"></div>
+    <h2>Ready to <span class="rz-gradient-text">rizz</span>?</h2>
+    <p>Join thousands already flexing their Rizzzler page. It's free, fast, and <em>so you</em>.</p>
+    <a href="/register" class="rz-btn rz-btn-primary rz-btn-glow rz-btn-lg">Claim your username now</a>
+    <p class="rz-cta-bottom-sub">⚡ Limited usernames available — don't sleep on it.</p>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
+
+<!-- mouse glow script (tiny, no dependencies) -->
+<script>
+(function(){
+  const glow = document.getElementById('heroGlow');
+  if(!glow) return;
+  const hero = document.querySelector('.rz-hero');
+  if(!hero) return;
+  hero.addEventListener('mousemove', function(e){
+    const rect = hero.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    glow.style.setProperty('--mx', x + 'px');
+    glow.style.setProperty('--my', y + 'px');
+    glow.style.opacity = '1';
+  });
+  hero.addEventListener('mouseleave', function(){
+    glow.style.opacity = '0';
+  });
+})();
+</script>
+
+<!-- stats counter animation with real data -->
+<script>
+(function(){
+  // Fetch real stats from API
+  fetch('/api/stats')
+    .then(res => res.json())
+    .then(data => {
+      if (!data.success || !data.stats) throw new Error('No stats');
+      
+      const stats = data.stats;
+      const statTypes = {
+        totalUsers: stats.totalUsers,
+        totalViews: stats.totalViews,
+        activeUsers: stats.activeUsers,
+        avgViewsPerUser: stats.avgViewsPerUser
+      };
+      
+      // Update all stat elements with real data
+      const elements = document.querySelectorAll('[data-stat-type]');
+      elements.forEach(el => {
+        const statType = el.getAttribute('data-stat-type');
+        const value = statTypes[statType] || 0;
+        el.setAttribute('data-count', value);
+      });
+      
+      // Animate counters when visible
+      const observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(!entry.isIntersecting) return;
+          const el = entry.target;
+          const target = parseInt(el.getAttribute('data-count'), 10);
+          if(isNaN(target)) return;
+          
+          let current = 0;
+          const duration = 1800;
+          const step = Math.max(1, Math.floor(target / (duration / 16)));
+          
+          function update(){
+            current += step;
+            if(current >= target){ 
+              current = target; 
+              el.textContent = current.toLocaleString(); 
+              return; 
+            }
+            el.textContent = current.toLocaleString();
+            requestAnimationFrame(update);
+          }
+          update();
+          observer.unobserve(el);
+        });
+      }, { threshold: 0.4 });
+      
+      elements.forEach(el => observer.observe(el));
+    })
+    .catch(err => {
+      console.error('Failed to load stats:', err);
+      // Fallback: just show 0
+    });
+})();
+</script>

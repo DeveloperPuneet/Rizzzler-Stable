@@ -1,0 +1,62 @@
+/* =====================================================================
+   DIVA — spotlight stage, gold filmstrip, shimmering glam
+   ===================================================================== */
+.rz-theme-diva { --accent: #ffd166; --accent2: #ff5fa2; color: #f7ecd8; background: #0a0705; font-family: Georgia, "Playfair Display", "Times New Roman", serif; }
+
+.rz-theme-diva .rz-showcase-bg { background: radial-gradient(ellipse at 50% 0%, rgba(255,209,102,0.18) 0%, transparent 55%), linear-gradient(180deg, #0a0705 0%, #16100a 55%, #0a0705 100%); }
+.rz-theme-diva .rz-showcase-bg::before, .rz-theme-diva .rz-showcase-bg::after {
+  content: ''; position: fixed; top: -10%; width: 30%; height: 130%;
+  background: linear-gradient(180deg, rgba(255,209,102,0.22), transparent 70%);
+  clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%);
+  animation: divaSway 6s ease-in-out infinite alternate;
+}
+.rz-theme-diva .rz-showcase-bg::before { left: 8%; animation-delay: 0s; }
+.rz-theme-diva .rz-showcase-bg::after { right: 8%; animation-delay: 1.5s; }
+@keyframes divaSway { from { transform: rotate(-3deg); opacity: 0.7; } to { transform: rotate(3deg); opacity: 1; } }
+.rz-theme-diva .rz-floating-particles { background-image: radial-gradient(circle, rgba(255,209,102,0.45) 1px, transparent 1.4px); background-size: 60px 60px; animation: divaShimmer 3s ease-in-out infinite alternate; }
+@keyframes divaShimmer { from { opacity: 0.3; } to { opacity: 0.7; } }
+
+/* ---------- Hero: gold ring avatar, shimmering serif name ---------- */
+.rz-theme-diva .rz-hero-overlay { background: linear-gradient(180deg, rgba(10,7,5,0.1), rgba(10,7,5,0.6) 60%, #0a0705 100%); }
+.rz-theme-diva .rz-hero-avatar { border-radius: 50%; border: 4px solid var(--accent); box-shadow: 0 0 0 8px rgba(255,209,102,0.15), 0 0 60px rgba(255,209,102,0.5); }
+.rz-theme-diva .rz-hero-badge { color: var(--accent2); font-style: italic; letter-spacing: 0.15em; background: rgba(255,209,102,0.1); border-color: rgba(255,209,102,0.4); }
+.rz-theme-diva .rz-hero-name {
+  font-weight: 700; letter-spacing: 0.02em;
+  background: linear-gradient(100deg, #ffd166 20%, #fff6df 40%, #ffd166 60%);
+  background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  animation: divaShine 3.5s linear infinite;
+}
+@keyframes divaShine { to { background-position: 200% center; } }
+.rz-theme-diva .rz-hero-username { color: #e0c48a; }
+.rz-theme-diva .rz-hero-views { color: #cbb079; }
+.rz-theme-diva .rz-story-card { background: linear-gradient(160deg, rgba(255,209,102,0.06), rgba(0,0,0,0.3)); border: 1px solid rgba(255,209,102,0.25); border-radius: 4px; }
+
+/* ---------- Story grid: gold-framed filmstrip photos ---------- */
+.rz-theme-diva .rz-story-grid { grid-template-columns: 1fr 1fr; }
+.rz-theme-diva .rz-image-wrapper { border: 10px solid #1a130c; outline: 2px solid var(--accent); }
+.rz-theme-diva .rz-image-wrapper img { filter: saturate(1.1) contrast(1.05); }
+.rz-theme-diva .rz-grand-text {
+  font-weight: 700; letter-spacing: 0.03em; font-style: italic;
+  background: linear-gradient(100deg, #ffd166, #fff6df, #ffd166);
+  background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  animation: divaShine 4s linear infinite;
+}
+.rz-theme-diva .rz-section-eyebrow { color: var(--accent2); font-style: italic; background: rgba(255,95,162,0.1); }
+.rz-theme-diva .rz-story-copy { font-style: italic; }
+
+/* ---------- Links: VIP ticket stubs ---------- */
+.rz-theme-diva .rz-link-item { background: linear-gradient(135deg, rgba(255,209,102,0.1), rgba(255,95,162,0.06)); border: 1px dashed var(--accent); color: var(--accent); font-style: italic; letter-spacing: 0.05em; }
+.rz-theme-diva .rz-link-item:hover { background: rgba(255,209,102,0.2); box-shadow: 0 0 26px rgba(255,209,102,0.5); }
+
+/* ---------- Details ---------- */
+.rz-theme-diva .rz-detail-item { background: rgba(255,209,102,0.08); border: 1px solid var(--accent); color: #f7ecd8; border-radius: 4px; }
+.rz-theme-diva .rz-detail-item a { color: var(--accent); }
+
+/* ---------- Credits ---------- */
+.rz-theme-diva .rz-credits-logo {
+  background: linear-gradient(100deg, #ffd166, #fff6df, #ff5fa2, #ffd166);
+  background-size: 300% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  animation: divaShine 5s linear infinite;
+}
+
+.rz-theme-diva .rz-sound-toggle { border-color: rgba(255,209,102,0.5); }

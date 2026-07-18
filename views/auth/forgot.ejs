@@ -1,0 +1,24 @@
+<% pageTitle = "Forgot password — Rizzzler" %>
+<%- include('../partials/header') %>
+
+<div class="rz-auth-wrapper">
+  <div class="rz-auth-blob rz-auth-blob--1"></div>
+  <div class="rz-auth-blob rz-auth-blob--2"></div>
+  <div class="rz-auth-blob rz-auth-blob--3"></div>
+
+  <section class="rz-auth-card">
+    <h2>Forgot your password?</h2>
+    <p class="rz-muted">Enter your email and we'll send you a reset code.</p>
+    <% if (error) { %><p class="rz-error"><%= error %></p><% } %>
+    <% if (info) { %><p class="rz-info"><%= info %></p><% } %>
+    <form action="/forgot-password" method="POST" class="rz-form">
+      <label>Email
+        <input type="email" name="email" required />
+      </label>
+      <button type="submit" class="rz-btn rz-btn-primary">Send reset code</button>
+    </form>
+    <p class="rz-switch"><a href="/login">← Back to login</a></p>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

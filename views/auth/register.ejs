@@ -1,0 +1,32 @@
+<% pageTitle = "Create account — Rizzzler" %>
+<%- include('../partials/header') %>
+
+<div class="rz-auth-wrapper">
+  <div class="rz-auth-blob rz-auth-blob--1"></div>
+  <div class="rz-auth-blob rz-auth-blob--2"></div>
+  <div class="rz-auth-blob rz-auth-blob--3"></div>
+
+  <section class="rz-auth-card">
+    <h2>Claim your username</h2>
+    <p class="rz-muted">Join the Rizzzler squad — free forever.</p>
+    <% if (error) { %><p class="rz-error"><%= error %></p><% } %>
+    <form action="/register" method="POST" class="rz-form">
+      <label>Username
+        <input type="text" name="username" value="<%= old && old.username ? old.username : '' %>" required />
+      </label>
+      <label>Email
+        <input type="email" name="email" value="<%= old && old.email ? old.email : '' %>" required />
+      </label>
+      <label>Password
+        <input type="password" name="password" minlength="6" required />
+      </label>
+      <label>Confirm password
+        <input type="password" name="confirmPassword" minlength="6" required />
+      </label>
+      <button type="submit" class="rz-btn rz-btn-primary" style="text-align: center; display:flex; justify-content:center;">Create my page</button>
+    </form>
+    <p class="rz-switch">Already have an account? <a href="/login">Login</a></p>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

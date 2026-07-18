@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#06060e" />
+  <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Admin — Rizzzler' %></title>
+  <link rel="icon" type="image/png" href="/images/logo.png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body class="rz-admin-body">
+<div class="rz-admin-shell">
+  <button type="button" class="rz-admin-menu-btn" id="rzAdminMenuBtn" aria-label="Toggle menu">☰</button>
+
+  <aside class="rz-admin-sidebar" id="rzAdminSidebar">
+    <a href="/admin" class="rz-admin-brand">
+      <img src="/images/logo.png" alt="Rizzzler" />
+      <span>Rizzzler <em>Admin</em></span>
+    </a>
+    <nav class="rz-admin-nav">
+      <a href="/admin" class="<%= typeof activeNav !== 'undefined' && activeNav === 'dashboard' ? 'rz-admin-nav-active' : '' %>">📊 Dashboard</a>
+      <a href="/admin/users" class="<%= typeof activeNav !== 'undefined' && activeNav === 'users' ? 'rz-admin-nav-active' : '' %>">👥 Users</a>
+      <a href="/admin/settings" class="<%= typeof activeNav !== 'undefined' && activeNav === 'settings' ? 'rz-admin-nav-active' : '' %>">⚙️ Customize / Mail</a>
+    </nav>
+    <div class="rz-admin-sidebar-footer">
+      <a href="/" target="_blank" class="rz-admin-view-site">↗ View live site</a>
+      <form action="/admin/logout" method="POST">
+        <button type="submit" class="rz-admin-logout-btn">Log out</button>
+      </form>
+    </div>
+  </aside>
+
+  <main class="rz-admin-main">

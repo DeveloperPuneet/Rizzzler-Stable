@@ -1,0 +1,88 @@
+<% var pageTitle = "Dashboard — Admin"; var activeNav = "dashboard"; %>
+<%- include('partials/header') %>
+
+<div class="rz-admin-topbar">
+  <h1>Dashboard</h1>
+  <p class="rz-muted">Overview of everything happening on Rizzzler.</p>
+</div>
+
+<section class="rz-admin-stats-grid">
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Total users</span>
+    <span class="rz-admin-stat-value"><%= stats.totalUsers %></span>
+  </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Verified</span>
+    <span class="rz-admin-stat-value"><%= stats.verifiedUsers %></span>
+    <small class="rz-muted"><%= stats.unverifiedUsers %> unverified</small>
+  </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Active showcases</span>
+    <span class="rz-admin-stat-value"><%= stats.activeUsers %></span>
+    <small class="rz-muted"><%= stats.inactiveUsers %> paused</small>
+  </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Total profile views</span>
+    <span class="rz-admin-stat-value"><%= stats.totalViews.toLocaleString() %></span>
+  </div>
+</section>
+
+<section class="rz-admin-feature-row">
+  <div class="rz-admin-feature-pill <%= settings.newsletterEnabled ? 'rz-admin-pill-on' : 'rz-admin-pill-off' %>">
+    📰 Newsletter: <%= settings.newsletterEnabled ? 'Enabled' : 'Disabled' %>
+  </div>
+  <div class="rz-admin-feature-pill <%= settings.milestoneEnabled ? 'rz-admin-pill-on' : 'rz-admin-pill-off' %>">
+    🏆 Milestone mails: <%= settings.milestoneEnabled ? 'Enabled' : 'Disabled' %>
+  </div>
+  <div class="rz-admin-feature-pill <%= settings.aiMailEnabled ? 'rz-admin-pill-on' : 'rz-admin-pill-off' %>">
+    🤖 AI fun mail: <%= settings.aiMailEnabled ? 'Enabled' : 'Disabled' %>
+  </div>
+  <a href="/admin/settings" class="rz-btn rz-btn-ghost">Manage →</a>
+</section>
+
+<section class="rz-admin-two-col">
+  <div class="rz-admin-panel">
+    <h2>Recently joined</h2>
+    <% if (!recentUsers.length) { %>
+      <p class="rz-muted">No users yet.</p>
+    <% } else { %>
+      <table class="rz-admin-table">
+        <thead><tr><th>User</th><th>Status</th><th>Joined</th></tr></thead>
+        <tbody>
+          <% recentUsers.forEach(u => { %>
+            <tr>
+              <td><a href="/admin/users/<%= u._id %>">@<%= u.username %></a></td>
+              <td>
+                <% if (!u.isVerified) { %><span class="rz-admin-tag rz-admin-tag-warn">Unverified</span><% } %>
+                <% if (u.isActive === false) { %><span class="rz-admin-tag rz-admin-tag-off">Paused</span><% } %>
+                <% if (u.isVerified && u.isActive !== false) { %><span class="rz-admin-tag rz-admin-tag-on">Live</span><% } %>
+              </td>
+              <td><%= new Date(u.createdAt).toLocaleDateString() %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+  <div class="rz-admin-panel">
+    <h2>Top viewed showcases</h2>
+    <% if (!topViewed.length) { %>
+      <p class="rz-muted">No views yet.</p>
+    <% } else { %>
+      <table class="rz-admin-table">
+        <thead><tr><th>User</th><th>Views</th></tr></thead>
+        <tbody>
+          <% topViewed.forEach(u => { %>
+            <tr>
+              <td><a href="/admin/users/<%= u._id %>">@<%= u.username %></a></td>
+              <td><%= (u.profileViews || 0).toLocaleString() %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

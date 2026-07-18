@@ -1,0 +1,55 @@
+</main>
+<footer class="rz-footer">
+  <div class="rz-footer-grid">
+    <div class="rz-footer-brand">
+      <a href="/" class="rz-footer-logo">
+        <img src="/images/logo.png" alt="Rizzzler logo" class="rz-footer-logo-img" />
+        <span>Rizzzler</span>
+      </a>
+      <p class="rz-footer-desc">Your one‑link showcase. Themes, music, photos — all you. Drop it anywhere.</p>
+      <div class="rz-footer-socials">
+        <a href="mailto:developerpuneet2010@gmail.com" aria-label="Email">📧</a>
+      </div>
+    </div>
+    <div class="rz-footer-links-col">
+      <h4>Product</h4>
+      <a href="/#features">Features</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/register">Get your page</a>
+      <a href="/#how">How it works</a>
+      <a href="/about-developer">About</a>
+    </div>
+    <div class="rz-footer-links-col">
+      <h4>Company</h4>
+      <a href="mailto:developerpuneet2010@gmail.com">Contact</a>
+      <a href="/privacy-policy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </div>
+  <div class="rz-footer-bottom">
+    <span>© <%= new Date().getFullYear() %> Rizzzler. Built for the internet.</span>
+  </div>
+</footer>
+<script>
+(function(){
+  const loader = document.getElementById('pageLoader');
+  if (!loader) return;
+
+  const hide = () => {
+    if (loader.classList.contains('rz-page-loader--hidden')) return;
+    loader.classList.add('rz-page-loader--hidden');
+    window.setTimeout(() => loader.remove(), 400);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', hide, { once: true });
+    window.addEventListener('load', hide, { once: true });
+  } else {
+    hide();
+  }
+
+  window.setTimeout(hide, 1800);
+})();
+</script>
+</body>
+</html>

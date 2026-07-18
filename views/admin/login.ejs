@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#06060e" />
+  <title>Admin Login — Rizzzler</title>
+  <link rel="icon" type="image/png" href="/images/logo.png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body class="rz-admin-body">
+  <div class="rz-admin-auth-wrapper">
+    <div class="rz-auth-blob rz-auth-blob--1"></div>
+    <div class="rz-auth-blob rz-auth-blob--2"></div>
+    <section class="rz-admin-auth-card">
+      <img src="/images/logo.png" alt="Rizzzler" class="rz-admin-auth-logo" />
+      <h2>Admin Panel</h2>
+      <p class="rz-muted">Enter the admin password to continue.</p>
+      <% if (error) { %><p class="rz-error"><%= error %></p><% } %>
+      <form action="/admin/login" method="POST" class="rz-form">
+        <label>Password
+          <input type="password" name="password" required autofocus />
+        </label>
+        <button type="submit" class="rz-btn rz-btn-primary" style="justify-content:center;">Enter</button>
+      </form>
+      <p class="rz-admin-auth-note">⚠️ 3 incorrect attempts will permanently block this device from ever accessing the admin panel again.</p>
+    </section>
+  </div>
+</body>
+</html>

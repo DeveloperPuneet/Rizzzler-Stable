@@ -1,0 +1,31 @@
+<% pageTitle = "@" + username + " — paused — Rizzzler" %>
+<%- include('partials/header') %>
+
+<div class="rz-404-wrapper">
+  <div class="rz-404-bg"></div>
+  <div class="rz-404-content">
+    <div class="rz-404-icon">💤</div>
+    <h1 class="rz-404-title"><%= displayName %></h1>
+    <p class="rz-404-text">@<%= username %>'s showcase is paused right now.</p>
+    <p class="rz-404-sub">The owner has temporarily deactivated this page. It'll be back the moment they turn it back on.</p>
+    <a href="/" class="rz-btn rz-btn-primary rz-btn-glow">Explore Rizzzler</a>
+    <p class="rz-404-back"><a href="/">← Back to Rizzzler home</a></p>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
+
+<style>
+.rz-404-wrapper { min-height: 80vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 20px; }
+.rz-404-bg { position: absolute; inset: 0; background: radial-gradient(circle at 30% 40%, rgba(168,85,247,0.1) 0%, transparent 60%), radial-gradient(circle at 70% 80%, rgba(236,72,153,0.1) 0%, transparent 60%); animation: bgPulse 4s infinite alternate; }
+@keyframes bgPulse { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+.rz-404-content { text-align: center; position: relative; z-index: 2; max-width: 500px; background: rgba(17, 17, 24, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(168,85,247,0.15); border-radius: 30px; padding: 50px 30px; }
+.rz-404-icon { font-size: 4rem; margin-bottom: 10px; animation: float 3s infinite alternate; }
+@keyframes float { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
+.rz-404-title { font-size: 2.2rem; font-weight: 800; color: #fff; margin: 0 0 10px; }
+.rz-404-text { color: var(--muted); font-size: 1.1rem; margin: 0 0 12px; }
+.rz-404-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; }
+.rz-404-back { margin-top: 20px; font-size: 0.9rem; }
+.rz-404-back a { color: var(--muted); transition: color 0.2s; }
+.rz-404-back a:hover { color: #fff; }
+</style>

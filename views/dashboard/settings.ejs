@@ -1,0 +1,246 @@
+<% pageTitle = "Settings — Rizzzler" %>
+<%- include('../partials/header') %>
+
+<div class="rz-settings-wrapper">
+  <div class="rz-settings-blob rz-settings-blob--1"></div>
+  <div class="rz-settings-blob rz-settings-blob--2"></div>
+
+  <section class="rz-settings">
+    <div class="rz-settings-intro">
+      <div>
+        <p class="rz-settings-eyebrow">Account controls</p>
+        <h1>Manage your page, privacy, and account</h1>
+        <p class="rz-settings-sub">Keep your showcase live, softened, or fully removed whenever you want.</p>
+      </div>
+      <div class="rz-settings-badges">
+        <span class="rz-status-pill <%= user.isActive === false ? '' : 'rz-status-pill--accent' %>"><%= user.isActive === false ? 'Paused' : 'Live' %></span>
+      </div>
+    </div>
+    <% if (typeof info !== 'undefined' && info) { %><p class="rz-info rz-info-animated"><%= info %></p><% } %>
+    <% if (typeof error !== 'undefined' && error) { %><p class="rz-error"><%= error %></p><% } %>
+
+    <!-- Theme picker -->
+    <div class="rz-panel rz-panel-glass">
+      <h2>🎨 Theme</h2>
+      <form action="/dashboard/settings" method="POST" class="rz-theme-grid">
+        <% themes.forEach(t => { %>
+          <label class="rz-theme-option <%= user.theme === t.key ? 'rz-theme-selected' : '' %>" style="--accent: <%= t.accent %>">
+            <input type="radio" name="theme" value="<%= t.key %>" <%= user.theme === t.key ? 'checked' : '' %> onchange="this.form.submit()" />
+            <span class="rz-theme-swatch"></span>
+            <strong><%= t.label %></strong>
+            <small><%= t.desc %></small>
+            <span class="rz-theme-checkmark">✓</span>
+          </label>
+        <% }) %>
+        <!-- hidden fields preserve other settings -->
+        <input type="hidden" name="displayName" value="<%= user.displayName %>" />
+        <input type="hidden" name="bio" value="<%= user.bio %>" />
+      </form>
+    </div>
+
+    <div class="rz-settings-columns">
+      <!-- Left column: profile + links + audio -->
+      <div class="rz-settings-left">
+        <div class="rz-panel rz-panel-glass">
+          <h2>📝 Profile</h2>
+          <form action="/dashboard/settings" method="POST" class="rz-form" id="profileForm">
+            <input type="hidden" name="theme" value="<%= user.theme %>" />
+
+            <label>Display name
+              <input type="text" name="displayName" value="<%= user.displayName %>" maxlength="40" />
+            </label>
+            <label>Bio
+              <textarea name="bio" maxlength="300" rows="3"><%= user.bio %></textarea>
+            </label>
+            <label>Phone number
+              <input type="text" name="phoneNumber" value="<%= user.phoneNumber || '' %>" maxlength="20" placeholder="Optional" />
+            </label>
+            <label>Location
+              <input type="text" name="location" value="<%= user.location || '' %>" maxlength="80" placeholder="Optional" />
+            </label>
+            <label>Profession / role
+              <input type="text" name="profession" value="<%= user.profession || '' %>" maxlength="80" placeholder="Optional" />
+            </label>
+
+            <h3>🔗 Social links</h3>
+            <div id="linksWrap">
+              <% user.links.forEach((l, index) => { %>
+                <div class="rz-link-row">
+                  <input type="text" name="linkLabel" value="<%= l.label %>" placeholder="Label (e.g. Instagram)" />
+                  <input type="url" name="linkUrl" value="<%= l.url %>" placeholder="https://..." />
+                  <select name="linkIcon">
+                    <% ['instagram','twitter','tiktok','youtube','discord','spotify','github','website','other'].forEach(ic => { %>
+                      <option value="<%= ic %>" <%= l.icon === ic ? 'selected' : '' %>><%= ic %></option>
+                    <% }) %>
+                  </select>
+                </div>
+              <% }) %>
+            </div>
+            <button type="button" class="rz-btn rz-btn-ghost" id="addLinkBtn">+ Add link</button>
+
+            <h3>🏷️ Legacy badge</h3>
+            <label class="rz-checkbox">
+              <input type="checkbox" name="showLegacyBadge" <%= user.showLegacyBadge ? 'checked' : '' %> value="true" />
+              Show my join badge (#<%= user.legacyNumber || '-' %>) on my showcase page
+            </label>
+
+            <h3>🎵 Audio</h3>
+            <label>Background track
+              <select name="audioKey">
+                <option value="">None</option>
+                <% audios.forEach(a => { %>
+                  <option value="<%= a %>" <%= user.audio.key === a ? 'selected' : '' %>><%= a %></option>
+                <% }) %>
+              </select>
+            </label>
+            <label class="rz-checkbox">
+              <input type="checkbox" name="audioAutoplay" <%= user.audio.autoplay ? 'checked' : '' %> />
+              Autoplay
+            </label>
+            <label class="rz-checkbox">
+              <input type="checkbox" name="audioLoop" <%= user.audio.loop ? 'checked' : '' %> />
+              Loop
+            </label>
+
+            <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" style="margin-top:16px;">Save all changes</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right column: uploads -->
+      <div class="rz-settings-right">
+        <div class="rz-panel rz-panel-glass">
+          <h2>🖼️ Avatar</h2>
+          <% if (user.avatar && user.avatar.fileId) { %>
+            <img src="/file/<%= user.avatar.fileId %>" class="rz-preview rz-preview-round" />
+          <% } %>
+          <form action="/dashboard/upload/avatar" method="POST" enctype="multipart/form-data" class="rz-inline-form">
+            <input type="file" name="avatar" accept="image/*" required />
+            <button type="submit" class="rz-btn rz-btn-ghost">Upload (max 5MB)</button>
+          </form>
+        </div>
+
+        <div class="rz-panel rz-panel-glass">
+          <h2>🌄 Banner</h2>
+          <% if (user.banner && user.banner.fileId) { %>
+            <img src="/file/<%= user.banner.fileId %>" class="rz-preview rz-preview-wide" />
+          <% } %>
+          <form action="/dashboard/upload/banner" method="POST" enctype="multipart/form-data" class="rz-inline-form">
+            <input type="file" name="banner" accept="image/*" required />
+            <button type="submit" class="rz-btn rz-btn-ghost">Upload (max 5MB)</button>
+          </form>
+        </div>
+
+        <div class="rz-panel rz-panel-glass">
+          <h2>📸 Showcase photos (max 2)</h2>
+          <div class="rz-showcase-preview-row">
+            <% user.showcaseImages.forEach(img => { %>
+              <div class="rz-showcase-thumb-wrap">
+                <img src="/file/<%= img.fileId %>" class="rz-preview rz-preview-square" />
+                <form action="/dashboard/showcase/<%= img.fileId %>/delete" method="POST">
+                  <button type="submit" class="rz-link-btn rz-danger">Remove</button>
+                </form>
+              </div>
+            <% }) %>
+          </div>
+          <% if (user.showcaseImages.length < 2) { %>
+            <form action="/dashboard/upload/showcase" method="POST" enctype="multipart/form-data" class="rz-inline-form">
+              <input type="file" name="showcaseImage" accept="image/*" required />
+              <button type="submit" class="rz-btn rz-btn-ghost">Add photo (max 5MB)</button>
+            </form>
+          <% } else { %>
+            <p class="rz-muted">2/2 used — remove one to add another.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email preferences -->
+    <div class="rz-panel rz-panel-glass">
+      <h2>📧 Email preferences</h2>
+      <p class="rz-muted" style="margin-top:-8px;">Choose which emails you want to receive from Rizzzler.</p>
+      <form action="/dashboard/settings/email-preferences" method="POST" class="rz-preferences-form">
+        <label class="rz-checkbox">
+          <input type="checkbox" name="emailNewsletter" <%= user.emailPreferences && user.emailPreferences.newsletter !== false ? 'checked' : '' %> value="true" />
+          <strong>Newsletter updates</strong><br/>
+          <small class="rz-muted">Occasional updates about new features and platform announcements</small>
+        </label>
+        <label class="rz-checkbox">
+          <input type="checkbox" name="emailAiMail" <%= user.emailPreferences && user.emailPreferences.aiMail !== false ? 'checked' : '' %> value="true" />
+          <strong>Fun AI messages</strong><br/>
+          <small class="rz-muted">Playful, randomly scheduled messages to keep you engaged</small>
+        </label>
+        <label class="rz-checkbox">
+          <input type="checkbox" name="emailMilestone" <%= user.emailPreferences && user.emailPreferences.milestoneEmails !== false ? 'checked' : '' %> value="true" />
+          <strong>Milestone celebrations</strong><br/>
+          <small class="rz-muted">Notifications when your showcase reaches view milestones</small>
+        </label>
+        <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" style="margin-top:16px;">Save preferences</button>
+      </form>
+    </div>
+
+    <!-- ================= DANGER ZONE — always last on the page ================= -->
+    <div class="rz-panel rz-panel-glass rz-danger-zone">
+      <h2>⚠️ Account</h2>
+      <p class="rz-muted" style="margin-top:-8px;">Everything below affects your whole account — read twice, click once.</p>
+
+      <div class="rz-account-card">
+        <div>
+          <h3>Deactivate showcase</h3>
+          <p>Temporarily hide your public showcase page. Nobody can view <strong>rizzzler.app/<%= user.username %></strong> until you switch it back on — your data stays untouched.</p>
+        </div>
+        <form action="/dashboard/settings/status" method="POST" class="rz-toggle-form">
+          <label class="rz-toggle-row">
+            <input type="checkbox" name="isActive" onchange="this.form.submit()" <%= user.isActive === false ? '' : 'checked' %> />
+            <span><%= user.isActive === false ? 'Currently paused — turn back on' : 'Currently live — showcase is public' %></span>
+          </label>
+        </form>
+      </div>
+
+      <div class="rz-account-card">
+        <div>
+          <h3>Log out</h3>
+          <p>End your current session on this device. You'll need to log back in with your email and password.</p>
+        </div>
+        <form action="/logout" method="POST" class="rz-inline-form">
+          <button type="submit" class="rz-btn rz-btn-ghost">Log out</button>
+        </form>
+      </div>
+
+      <div class="rz-account-card">
+        <div>
+          <h3>Delete account</h3>
+          <p>Permanently remove your profile, uploads, and showcase data from the platform. This cannot be undone.</p>
+        </div>
+        <form action="/dashboard/settings/delete" method="POST" class="rz-inline-form" onsubmit="return confirm('This permanently deletes your account and all uploaded files. This cannot be undone. Continue?');">
+          <button type="submit" class="rz-btn rz-btn-ghost rz-danger">Delete account</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  document.getElementById('addLinkBtn').addEventListener('click', () => {
+    const wrap = document.getElementById('linksWrap');
+    const row = document.createElement('div');
+    row.className = 'rz-link-row';
+    row.innerHTML = `
+      <input type="text" name="linkLabel" placeholder="Label (e.g. Instagram)" />
+      <input type="url" name="linkUrl" placeholder="https://..." />
+      <select name="linkIcon">
+        <option value="instagram">instagram</option>
+        <option value="twitter">twitter</option>
+        <option value="tiktok">tiktok</option>
+        <option value="youtube">youtube</option>
+        <option value="discord">discord</option>
+        <option value="spotify">spotify</option>
+        <option value="github">github</option>
+        <option value="website" selected>website</option>
+        <option value="other">other</option>
+      </select>`;
+    wrap.appendChild(row);
+  });
+</script>
+
+<%- include('../partials/footer') %>

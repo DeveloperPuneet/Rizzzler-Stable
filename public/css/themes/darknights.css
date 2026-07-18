@@ -1,0 +1,61 @@
+/* =====================================================================
+   DARK NIGHTS — neon synthwave grid, glass terminal panels, glitch text
+   ===================================================================== */
+.rz-theme-darknights { --accent: #a855f7; --accent2: #22d3ee; color: #eae6ff; background: #050508; }
+
+.rz-theme-darknights .rz-showcase-bg { background: linear-gradient(180deg, #050508 0%, #0c0a17 60%, #050508 100%); }
+.rz-theme-darknights .rz-showcase-bg::before {
+  content: ''; position: absolute; left: -50%; right: -50%; bottom: 0; height: 55%;
+  background-image: linear-gradient(rgba(168,85,247,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.35) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transform: perspective(300px) rotateX(70deg);
+  transform-origin: bottom;
+  animation: darkGridMove 3.5s linear infinite;
+  opacity: 0.5;
+}
+@keyframes darkGridMove { from { background-position: 0 0, 0 0; } to { background-position: 0 60px, 60px 0; } }
+.rz-theme-darknights .rz-showcase-bg::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay;
+}
+.rz-theme-darknights .rz-floating-particles {
+  background-image: radial-gradient(circle, rgba(34,211,238,0.5) 1px, transparent 1.2px);
+  background-size: 70px 70px;
+  animation: darkParticleDrift 25s linear infinite;
+}
+@keyframes darkParticleDrift { from { background-position: 0 0; } to { background-position: 300px -400px; } }
+
+/* ---------- Hero: glass panel, monospace terminal vibe ---------- */
+.rz-theme-darknights .rz-hero-overlay { background: linear-gradient(180deg, rgba(5,5,8,0.15), rgba(5,5,8,0.6) 60%, #050508 100%); }
+.rz-theme-darknights .rz-hero-avatar { border-radius: 16px; border: 2px solid var(--accent2); box-shadow: 0 0 0 6px rgba(5,5,8,0.9), 0 0 40px rgba(34,211,238,0.55); }
+.rz-theme-darknights .rz-hero-badge { color: var(--accent2); font-family: "Courier New", monospace; letter-spacing: 0.2em; background: rgba(168,85,247,0.1); border-color: rgba(34,211,238,0.4); }
+.rz-theme-darknights .rz-hero-name { color: #fff; font-weight: 900; text-shadow: -3px 0 var(--accent2), 3px 0 var(--accent); animation: darkGlitch 5s infinite; }
+@keyframes darkGlitch {
+  0%, 90%, 100% { text-shadow: -3px 0 var(--accent2), 3px 0 var(--accent); }
+  92% { text-shadow: 4px 0 var(--accent2), -4px 0 var(--accent); }
+  94% { text-shadow: -2px 2px var(--accent2), 2px -2px var(--accent); }
+}
+.rz-theme-darknights .rz-hero-username, .rz-theme-darknights .rz-hero-views { color: #b9a6f0; font-family: "Courier New", monospace; }
+.rz-theme-darknights .rz-story-card { background: rgba(15,12,26,0.6); border: 1px solid rgba(168,85,247,0.35); backdrop-filter: blur(14px); box-shadow: 0 0 40px rgba(168,85,247,0.15); border-radius: 14px; }
+
+/* ---------- Story grid: neon-framed rectangular photos, terminal text ---------- */
+.rz-theme-darknights .rz-story-grid { grid-template-columns: 1fr 1fr; }
+.rz-theme-darknights .rz-image-wrapper { border: 2px solid var(--accent); border-radius: 12px; box-shadow: 0 0 50px rgba(168,85,247,0.35); }
+.rz-theme-darknights .rz-image-wrapper img { filter: saturate(1.2) contrast(1.05) hue-rotate(-4deg); }
+.rz-theme-darknights .rz-grand-text { color: #fff; text-shadow: -3px 0 var(--accent2), 3px 0 var(--accent); }
+.rz-theme-darknights .rz-section-eyebrow { color: var(--accent2); font-family: "Courier New", monospace; background: rgba(34,211,238,0.1); }
+.rz-theme-darknights .rz-story-copy { font-family: "Courier New", monospace; }
+
+/* ---------- Links: 2-col neon grid ---------- */
+.rz-theme-darknights .rz-link-item { background: rgba(168,85,247,0.08); border: 1px solid var(--accent2); color: #eae6ff; font-family: "Courier New", monospace; border-radius: 8px; }
+.rz-theme-darknights .rz-link-item:hover { background: rgba(34,211,238,0.15); box-shadow: 0 0 24px rgba(34,211,238,0.55); }
+
+/* ---------- Details ---------- */
+.rz-theme-darknights .rz-detail-item { background: rgba(5,5,8,0.6); border: 1px solid var(--accent); color: #d8ccff; border-radius: 6px; font-family: "Courier New", monospace; }
+.rz-theme-darknights .rz-detail-item a { color: var(--accent2); }
+
+/* ---------- Credits ---------- */
+.rz-theme-darknights .rz-credits-logo { color: #fff; text-shadow: 0 0 26px rgba(168,85,247,0.8), 0 0 60px rgba(34,211,238,0.4); }
+
+.rz-theme-darknights .rz-sound-toggle { border-color: rgba(168,85,247,0.5); }

@@ -1,0 +1,30 @@
+<% pageTitle = "Verify your email — Rizzzler" %>
+<%- include('../partials/header') %>
+
+<div class="rz-auth-wrapper">
+  <div class="rz-auth-blob rz-auth-blob--1"></div>
+  <div class="rz-auth-blob rz-auth-blob--2"></div>
+  <div class="rz-auth-blob rz-auth-blob--3"></div>
+
+  <section class="rz-auth-card">
+    <h2>Check your email</h2>
+    <p class="rz-muted">We sent a 6‑digit code to your inbox. Enter it below to verify your account.</p>
+    <% if (error) { %><p class="rz-error"><%= error %></p><% } %>
+    <% if (info) { %><p class="rz-info"><%= info %></p><% } %>
+    <div style="margin:0 0 18px;padding:14px 16px;border-radius:14px;background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.24);color:#f1e9ff;line-height:1.6;">
+      We’ve emailed you a 6-digit code. Open your inbox, then paste it here to verify your account.
+    </div>
+    <form action="/verify" method="POST" class="rz-form">
+      <label>Verification code
+        <input type="text" name="code" maxlength="6" pattern="\d{6}" required autofocus placeholder="000000" />
+      </label>
+      <button type="submit" class="rz-btn rz-btn-primary">Verify my email</button>
+    </form>
+    <form action="/verify/resend" method="POST" class="rz-inline-form" style="justify-content: center; margin-top: 12px;">
+      <button type="submit" class="rz-link-btn">Resend code</button>
+    </form>
+    <p class="rz-switch"><a href="/login">← Back to login</a></p>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

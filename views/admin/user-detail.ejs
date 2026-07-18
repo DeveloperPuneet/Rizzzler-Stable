@@ -1,0 +1,76 @@
+<% var pageTitle = "@" + u.username + " — Admin"; var activeNav = "users"; %>
+<%- include('partials/header') %>
+
+<div class="rz-admin-topbar">
+  <a href="/admin/users" class="rz-admin-back-link">← Back to users</a>
+  <h1>@<%= u.username %></h1>
+  <p class="rz-muted"><%= u.email %> · Joined <%= new Date(u.createdAt).toLocaleDateString() %></p>
+</div>
+
+<% if (typeof info !== 'undefined' && info) { %><p class="rz-info">Saved.</p><% } %>
+<% if (typeof error !== 'undefined' && error) { %><p class="rz-error"><%= error %></p><% } %>
+
+<div class="rz-admin-two-col">
+  <div class="rz-admin-panel">
+    <h2>Profile & account</h2>
+    <form action="/admin/users/<%= u._id %>" method="POST" class="rz-form">
+      <label>Display name
+        <input type="text" name="displayName" value="<%= u.displayName || '' %>" maxlength="40" />
+      </label>
+      <label>Username
+        <input type="text" name="username" value="<%= u.username %>" />
+      </label>
+      <label>Email
+        <input type="email" name="email" value="<%= u.email %>" />
+      </label>
+      <label>Bio
+        <textarea name="bio" rows="3" maxlength="300"><%= u.bio || '' %></textarea>
+      </label>
+      <label>Set new password <small class="rz-muted">(leave blank to keep current)</small>
+        <input type="text" name="newPassword" placeholder="min. 6 characters" />
+      </label>
+
+      <label class="rz-checkbox">
+        <input type="checkbox" name="isVerified" <%= u.isVerified ? 'checked' : '' %> />
+        Verified
+      </label>
+      <label class="rz-checkbox">
+        <input type="checkbox" name="isActive" <%= u.isActive !== false ? 'checked' : '' %> />
+        Showcase active (public)
+      </label>
+      <label class="rz-checkbox">
+        <input type="checkbox" name="showLegacyBadge" <%= u.showLegacyBadge ? 'checked' : '' %> />
+        Show legacy badge
+      </label>
+
+      <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" style="margin-top:12px;">Save changes</button>
+    </form>
+  </div>
+
+  <div class="rz-admin-panel">
+    <h2>At a glance</h2>
+    <div class="rz-admin-detail-grid">
+      <div><span class="rz-muted">Profile views</span><strong><%= (u.profileViews || 0).toLocaleString() %></strong></div>
+      <div><span class="rz-muted">Theme</span><strong><%= u.theme %></strong></div>
+      <div><span class="rz-muted">Legacy #</span><strong><%= u.legacyNumber || '—' %></strong></div>
+      <div><span class="rz-muted">Links</span><strong><%= (u.links || []).length %></strong></div>
+      <div><span class="rz-muted">Showcase photos</span><strong><%= (u.showcaseImages || []).length %> / 2</strong></div>
+      <div><span class="rz-muted">Phone</span><strong><%= u.phoneNumber || '—' %></strong></div>
+      <div><span class="rz-muted">Location</span><strong><%= u.location || '—' %></strong></div>
+      <div><span class="rz-muted">Profession</span><strong><%= u.profession || '—' %></strong></div>
+    </div>
+
+    <a href="/<%= u.username %>" target="_blank" class="rz-btn rz-btn-ghost" style="margin-top:16px;">View public page ↗</a>
+
+    <div class="rz-admin-danger-box">
+      <h3>Delete this user</h3>
+      <p class="rz-muted">Permanently removes their account, uploads, and showcase.</p>
+      <form action="/admin/users/<%= u._id %>/delete" method="POST"
+            onsubmit="return confirm('Permanently delete @<%= u.username %>? This cannot be undone.');">
+        <button type="submit" class="rz-btn rz-btn-ghost rz-danger">Delete user</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

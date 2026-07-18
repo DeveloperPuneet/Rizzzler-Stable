@@ -1,0 +1,55 @@
+<% var pageTitle = "Users — Admin"; var activeNav = "users"; %>
+<%- include('partials/header') %>
+
+<div class="rz-admin-topbar">
+  <h1>Users</h1>
+  <p class="rz-muted"><%= total %> total</p>
+</div>
+
+<form action="/admin/users" method="GET" class="rz-admin-search-form">
+  <input type="text" name="q" value="<%= q %>" placeholder="Search by username, email, or display name…" />
+  <button type="submit" class="rz-btn rz-btn-primary">Search</button>
+  <% if (q) { %><a href="/admin/users" class="rz-btn rz-btn-ghost">Clear</a><% } %>
+</form>
+
+<div class="rz-admin-panel rz-admin-panel-scroll">
+  <% if (!users.length) { %>
+    <p class="rz-muted">No users found.</p>
+  <% } else { %>
+    <table class="rz-admin-table">
+      <thead>
+        <tr><th>User</th><th>Email</th><th>Status</th><th>Views</th><th>Joined</th><th></th></tr>
+      </thead>
+      <tbody>
+        <% users.forEach(u => { %>
+          <tr>
+            <td>
+              <a href="/admin/users/<%= u._id %>">@<%= u.username %></a>
+              <% if (u.legacyNumber) { %><span class="rz-admin-tag rz-admin-tag-muted">#<%= u.legacyNumber %></span><% } %>
+            </td>
+            <td class="rz-admin-cell-muted"><%= u.email %></td>
+            <td>
+              <% if (!u.isVerified) { %><span class="rz-admin-tag rz-admin-tag-warn">Unverified</span><% } %>
+              <% if (u.isActive === false) { %><span class="rz-admin-tag rz-admin-tag-off">Paused</span><% } %>
+              <% if (u.isVerified && u.isActive !== false) { %><span class="rz-admin-tag rz-admin-tag-on">Live</span><% } %>
+            </td>
+            <td><%= (u.profileViews || 0).toLocaleString() %></td>
+            <td class="rz-admin-cell-muted"><%= new Date(u.createdAt).toLocaleDateString() %></td>
+            <td><a href="/admin/users/<%= u._id %>" class="rz-btn rz-btn-ghost rz-btn-sm">Manage</a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<% if (totalPages > 1) { %>
+  <div class="rz-admin-pagination">
+    <% for (let p = 1; p <= totalPages; p++) { %>
+      <a href="/admin/users?page=<%= p %><%= q ? '&q=' + encodeURIComponent(q) : '' %>"
+         class="<%= p === page ? 'rz-admin-page-active' : '' %>"><%= p %></a>
+    <% } %>
+  </div>
+<% } %>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,78 @@
+<% pageTitle = "Dashboard — Rizzzler" %>
+<%- include('../partials/header') %>
+
+<div class="rz-dash-wrapper">
+  <!-- animated background blobs -->
+  <div class="rz-dash-blob rz-dash-blob--1"></div>
+  <div class="rz-dash-blob rz-dash-blob--2"></div>
+
+  <!-- hero -->
+  <section class="rz-dash-hero">
+    <div class="rz-dash-hero-content">
+      <h1><%= greeting %>, <%= user.displayName || user.username %> 👋</h1>
+      <p class="rz-muted">
+        <% if (user.isActive === false) { %>
+          Your Rizzzler page is currently <strong>paused</strong> — only you can see this preview.
+        <% } else { %>
+          Your Rizzzler page is live and ready to share.
+        <% } %>
+      </p>
+      <div class="rz-link-box">
+        <a href="/<%= user.username %>" target="_blank"><%= baseUrl %>/<%= user.username %></a>
+        <% if (user.showLegacyBadge && user.legacyNumber) { %>
+          <span class="rz-badge">#<%= user.legacyNumber %></span>
+        <% } %>
+      </div>
+      <div class="rz-dash-hero-actions">
+        <a href="/<%= user.username %>" target="_blank" class="rz-btn rz-btn-ghost rz-btn-glow">View my page ↗</a>
+        <a href="/dashboard/settings" class="rz-btn rz-btn-primary rz-btn-glow">Customize</a>
+      </div>
+    </div>
+    <!-- mini preview of own page (static mockup) -->
+    <div class="rz-dash-preview">
+      <div class="rz-dash-preview-card">
+        <div class="rz-dash-preview-banner"></div>
+        <div class="rz-dash-preview-avatar">
+          <% if (user.avatar && user.avatar.fileId) { %>
+            <img src="/file/<%= user.avatar.fileId %>" alt="avatar" />
+          <% } else { %>
+            <span><%= (user.displayName || user.username).charAt(0).toUpperCase() %></span>
+          <% } %>
+        </div>
+        <div class="rz-dash-preview-name"><%= user.displayName || user.username %></div>
+        <div class="rz-dash-preview-bio"><%= user.bio ? user.bio.slice(0, 80) + (user.bio.length > 80 ? '…' : '') : 'Your bio will appear here.' %></div>
+        <div class="rz-dash-preview-links">
+          <% if (user.links.length > 0) { %>
+            <% user.links.slice(0,3).forEach(l => { %><span><%= l.label %></span><% }) %>
+          <% } else { %><span>No links yet</span><% } %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats grid -->
+  <section class="rz-dash-grid">
+    <div class="rz-card rz-card-glow">
+      <h3>Current theme</h3>
+      <p><%= themes.find(t => t.key === user.theme)?.label || 'Moonlight' %></p>
+      <small class="rz-muted">Switch anytime in settings</small>
+    </div>
+    <div class="rz-card rz-card-glow">
+      <h3>Links</h3>
+      <p><%= user.links.length %> added</p>
+      <small class="rz-muted">Socials, projects, etc.</small>
+    </div>
+    <div class="rz-card rz-card-glow">
+      <h3>Photos</h3>
+      <p><%= user.showcaseImages.length %> / 2</p>
+      <small class="rz-muted">Showcase gallery</small>
+    </div>
+    <div class="rz-card rz-card-glow">
+      <h3>Profile views</h3>
+      <p><%= user.profileViews || 0 %></p>
+      <small class="rz-muted">Since creation</small>
+    </div>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

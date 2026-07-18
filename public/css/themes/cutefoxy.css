@@ -1,0 +1,54 @@
+/* =====================================================================
+   CUTE FOXY — polaroid scrapbook, bouncy pastel, hearts drifting up
+   ===================================================================== */
+.rz-theme-cutefoxy { --accent: #ff9ab8; --accent2: #ffd6a5; color: #4a2e38; background: #fff1e6; font-family: "Comic Sans MS", "Segoe UI", cursive, sans-serif; }
+
+.rz-theme-cutefoxy .rz-showcase-bg {
+  background: radial-gradient(circle at 15% 20%, rgba(255,154,184,0.35), transparent 45%),
+              radial-gradient(circle at 85% 30%, rgba(255,214,165,0.4), transparent 45%),
+              radial-gradient(circle at 30% 85%, rgba(255,154,184,0.3), transparent 45%),
+              linear-gradient(160deg, #fff1e6 0%, #ffe4ec 100%);
+  animation: foxyGlow 6s ease-in-out infinite alternate;
+}
+@keyframes foxyGlow { from { filter: saturate(1); } to { filter: saturate(1.15); } }
+.rz-theme-cutefoxy .rz-floating-particles::before, .rz-theme-cutefoxy .rz-floating-particles::after {
+  content: '💗'; position: fixed; font-size: 22px; opacity: 0.55; z-index: 1;
+  animation: foxyFloatUp 9s linear infinite;
+}
+.rz-theme-cutefoxy .rz-floating-particles::before { left: 12%; animation-delay: 0s; }
+.rz-theme-cutefoxy .rz-floating-particles::after { left: 78%; animation-delay: 4.5s; font-size: 18px; }
+@keyframes foxyFloatUp { from { bottom: -10%; transform: translateX(0) rotate(0deg); } to { bottom: 110%; transform: translateX(30px) rotate(20deg); } }
+
+/* ---------- Hero: polaroid avatar frame, bouncy name ---------- */
+.rz-theme-cutefoxy .rz-hero-overlay { background: linear-gradient(180deg, rgba(255,241,230,0.1), rgba(255,241,230,0.7) 60%, #fff1e6 100%); }
+.rz-theme-cutefoxy .rz-hero-avatar { border-radius: 10px; border: 8px solid #fff; box-shadow: 0 10px 26px rgba(74,46,56,0.25); transform: rotate(-4deg); }
+.rz-theme-cutefoxy .rz-hero-badge { color: #d6668c; font-weight: 800; letter-spacing: 0.08em; background: #fff; border-color: var(--accent); box-shadow: 0 4px 14px rgba(74,46,56,0.15); }
+.rz-theme-cutefoxy .rz-hero-name { color: #7a3550; text-shadow: 3px 3px 0 #fff, -1px -1px 0 rgba(255,154,184,0.6); animation: foxyBounceIn 0.8s ease; }
+@keyframes foxyBounceIn { 0% { transform: scale(0.85); opacity: 0; } 60% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); } }
+.rz-theme-cutefoxy .rz-hero-username, .rz-theme-cutefoxy .rz-hero-views { color: #a15a72; }
+.rz-theme-cutefoxy .rz-story-card { background: #fff; color: #5a3644; border-radius: 26px; box-shadow: 0 14px 34px rgba(74,46,56,0.18); }
+
+/* ---------- Story grid: tilted polaroid photos, alternating rotation ---------- */
+.rz-theme-cutefoxy .rz-story-grid { grid-template-columns: 1fr 1fr; }
+.rz-theme-cutefoxy .rz-story-card[style*="padding:0"] { padding: 16px 16px 46px !important; transform: rotate(-3deg); }
+.rz-theme-cutefoxy .rz-story-grid--reverse .rz-story-card[style*="padding:0"] { transform: rotate(3deg); }
+.rz-theme-cutefoxy .rz-image-wrapper { border-radius: 4px; }
+.rz-theme-cutefoxy .rz-grand-text { color: #7a3550; text-shadow: 3px 3px 0 #fff, 5px 5px 0 rgba(255,154,184,0.5); animation: foxyPulse 2.4s ease-in-out infinite; }
+@keyframes foxyPulse { 0%,100% { transform: scale(1) rotate(-1deg); } 50% { transform: scale(1.03) rotate(1deg); } }
+.rz-theme-cutefoxy .rz-section-eyebrow { color: #d6668c; background: rgba(255,154,184,0.15); }
+.rz-theme-cutefoxy .rz-story-copy { color: #8a5468; }
+
+/* ---------- Links: bubbly pill row ---------- */
+.rz-theme-cutefoxy .rz-links-grid { grid-template-columns: repeat(2, 1fr); }
+.rz-theme-cutefoxy .rz-link-item { background: #fff; border: 2px solid var(--accent); color: #a15a72; border-radius: 999px; font-weight: 800; box-shadow: 0 6px 16px rgba(74,46,56,0.15); }
+.rz-theme-cutefoxy .rz-link-item:hover { background: var(--accent); color: #fff; transform: translateY(-3px) scale(1.04); }
+
+/* ---------- Details ---------- */
+.rz-theme-cutefoxy .rz-detail-item { background: #fff; border: 2px solid var(--accent2); color: #7a3550; box-shadow: 0 6px 14px rgba(74,46,56,0.12); border-radius: 18px; }
+.rz-theme-cutefoxy .rz-detail-item a { color: #d6668c; font-weight: 800; }
+
+/* ---------- Credits ---------- */
+.rz-theme-cutefoxy .rz-credits-logo { color: #d6668c; text-shadow: 4px 4px 0 #fff, 6px 6px 0 rgba(255,154,184,0.4); }
+
+.rz-theme-cutefoxy .rz-sound-toggle { background: rgba(255,255,255,0.85); color: #a15a72; border-color: var(--accent); }
+.rz-theme-cutefoxy .rz-showcase-footer { background: rgba(255,255,255,0.6); color: #a15a72; }

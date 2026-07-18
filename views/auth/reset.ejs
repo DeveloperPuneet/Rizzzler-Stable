@@ -1,0 +1,32 @@
+<% pageTitle = "Reset password — Rizzzler" %>
+<%- include('../partials/header') %>
+
+<div class="rz-auth-wrapper">
+  <div class="rz-auth-blob rz-auth-blob--1"></div>
+  <div class="rz-auth-blob rz-auth-blob--2"></div>
+  <div class="rz-auth-blob rz-auth-blob--3"></div>
+
+  <section class="rz-auth-card">
+    <h2>Reset your password</h2>
+    <% if (error) { %><p class="rz-error"><%= error %></p><% } %>
+    <% if (info) { %><p class="rz-info"><%= info %></p><% } %>
+    <div style="margin:0 0 18px;padding:14px 16px;border-radius:14px;background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.24);color:#f1e9ff;line-height:1.6;">
+      We’ve emailed you a secure reset code. Open the message, then enter the code and your new password below.
+    </div>
+    <form action="/reset-password" method="POST" class="rz-form">
+      <label>Reset code
+        <input type="text" name="code" maxlength="6" required />
+      </label>
+      <label>New password
+        <input type="password" name="password" minlength="6" required />
+      </label>
+      <label>Confirm new password
+        <input type="password" name="confirmPassword" minlength="6" required />
+      </label>
+      <button type="submit" class="rz-btn rz-btn-primary">Reset password</button>
+    </form>
+    <p class="rz-switch"><a href="/login">← Back to login</a></p>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

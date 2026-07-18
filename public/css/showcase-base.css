@@ -1,0 +1,121 @@
+/* =====================================================================
+   Rizzzler — Showcase base layer
+   Loaded AFTER main.css and BEFORE the per-theme file.
+
+   IMPORTANT BUG FIX: main.css defines a landing-page ".rz-section" rule
+   with `max-width: 1100px; margin: 0 auto;`. The showcase page reuses the
+   class name for its full-viewport scroll sections and only overrides
+   `margin: 0` (not `margin: 0 auto`) without ever clearing `max-width`.
+   Net effect on any screen wider than 1100px: every section shrinks to
+   1100px and sticks to the LEFT edge instead of spanning full width —
+   this is what was causing the giant empty void on desktop.
+   Fixed below by scoping a corrected rule under .rz-showcase.
+   ===================================================================== */
+
+.rz-showcase .rz-section {
+  max-width: none;
+  width: 100vw;
+}
+
+/* Hero must always be visible immediately — never depend on JS/IntersectionObserver
+   firing before paint, otherwise a slow first paint = fully blank page. */
+.rz-showcase .rz-hero-section { opacity: 1 !important; transform: none !important; }
+
+/* ---------- Scoped resets so these class names don't inherit random
+   landing-page styling and instead get a safe, theme-overridable default ---------- */
+.rz-showcase .rz-hero-badge {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #fff;
+}
+.rz-showcase .rz-section-eyebrow {
+  background: rgba(255,255,255,0.1);
+  color: inherit;
+}
+.rz-showcase .rz-story-copy {
+  font-size: 15px;
+  line-height: 1.7;
+  opacity: 0.85;
+  margin: 10px 0 0;
+}
+.rz-showcase .rz-story-card { color: inherit; }
+
+/* ---------- Scroll indicator: guaranteed base animation so it never
+   silently does nothing if a theme forgets to define its own keyframe ---------- */
+.rz-scroll-indicator {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  opacity: 0.6;
+  z-index: 2;
+  animation: rzBaseBounce 2s ease-in-out infinite;
+}
+@keyframes rzBaseBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.4; }
+  50% { transform: translateX(-50%) translateY(-8px); opacity: 0.9; }
+}
+
+/* ---------- Generic entrance fade (guaranteed baseline even if a theme
+   forgets to redeclare it) ---------- */
+.rz-showcase .rz-section:not(.rz-hero-section) { opacity: 0; transition: opacity 0.9s ease, transform 0.9s ease; }
+.rz-showcase .rz-section.in-view { opacity: 1; }
+
+/* ---------- Sound toggle (shared control, theme just tints the border) ---------- */
+.rz-sound-toggle {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  z-index: 20;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.rz-sound-toggle:hover { transform: scale(1.08); }
+.rz-sound-toggle.rz-needs-tap { animation: rzSoundPulse 1.6s ease-in-out infinite; }
+@keyframes rzSoundPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.35); }
+  50% { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+}
+
+/* ---------- Deactivated-page guard content (safety net if theme is missing) ---------- */
+.rz-inactive-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 40px; }
+
+.rz-showcase .rz-story-grid--reverse > *:first-child { order: 2; }
+.rz-showcase .rz-story-grid--reverse > *:last-child { order: 1; }
+
+.rz-showcase .rz-page-loader {
+  background: radial-gradient(circle at top, rgba(255,255,255,0.16), rgba(0,0,0,0.98));
+}
+.rz-showcase .rz-loader-card {
+  background: rgba(5, 5, 10, 0.84);
+  border-color: rgba(255,255,255,0.16);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+.rz-showcase .rz-loader-logo-wrap {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.14);
+}
+.rz-showcase .rz-loader-bar span {
+  background: linear-gradient(90deg, var(--accent, #a855f7), var(--accent2, #ec4899));
+}
+.rz-showcase .rz-loader-text {
+  color: var(--text, #fff);
+}
+
+@media (max-width: 700px) {
+  .rz-showcase .rz-story-grid { grid-template-columns: 1fr !important; }
+  .rz-showcase .rz-links-grid { grid-template-columns: 1fr !important; }
+}

@@ -1,0 +1,44 @@
+<% pageTitle = "Privacy Policy — Rizzzler" %>
+<%- include('partials/header') %>
+
+<div class="rz-static-page-wrapper">
+  <div class="rz-static-blob rz-static-blob--1"></div>
+  <div class="rz-static-blob rz-static-blob--2"></div>
+  <section class="rz-static-page">
+    <span class="rz-static-eyebrow">Legal</span>
+    <h1>Privacy Policy</h1>
+    <p class="rz-static-lead">Your data, your page, your rules. Here's exactly what we collect, why, and how you stay in control of it.</p>
+
+    <div class="rz-static-section">
+      <h2>1. What we collect</h2>
+      <p>When you create a Rizzzler account we store your email, username, and a securely hashed password — we never store your password in plain text. Anything you add to your showcase page — display name, bio, phone number, location, profession, social links, avatar, banner, and gallery photos — is stored so we can display your public page and let you edit it later.</p>
+    </div>
+    <div class="rz-static-section">
+      <h2>2. Where your files live</h2>
+      <p>Every image you upload (avatar, banner, showcase photos) is stored directly inside our MongoDB database using GridFS — nothing is ever written to a local disk or a third‑party storage bucket. Files are capped at 5MB each. When you replace or remove an image from your dashboard, the old file is permanently deleted from the database, not just hidden.</p>
+    </div>
+    <div class="rz-static-section">
+      <h2>3. What's public vs. private</h2>
+      <p>Your showcase page is public by design — that's the point of the platform. Fields like your phone number and location are only shown on your public page if <em>you</em> choose to fill them in; leaving them blank keeps them out of your page entirely. Your email address and password are never shown publicly. You can also pause your whole showcase from Settings, which hides it from everyone but you until you turn it back on.</p>
+    </div>
+    <div class="rz-static-section">
+      <h2>4. Cookies &amp; sessions</h2>
+      <p>We use a single session cookie to keep you logged in for up to 15 days so you don't have to re‑enter your password every visit. Session records are stored in MongoDB (not on our server's disk) and automatically expire after the same 15‑day window. We don't use third‑party tracking or advertising cookies.</p>
+    </div>
+    <div class="rz-static-section">
+      <h2>5. Verification codes</h2>
+      <p>When you register, log in with an unverified account, or request a password reset, we email you a one‑time 6‑digit code. These codes expire automatically and are never reused across requests.</p>
+    </div>
+    <div class="rz-static-section">
+      <h2>6. Your control over your data</h2>
+      <p>You can update or remove almost everything from your dashboard settings at any time — profile fields, links, theme, audio, and every uploaded image. From the Account section of Settings you can also deactivate your showcase (hides it, keeps your data) or permanently delete your account, which removes your profile and every uploaded file from our database immediately and cannot be undone.</p>
+    </div>
+    <div class="rz-static-section">
+      <h2>7. Changes to this policy</h2>
+      <p>If this policy changes in a meaningful way, we'll update this page and note the date below.</p>
+    </div>
+    <p class="rz-static-updated">Last updated: <%= new Date().getFullYear() %>‑07‑12</p>
+  </section>
+</div>
+
+<%- include('partials/footer') %>

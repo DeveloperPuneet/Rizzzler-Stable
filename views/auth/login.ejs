@@ -1,0 +1,28 @@
+<% pageTitle = "Login — Rizzzler" %>
+<%- include('../partials/header') %>
+
+<div class="rz-auth-wrapper">
+  <div class="rz-auth-blob rz-auth-blob--1"></div>
+  <div class="rz-auth-blob rz-auth-blob--2"></div>
+  <div class="rz-auth-blob rz-auth-blob--3"></div>
+
+  <section class="rz-auth-card">
+    <h2>Welcome back</h2>
+    <p class="rz-muted">Sign in to your Rizzzler dashboard.</p>
+    <% if (error) { %><p class="rz-error"><%= error %></p><% } %>
+    <form action="/login" method="POST" class="rz-form">
+      <label>Email
+        <input type="email" name="email" value="<%= old && old.email ? old.email : '' %>" required />
+      </label>
+      <label>Password
+        <input type="password" name="password" required />
+      </label>
+      <button type="submit" class="rz-btn rz-btn-primary" style="text-align: center; display:flex; justify-content:center;">Login</button>
+    </form>
+    <p class="rz-switch">
+      <a href="/forgot-password">Forgot password?</a> · No account? <a href="/register">Sign up</a>
+    </p>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

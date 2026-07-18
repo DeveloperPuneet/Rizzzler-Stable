@@ -1,0 +1,154 @@
+<% var pageTitle = "Customize / Mail — Admin"; var activeNav = "settings"; %>
+<%- include('partials/header') %>
+
+<div class="rz-admin-topbar">
+  <h1>Customize & Mail</h1>
+  <p class="rz-muted">Toggle features on/off and send mail to your <%= userCount %> active, verified users.</p>
+</div>
+
+<% if (info) { %><p class="rz-info"><%= info %></p><% } %>
+<% if (error) { %><p class="rz-error"><%= error %></p><% } %>
+<% if (typeof mailTestOk !== 'undefined' && mailTestOk) { %><p class="rz-info">✅ Test email sent to <%= mailTestOk %>. Check the inbox (and spam folder).</p><% } %>
+<% if (typeof mailTestError !== 'undefined' && mailTestError) { %><p class="rz-error">❌ Test email failed: <%= mailTestError %></p><% } %>
+<% if (newsletterResult) { %>
+  <p class="rz-info">Newsletter sent: <%= newsletterResult.sent %> delivered<%= newsletterResult.failed ? `, ${newsletterResult.failed} failed` : '' %> (of <%= newsletterResult.total %>).</p>
+<% } %>
+<% if (inviteResult) { %>
+  <p class="rz-info">✨ Invites sent: <%= inviteResult.sent %> delivered<%= inviteResult.failed ? `, ${inviteResult.failed} failed` : '' %> (of <%= inviteResult.total %>).</p>
+<% } %>
+
+<form action="/admin/settings/toggles" method="POST" class="rz-admin-panel">
+  <h2>Feature toggles</h2>
+
+  <div class="rz-admin-toggle-row">
+    <div>
+      <h3>1. Newsletter</h3>
+      <p class="rz-muted">When enabled, you can compose and send update emails to every user below.</p>
+    </div>
+    <label class="rz-switch">
+      <input type="checkbox" name="newsletterEnabled" <%= settings.newsletterEnabled ? 'checked' : '' %> />
+      <span class="rz-switch-track"></span>
+    </label>
+  </div>
+
+  <div class="rz-admin-toggle-row">
+    <div>
+      <h3>2. Milestone mails</h3>
+      <p class="rz-muted">Auto-emails users when their showcase crosses 50, 100, 500, 1000, 2000, then every +1000 views.</p>
+    </div>
+    <label class="rz-switch">
+      <input type="checkbox" name="milestoneEnabled" <%= settings.milestoneEnabled ? 'checked' : '' %> />
+      <span class="rz-switch-track"></span>
+    </label>
+  </div>
+
+  <div class="rz-admin-toggle-row">
+    <div>
+      <h3>3. AI fun mail</h3>
+      <p class="rz-muted">Gemini-generated playful mail sent to everyone at a random time on random days (like a food delivery app notification).</p>
+    </div>
+    <label class="rz-switch">
+      <input type="checkbox" name="aiMailEnabled" <%= settings.aiMailEnabled ? 'checked' : '' %> />
+      <span class="rz-switch-track"></span>
+    </label>
+  </div>
+
+  <label>AI mail prompt <small class="rz-muted">(sent to Gemini — customize the vibe)</small>
+    <textarea name="aiMailPrompt" rows="4"><%= settings.aiMailPrompt %></textarea>
+  </label>
+
+  <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" style="margin-top:12px;">Save toggles</button>
+</form>
+
+<div class="rz-admin-panel">
+  <h2>📮 Mail delivery status</h2>
+  <p class="rz-muted">Active transport (checked top to bottom, first one configured wins):</p>
+  <ul style="margin:8px 0; padding-left:20px; font-size:13px; color:#8a8a9a;">
+    <li><%= (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REFRESH_TOKEN) ? "✅" : "⬜" %> Gmail API (OAuth2) — real Google, works on Render free tier</li>
+    <li><%= process.env.BREVO_API_KEY ? "✅" : "⬜" %> Brevo HTTPS API — fallback</li>
+    <li><%= (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) ? "✅" : "⬜" %> Raw SMTP — last resort, likely blocked on Render free tier</li>
+  </ul>
+  <form action="/admin/settings/test-mail" method="POST" class="rz-form" style="margin-top:10px;">
+    <label>Send a test email to
+      <input type="email" name="testEmail" required placeholder="you@example.com" />
+    </label>
+    <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow">Send test email</button>
+  </form>
+</div>
+
+<div class="rz-admin-panel">
+  <h2>📰 Compose newsletter</h2>
+  <p class="rz-muted">Goes out to every verified, active user immediately when sent.</p>
+  <form action="/admin/settings/newsletter" method="POST" class="rz-form"
+        onsubmit="return confirm('Send this newsletter to all <%= userCount %> users now?');">
+    <label>Subject
+      <input type="text" name="subject" maxlength="150" required placeholder="New on Rizzzler ✨" />
+    </label>
+    <label>Message
+      <textarea name="body" rows="6" required placeholder="Type your update here…"></textarea>
+    </label>
+    <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" <%= !settings.newsletterEnabled ? 'disabled title="Enable newsletter above first"' : '' %>>Send to all users</button>
+  </form>
+  <% if (settings.lastNewsletterSentAt) { %>
+    <p class="rz-muted" style="margin-top:10px;">
+      Last sent: "<%= settings.lastNewsletterSubject %>" to <%= settings.lastNewsletterRecipientCount %> users on
+      <%= new Date(settings.lastNewsletterSentAt).toLocaleString() %>
+    </p>
+  <% } %>
+</div>
+
+<div class="rz-admin-panel">
+  <h2>✨ Invite new users</h2>
+  <p class="rz-muted">Send beautiful invites to people outside the platform with a link to join Rizzzler.</p>
+  <form action="/admin/settings/invites" method="POST" class="rz-form">
+    <label>Your name (shown in the invite)
+      <input type="text" name="invitedByName" maxlength="50" required placeholder="e.g., Rizzzler Team" />
+    </label>
+    <label>Email addresses (comma or newline separated)
+      <textarea name="emails" rows="4" required placeholder="user1@example.com,&#10;user2@example.com,&#10;user3@example.com"></textarea>
+    </label>
+    <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow">Send invites</button>
+  </form>
+</div>
+
+<div class="rz-admin-panel">
+  <h2>🏆 Milestone thresholds</h2>
+  <p class="rz-muted">50 → 100 → 500 → 1,000 → 2,000 → then every +1,000 views (3,000, 4,000, …), automatically.</p>
+</div>
+
+<div class="rz-admin-panel">
+  <h2>🤖 AI mail status & testing</h2>
+  <p class="rz-muted">AI mail works <strong>automatically</strong> on a schedule — it runs every 10 minutes and picks a random time to send on random days.</p>
+  
+  <div style="background:#1a1a24; border-radius:8px; padding:12px; margin:12px 0; border-left:3px solid #c084fc;">
+    <strong>ℹ️ How it works:</strong><br/>
+    <small class="rz-muted">
+      Once enabled, the system automatically runs every 10 minutes to check if today's mail should go out. If yes, it generates a fun message and sends it at a random time between 9 AM - 9 PM. The system respects user preferences — only those who opted in receive these mails.
+    </small>
+  </div>
+
+  <% if (settings.lastAiMailSentAt) { %>
+    <p class="rz-muted"><strong>Last sent:</strong> "<%= settings.lastAiMailSubject %>" to <%= settings.lastAiMailRecipientCount %> opted-in users on <%= new Date(settings.lastAiMailSentAt).toLocaleString() %>.</p>
+    <p class="rz-muted"><strong>Preview:</strong> <%= settings.lastAiMailPreview %></p>
+  <% } else { %>
+    <p class="rz-muted">No AI mail sent yet. Enable it above and the system will start scheduling.</p>
+  <% } %>
+  
+  <p class="rz-muted" style="margin-top:8px;"><strong>Prerequisites:</strong></p>
+  <ul style="margin:8px 0; padding-left:20px; font-size:13px; color:#8a8a9a;">
+    <li><code>GEMINI_API_KEY</code> must be set in .env</li>
+    <li>Feature must be enabled above</li>
+    <li>Users must opt-in to AI mail in their settings</li>
+  </ul>
+  
+  <div style="background:#1a1a24; border-radius:8px; padding:16px; margin:16px 0; border:2px solid #c084fc;">
+    <h3 style="margin-top:0; color:#c084fc;">⚡ Send AI Mail Immediately</h3>
+    <p class="rz-muted" style="margin:8px 0;">Don't wait for the random scheduler. Click the button below to send AI mail to all opted-in users RIGHT NOW.</p>
+    <form action="/admin/settings/ai-test" method="POST" style="margin-top:12px;">
+      <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" style="font-size:16px; padding:12px 24px;">📤 Send AI Mail Now!</button>
+    </form>
+    <p class="rz-muted" style="margin-top:12px; font-size:12px;">✅ When you click this, the system will immediately:<br/>• Generate a fun AI message<br/>• Send to all users who opted in<br/>• Update the last sent timestamp</p>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

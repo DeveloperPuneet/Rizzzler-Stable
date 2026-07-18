@@ -1,0 +1,20 @@
+  </main>
+</div>
+<script>
+(function(){
+  var btn = document.getElementById('rzAdminMenuBtn');
+  var sidebar = document.getElementById('rzAdminSidebar');
+  if (btn && sidebar) {
+    btn.addEventListener('click', function(){
+      sidebar.classList.toggle('rz-admin-sidebar-open');
+    });
+    document.addEventListener('click', function(e){
+      if (!sidebar.contains(e.target) && e.target !== btn && sidebar.classList.contains('rz-admin-sidebar-open')) {
+        sidebar.classList.remove('rz-admin-sidebar-open');
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
