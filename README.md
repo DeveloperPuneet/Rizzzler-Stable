@@ -2,8 +2,8 @@
 
 A social media "showcase" profile platform (think cards.lol / guns.lol style).
 Every user gets `rizzzler.onrender.com/username` — a themed, customizable
-page with their bio, socials, links, photos, and background music.
-
+page with their bio, socials, links, photos, and background music.<br>
+Samples: https://rizzzler.onrender.com/puneet2010<br>
 Built as a classic **MVC** app: Express + EJS + MongoDB/Mongoose.
 **Every uploaded file (avatar, banner, showcase photos) is streamed straight
 into MongoDB via GridFS — nothing is ever written to local/server disk.**
