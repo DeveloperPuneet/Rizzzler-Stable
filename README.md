@@ -2,8 +2,8 @@
 
 A social media "showcase" profile platform (think cards.lol / guns.lol style).
 Every user gets `rizzzler.onrender.com/username` — a themed, customizable
-page with their bio, socials, links, photos, and background music.<br>
-Samples: https://rizzzler.onrender.com/puneet2010<br>
+page with their bio, socials, links, photos, and background music.
+
 Built as a classic **MVC** app: Express + EJS + MongoDB/Mongoose.
 **Every uploaded file (avatar, banner, showcase photos) is streamed straight
 into MongoDB via GridFS — nothing is ever written to local/server disk.**
@@ -18,7 +18,8 @@ Max upload size is enforced server-side at **5MB**.
 - **Forgot / reset password**: email a 6-digit reset code, confirm, set new password.
 - **Dashboard**: "Good morning/afternoon/evening, {name}" greeting, your unique showcase link, quick stats.
 - **Settings page**: edit display name, bio, social/portfolio links, theme, background audio, avatar, banner, and up to 2 showcase photos — all editable, instantly reflected on your public page.
-- **5 built-in themes**: Moonlight, Scary Sky, Dark Nights, Cute Foxy, Diva — each its own color palette + layout accents. Easy to add a 6th (see below).
+- **7 built-in themes**: Moonlight, Scary Sky, Dark Nights, Cute Foxy, Diva, Scifi, and Rocky — each its own color palette + layout accents. Easy to add more (see below).
+- **Custom visual effects**: choose avatar glow styles, typing/glitch/shimmer title effects, and full-page showcase motion transforms for a more Discord-like, high-end profile vibe.
 - **Legacy badge**: the Nth person to ever verify their account gets a permanent `#N` badge, togglable on/off per user.
 - **Preset audio**: drop `.mp3/.wav/.ogg` files in `public/audios/` and they instantly become pickable, loopable, autoplay-able background tracks on users' showcase pages.
 - **GridFS file storage**: all images stream through MongoDB, served via `/file/:id`, 5MB hard limit, image-type validated.
@@ -93,7 +94,7 @@ Visit `http://localhost:3000`.
 
 ---
 
-## 🎨 Adding a 6th theme
+## 🎨 Adding another theme
 
 1. Add a CSS file at `public/css/themes/yourtheme.css`, styling the `.rz-theme-yourtheme` classes (copy an existing theme file as a starting point — it only needs to override colors/gradients on `.rz-showcase-card`, `.rz-showcase-name`, etc.).
 2. Register it in `config/themes.js`:
@@ -101,6 +102,8 @@ Visit `http://localhost:3000`.
    { key: "yourtheme", label: "Your Theme", desc: "...", css: "/css/themes/yourtheme.css", accent: "#hexcolor" }
    ```
 That's it — it'll automatically appear as a selectable option in Settings.
+
+You can also expand the visual effect catalog in `config/visuals.js` for new avatar, title, and showcase motion styles.
 
 ---
 

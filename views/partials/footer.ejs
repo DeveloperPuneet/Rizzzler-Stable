@@ -1,4 +1,127 @@
 </main>
+<style>
+.ad-banner{
+    display:block;
+    max-width:900px;
+    margin:30px auto;
+    padding:20px;
+    text-decoration:none;
+    border-radius:20px;
+    background:linear-gradient(135deg,#111827,#1f2937,#0f172a);
+    border:1px solid rgba(255,255,255,.08);
+    transition:.3s ease;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 12px 35px rgba(0,0,0,.45);
+}
+
+.ad-banner::before{
+    content:"";
+    position:absolute;
+    width:180px;
+    height:180px;
+    border-radius:50%;
+    background:#3b82f633;
+    top:-70px;
+    right:-60px;
+    filter:blur(40px);
+}
+
+.ad-banner:hover{
+    transform:translateY(-4px);
+    box-shadow:0 18px 45px rgba(59,130,246,.35);
+}
+
+.ad-tag{
+    display:inline-block;
+    font-size:11px;
+    letter-spacing:2px;
+    color:#94a3b8;
+    margin-bottom:15px;
+    font-weight:700;
+}
+
+.ad-content{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.ad-icon{
+    width:60px;
+    height:60px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+    background:#2563eb;
+}
+
+.ad-text{
+    flex:1;
+}
+
+.ad-text h3{
+    color:#fff;
+    margin:0;
+    font-size:22px;
+}
+
+.ad-text p{
+    color:#cbd5e1;
+    margin-top:6px;
+    font-size:15px;
+}
+
+.ad-btn{
+    background:#3b82f6;
+    color:white;
+    padding:14px 22px;
+    border-radius:12px;
+    font-weight:700;
+    transition:.3s;
+}
+
+.ad-banner:hover .ad-btn{
+    background:#2563eb;
+}
+
+@media(max-width:700px){
+
+.ad-content{
+    flex-direction:column;
+    text-align:center;
+}
+
+.ad-btn{
+    width:100%;
+}
+
+}
+</style>
+</style>
+<a href="https://omg10.com/4/11363233"
+   target="_blank"
+   rel="noopener noreferrer sponsored"
+   class="ad-banner">
+
+    <div class="ad-tag">ADVERTISEMENT</div>
+
+    <div class="ad-content">
+        <div class="ad-icon">🚀</div>
+
+        <div class="ad-text">
+            <h3>Discover Something Awesome</h3>
+            <p>Exclusive offers and trending deals waiting for you.</p>
+        </div>
+
+        <div class="ad-btn">
+            Explore →
+        </div>
+    </div>
+
+</a>
 <footer class="rz-footer">
   <div class="rz-footer-grid">
     <div class="rz-footer-brand">
