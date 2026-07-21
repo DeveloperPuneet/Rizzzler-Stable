@@ -68,8 +68,11 @@ const userSchema = new mongoose.Schema(
       loop: { type: Boolean, default: true },
     },
 
-    // Theme
+    // Theme and immersive effects
     theme: { type: String, default: "moonlight" },
+    avatarEffect: { type: String, default: "none" },
+    titleEffect: { type: String, default: "none" },
+    showcaseEffect: { type: String, default: "none" },
 
     // ---- Email preferences (user-controlled) ----
     emailPreferences: {

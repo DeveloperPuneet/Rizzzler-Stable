@@ -1,4 +1,5 @@
 <% pageTitle = "Settings — Rizzzler" %>
+<% extraCss = "/css/showcase-base.css" %>
 <%- include('../partials/header') %>
 
 <div class="rz-settings-wrapper">
@@ -62,6 +63,30 @@
               <input type="text" name="profession" value="<%= user.profession || '' %>" maxlength="80" placeholder="Optional" />
             </label>
 
+            <h3>✨ Visual styling</h3>
+            <label>Avatar decoration
+              <select name="avatarEffect">
+                <% visuals.avatarEffects.forEach(effect => { %>
+                  <option value="<%= effect.value %>" <%= user.avatarEffect === effect.value ? 'selected' : '' %>><%= effect.label %> — <%= effect.description %></option>
+                <% }) %>
+              </select>
+            </label>
+            <small class="rz-muted">Drop any .gif/.png/.jpg/.svg file into public/decor and it will appear here automatically.</small>
+            <label>Showcase title effect
+              <select name="titleEffect">
+                <% visuals.titleEffects.forEach(effect => { %>
+                  <option value="<%= effect.value %>" <%= user.titleEffect === effect.value ? 'selected' : '' %>><%= effect.label %> — <%= effect.description %></option>
+                <% }) %>
+              </select>
+            </label>
+            <label>Page motion style
+              <select name="showcaseEffect">
+                <% visuals.showcaseEffects.forEach(effect => { %>
+                  <option value="<%= effect.value %>" <%= user.showcaseEffect === effect.value ? 'selected' : '' %>><%= effect.label %> — <%= effect.description %></option>
+                <% }) %>
+              </select>
+            </label>
+
             <h3>🔗 Social links</h3>
             <div id="linksWrap">
               <% user.links.forEach((l, index) => { %>
@@ -86,12 +111,16 @@
 
             <h3>🎵 Audio</h3>
             <label>Background track
-              <select name="audioKey">
-                <option value="">None</option>
-                <% audios.forEach(a => { %>
-                  <option value="<%= a %>" <%= user.audio.key === a ? 'selected' : '' %>><%= a %></option>
-                <% }) %>
-              </select>
+              <div class="rz-audio-picker-row">
+                <select name="audioKey" id="audioKeySelect">
+                  <option value="">None</option>
+                  <% audios.forEach(a => { %>
+                    <option value="<%= a %>" <%= user.audio.key === a ? 'selected' : '' %>><%= a %></option>
+                  <% }) %>
+                </select>
+                <button type="button" class="rz-btn rz-btn-ghost rz-audio-preview-btn" id="audioPreviewBtn" title="Play/pause preview">▶ Preview</button>
+              </div>
+              <small class="rz-muted" id="audioPreviewStatus">Pick a track to hear how it sounds. Only one preview plays at a time.</small>
             </label>
             <label class="rz-checkbox">
               <input type="checkbox" name="audioAutoplay" <%= user.audio.autoplay ? 'checked' : '' %> />
@@ -109,6 +138,41 @@
 
       <!-- Right column: uploads -->
       <div class="rz-settings-right">
+        <div class="rz-panel rz-panel-glass rz-live-preview-panel">
+          <h2>👀 Live Preview</h2>
+          <p class="rz-muted" style="margin-top:-8px; font-size:13px;">Updates instantly as you edit. This is just a preview — nothing here is public until you hit Save.</p>
+          <% const currentTheme = themes.find(t => t.key === user.theme) || themes[0]; %>
+          <% const currentDecoration = visuals.avatarEffects.find(e => e.value === (user.avatarEffect || 'none')); %>
+          <div class="rz-live-preview-phone" id="lpPhone" style="--lp-accent: <%= currentTheme.accent %>;">
+            <div class="rz-live-preview-notch"></div>
+            <div class="rz-live-preview-screen">
+              <div class="rz-live-preview-banner" id="lpBanner" <% if (user.banner && user.banner.fileId) { %>style="background-image:url('/file/<%= user.banner.fileId %>')"<% } %>></div>
+              <div class="rz-live-preview-avatar-wrap">
+                <div class="rz-avatar-shell rz-avatar-effect rz-avatar-effect--<%= user.avatarEffect || 'none' %>" id="lpAvatarShell">
+                  <% if (user.avatar && user.avatar.fileId) { %>
+                    <img src="/file/<%= user.avatar.fileId %>" class="rz-live-preview-avatar-img" id="lpAvatarImg" alt="avatar preview" />
+                  <% } else { %>
+                    <div class="rz-live-preview-avatar-img rz-live-preview-avatar-fallback" id="lpAvatarImg"><%= (user.displayName || user.username || '?').charAt(0).toUpperCase() %></div>
+                  <% } %>
+                  <img <% if (currentDecoration && currentDecoration.file) { %>src="<%= currentDecoration.file %>"<% } %> class="rz-avatar-decoration" id="lpDecoration" alt="" style="<%= (currentDecoration && currentDecoration.file) ? '' : 'display:none;' %>" />
+                </div>
+              </div>
+              <div class="rz-live-preview-name rz-title-effect rz-title-effect--<%= user.titleEffect || 'none' %>" id="lpName"><%= user.displayName || user.username %></div>
+              <div class="rz-live-preview-username" id="lpUsername">@<%= user.username %></div>
+              <div id="lpBadgeWrap" style="<%= (user.showLegacyBadge && user.legacyNumber) ? '' : 'display:none;' %>">
+                <span class="rz-badge" id="lpLegacyBadge">#<%= user.legacyNumber || '' %></span>
+              </div>
+              <p class="rz-live-preview-bio" id="lpBio" style="<%= user.bio ? '' : 'display:none;' %>"><%= user.bio || '' %></p>
+              <div class="rz-live-preview-links" id="lpLinks">
+                <% user.links.forEach(l => { %>
+                  <span><%= l.label %></span>
+                <% }) %>
+              </div>
+            </div>
+          </div>
+          <p class="rz-muted rz-live-preview-effect-note" id="lpEffectNote"></p>
+        </div>
+
         <div class="rz-panel rz-panel-glass">
           <h2>🖼️ Avatar</h2>
           <% if (user.avatar && user.avatar.fileId) { %>
@@ -220,6 +284,207 @@
   </section>
 </div>
 
+<script id="rzVisualsData" type="application/json"><%- JSON.stringify({
+  themes: themes.map(t => ({ key: t.key, accent: t.accent })),
+  avatarEffects: visuals.avatarEffects.map(e => ({ value: e.value, file: e.file || null })),
+}) %></script>
+<script>
+(function () {
+  const data = JSON.parse(document.getElementById('rzVisualsData').textContent);
+  const themeAccents = {};
+  data.themes.forEach(t => { themeAccents[t.key] = t.accent; });
+  const decorationFiles = {};
+  data.avatarEffects.forEach(e => { decorationFiles[e.value] = e.file; });
+
+  const form = document.getElementById('profileForm');
+  const lpPhone = document.getElementById('lpPhone');
+  const lpBanner = document.getElementById('lpBanner');
+  const lpAvatarShell = document.getElementById('lpAvatarShell');
+  const lpDecoration = document.getElementById('lpDecoration');
+  const lpName = document.getElementById('lpName');
+  const lpUsername = document.getElementById('lpUsername');
+  const lpBio = document.getElementById('lpBio');
+  const lpLegacyBadge = document.getElementById('lpLegacyBadge');
+  const lpBadgeWrap = document.getElementById('lpBadgeWrap');
+  const lpLinks = document.getElementById('lpLinks');
+  const lpEffectNote = document.getElementById('lpEffectNote');
+
+  const fallbackUsername = lpUsername ? lpUsername.textContent.replace(/^@/, '') : '';
+
+  function updateName() {
+    const input = form.querySelector('input[name="displayName"]');
+    const value = (input && input.value.trim()) || fallbackUsername;
+    lpName.textContent = value;
+  }
+
+  function updateBio() {
+    const input = form.querySelector('textarea[name="bio"]');
+    const value = input ? input.value.trim() : '';
+    lpBio.textContent = value;
+    lpBio.style.display = value ? '' : 'none';
+  }
+
+  function updateLegacyBadge() {
+    const checkbox = document.querySelector('input[name="showLegacyBadge"]');
+    if (!checkbox || !lpBadgeWrap) return;
+    lpBadgeWrap.style.display = checkbox.checked ? '' : 'none';
+  }
+
+  function updateTheme() {
+    const checked = document.querySelector('input[name="theme"]:checked');
+    if (!checked) return;
+    const accent = themeAccents[checked.value];
+    if (accent && lpPhone) lpPhone.style.setProperty('--lp-accent', accent);
+  }
+
+  function updateAvatarEffect() {
+    const select = form.querySelector('select[name="avatarEffect"]');
+    if (!select || !lpAvatarShell) return;
+    const value = select.value || 'none';
+    lpAvatarShell.className = 'rz-avatar-shell rz-avatar-effect rz-avatar-effect--' + value;
+    const file = decorationFiles[value];
+    if (file) {
+      lpDecoration.src = file;
+      lpDecoration.style.display = '';
+    } else {
+      lpDecoration.removeAttribute('src');
+      lpDecoration.style.display = 'none';
+    }
+  }
+
+  function updateTitleEffect() {
+    const select = form.querySelector('select[name="titleEffect"]');
+    if (!select || !lpName) return;
+    const value = select.value || 'none';
+    lpName.className = 'rz-live-preview-name rz-title-effect rz-title-effect--' + value;
+    const labels = { none: '', typewriter: 'Typewriter title effect (plays on your live page)', glitch: 'Glitch title effect', shimmer: 'Shimmer title effect' };
+    lpEffectNote.textContent = labels[value] || '';
+  }
+
+  function updateLinks() {
+    if (!lpLinks) return;
+    const labels = Array.from(form.querySelectorAll('input[name="linkLabel"]'))
+      .map(i => i.value.trim())
+      .filter(Boolean);
+    lpLinks.innerHTML = '';
+    labels.forEach(label => {
+      const span = document.createElement('span');
+      span.textContent = label;
+      lpLinks.appendChild(span);
+    });
+  }
+
+  function previewImageFile(input, applyFn) {
+    input.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      applyFn(url);
+    });
+  }
+
+  const avatarInput = document.querySelector('input[name="avatar"]');
+  if (avatarInput) {
+    previewImageFile(avatarInput, (url) => {
+      let img = document.getElementById('lpAvatarImg');
+      if (img.tagName !== 'IMG') {
+        const newImg = document.createElement('img');
+        newImg.id = 'lpAvatarImg';
+        newImg.className = 'rz-live-preview-avatar-img';
+        newImg.alt = 'avatar preview';
+        img.replaceWith(newImg);
+        img = newImg;
+      }
+      img.src = url;
+    });
+  }
+
+  const bannerInput = document.querySelector('input[name="banner"]');
+  if (bannerInput && lpBanner) {
+    previewImageFile(bannerInput, (url) => {
+      lpBanner.style.backgroundImage = `url('${url}')`;
+    });
+  }
+
+  if (form) {
+    form.addEventListener('input', () => {
+      updateName();
+      updateBio();
+      updateLinks();
+    });
+    form.addEventListener('change', () => {
+      updateLegacyBadge();
+      updateAvatarEffect();
+      updateTitleEffect();
+    });
+  }
+  document.querySelectorAll('input[name="theme"]').forEach(radio => radio.addEventListener('change', updateTheme));
+
+  // Initialize effect note on load
+  updateTitleEffect();
+})();
+</script>
+<script>
+(function () {
+  const select = document.getElementById('audioKeySelect');
+  const btn = document.getElementById('audioPreviewBtn');
+  const status = document.getElementById('audioPreviewStatus');
+  if (!select || !btn) return;
+
+  // One shared Audio instance: selecting a new track — or hitting play on a
+  // different track — always pauses whatever was already playing first, so
+  // only ever one preview plays at a time.
+  const player = new Audio();
+  let currentKey = null;
+
+  function stop() {
+    player.pause();
+    player.currentTime = 0;
+    btn.textContent = '▶ Preview';
+    btn.classList.remove('rz-audio-playing');
+  }
+
+  function play(key) {
+    if (!key) return;
+    if (currentKey !== key) {
+      player.src = '/audios/' + encodeURIComponent(key);
+      currentKey = key;
+    }
+    player.play().then(() => {
+      btn.textContent = '⏸ Pause';
+      btn.classList.add('rz-audio-playing');
+      status.textContent = 'Previewing: ' + key;
+    }).catch(() => {
+      status.textContent = 'Tap Preview to listen — playback needs a click first.';
+    });
+  }
+
+  select.addEventListener('change', () => {
+    stop();
+    if (select.value) {
+      play(select.value);
+    } else {
+      currentKey = null;
+      status.textContent = 'Pick a track to hear how it sounds. Only one preview plays at a time.';
+    }
+  });
+
+  btn.addEventListener('click', () => {
+    if (!select.value) {
+      status.textContent = 'Choose a track first.';
+      return;
+    }
+    if (currentKey === select.value && !player.paused) {
+      stop();
+      status.textContent = 'Paused.';
+    } else {
+      play(select.value);
+    }
+  });
+
+  player.addEventListener('ended', stop);
+})();
+</script>
 <script>
   document.getElementById('addLinkBtn').addEventListener('click', () => {
     const wrap = document.getElementById('linksWrap');

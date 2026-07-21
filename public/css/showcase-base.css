@@ -23,6 +23,28 @@
 
 /* ---------- Scoped resets so these class names don't inherit random
    landing-page styling and instead get a safe, theme-overridable default ---------- */
+.rz-avatar-shell { position: relative; z-index: 0; display: inline-flex; align-items: center; justify-content: center; }
+/* Decor-folder artwork (aurora-ring, fire, butterfly-halo, etc.) is drawn as a
+   full square illustration centered on the avatar itself — a ring/wings/scene
+   meant to surround the whole avatar. It is NOT a tiny corner sticker, so it
+   must not be shrunk to 64px and pinned to a corner (that clipped almost all
+   of the artwork and looked broken). Instead it's scaled up and centered
+   behind the avatar photo so it reads as a halo the avatar sits inside. */
+.rz-avatar-decoration {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 168%;
+  height: 168%;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.96;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+  animation: rzDecorationPulse 5s ease-in-out infinite;
+}
+.rz-rock-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.9; }
 .rz-showcase .rz-hero-badge {
   background: rgba(255,255,255,0.12);
   border: 1px solid rgba(255,255,255,0.18);
@@ -95,6 +117,28 @@
 
 .rz-showcase .rz-story-grid--reverse > *:first-child { order: 2; }
 .rz-showcase .rz-story-grid--reverse > *:last-child { order: 1; }
+.rz-showcase .rz-image-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(10px, 2vw, 18px);
+  box-sizing: border-box;
+}
+.rz-showcase .rz-image-wrapper img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: min(70vh, 560px);
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  margin: 0 auto;
+  filter: saturate(1.08) contrast(1.04);
+}
 
 .rz-showcase .rz-page-loader {
   background: radial-gradient(circle at top, rgba(255,255,255,0.16), rgba(0,0,0,0.98));
@@ -114,6 +158,23 @@
 .rz-showcase .rz-loader-text {
   color: var(--text, #fff);
 }
+
+/* ---------- Visual effect hooks ---------- */
+.rz-avatar-effect--neon {
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.16);
+}
+.rz-avatar-effect--burn {
+  filter: saturate(1.05) brightness(1.02);
+}
+.rz-avatar-effect--discord {
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.18);
+}
+.rz-avatar-effect--hologram {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+}
+.rz-title-effect--glitch { text-shadow: none; }
+.rz-title-effect--shimmer { color: inherit; }
+@keyframes rzDecorationPulse { 0%,100%{ transform:translate(-50%, -50%) scale(1); opacity:0.92; } 50%{ transform:translate(-50%, -50%) scale(1.035); opacity:1; } }
 
 @media (max-width: 700px) {
   .rz-showcase .rz-story-grid { grid-template-columns: 1fr !important; }

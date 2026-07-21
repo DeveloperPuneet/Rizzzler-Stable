@@ -1,0 +1,18 @@
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <rect width="240" height="240" fill="none"/>
+  <circle cx="176" cy="72" r="26" fill="#fef3c7" fill-opacity="0.9"/>
+  <g transform="translate(120 120)">
+    <path d="M-36 -18 C-56 -44, -48 -72, -26 -62 C-8 -52, -12 -24, -36 -18 Z" fill="#111827"/>
+    <path d="M36 -18 C56 -44, 48 -72, 26 -62 C8 -52, 12 -24, 36 -18 Z" fill="#111827"/>
+    <path d="M-18 20 C-34 6, -32 -18, -14 -24 C0 -32, 18 -24, 18 0 C18 20, 0 34, -18 20 Z" fill="#0f172a"/>
+    <path d="M-24 -10 C-44 -36, -30 -56, -10 -44" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round" fill="none">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.3s" repeatCount="indefinite"/>
+    </path>
+    <path d="M24 -10 C44 -36, 30 -56, 10 -44" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round" fill="none">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.3s" repeatCount="indefinite"/>
+    </path>
+    <path d="M-36 -20 C-52 -78, -16 -96, -4 -58" stroke="#f8fafc" stroke-opacity="0.35" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M36 -20 C52 -78, 16 -96, 4 -58" stroke="#f8fafc" stroke-opacity="0.35" stroke-width="3" stroke-linecap="round" fill="none"/>
+  </g>
+  <path d="M84 158c20-10 56-10 76 0" stroke="#38bdf8" stroke-opacity="0.35" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>

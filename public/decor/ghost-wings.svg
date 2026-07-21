@@ -1,0 +1,26 @@
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ghostWing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="120" cy="120" r="92" fill="rgba(255,255,255,0.08)"/>
+  <path d="M78 104 C46 58, 74 34, 104 46 C120 52, 118 90, 78 104 Z" fill="url(#ghostWing)" fill-opacity="0.92" filter="url(#softGlow)"/>
+  <path d="M162 104 C194 58, 166 34, 136 46 C120 52, 122 90, 162 104 Z" fill="url(#ghostWing)" fill-opacity="0.92" filter="url(#softGlow)"/>
+  <path d="M98 106 C92 84, 82 60, 68 54 C54 48, 48 70, 54 90 C60 112, 78 122, 98 106 Z" fill="#e2e8f0" fill-opacity="0.95"/>
+  <path d="M142 106 C148 84, 158 60, 172 54 C186 48, 192 70, 186 90 C180 112, 162 122, 142 106 Z" fill="#e2e8f0" fill-opacity="0.95"/>
+  <path d="M124 122 C98 118, 84 96, 84 80" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.9">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="1.6s" repeatCount="indefinite"/>
+  </path>
+  <path d="M116 122 C142 118, 156 96, 156 80" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.9">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="1.6s" repeatCount="indefinite"/>
+  </path>
+  <circle cx="120" cy="112" r="16" fill="#f8fafc" fill-opacity="0.9"/>
+  <circle cx="120" cy="112" r="8" fill="#0f172a"/>
+  <path d="M108 84c8-10 20-10 28 0" stroke="#ffffff" stroke-opacity="0.7" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>

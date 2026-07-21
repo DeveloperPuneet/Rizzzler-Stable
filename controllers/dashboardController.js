@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const User = require("../models/User");
 const themes = require("../config/themes");
+const visuals = require("../config/visuals");
 const fs = require("fs");
 const path = require("path");
 
@@ -43,6 +44,7 @@ exports.getSettings = (req, res) => {
   res.render("dashboard/settings", {
     user: req.user,
     themes,
+    visuals,
     audios,
     error,
     info,
@@ -64,6 +66,9 @@ exports.updateProfile = async (req, res) => {
       audioKey,
       audioAutoplay,
       audioLoop,
+      avatarEffect,
+      titleEffect,
+      showcaseEffect,
     } = req.body;
 
     if (displayName !== undefined) user.displayName = displayName.slice(0, 40);
@@ -75,6 +80,16 @@ exports.updateProfile = async (req, res) => {
 
     if (req.body.hasOwnProperty("showLegacyBadge")) {
       user.showLegacyBadge = showLegacyBadge === "on" || showLegacyBadge === "true";
+    }
+
+    if (req.body.hasOwnProperty("avatarEffect")) {
+      user.avatarEffect = avatarEffect || "none";
+    }
+    if (req.body.hasOwnProperty("titleEffect")) {
+      user.titleEffect = titleEffect || "none";
+    }
+    if (req.body.hasOwnProperty("showcaseEffect")) {
+      user.showcaseEffect = showcaseEffect || "none";
     }
 
     if (req.body.hasOwnProperty("audioKey") || req.body.hasOwnProperty("audioAutoplay") || req.body.hasOwnProperty("audioLoop")) {

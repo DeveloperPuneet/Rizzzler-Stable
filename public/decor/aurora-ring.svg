@@ -1,0 +1,33 @@
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7df7ff"/>
+      <stop offset="45%" stop-color="#ff6fd8"/>
+      <stop offset="100%" stop-color="#ffd166"/>
+    </linearGradient>
+    <radialGradient id="core" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="55%" stop-color="#9d4edd" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#0b1024" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="120" cy="120" r="90" fill="none" stroke="url(#ring)" stroke-width="16" stroke-linecap="round" filter="url(#glow)"/>
+  <circle cx="120" cy="120" r="72" fill="none" stroke="#ffffff" stroke-opacity="0.32" stroke-width="3" stroke-dasharray="4 10"/>
+  <circle cx="120" cy="120" r="54" fill="url(#core)"/>
+  <path d="M120 30c46 0 84 38 84 84" stroke="#ffffff" stroke-opacity="0.8" stroke-width="6" stroke-linecap="round" fill="none">
+    <animateTransform attributeName="transform" type="rotate" values="0 120 120;360 120 120" dur="7.5s" repeatCount="indefinite"/>
+  </path>
+  <path d="M120 44c26 0 46 20 46 46" stroke="#7df7ff" stroke-opacity="0.72" stroke-width="4" stroke-linecap="round" fill="none">
+    <animateTransform attributeName="transform" type="rotate" values="0 120 120;-360 120 120" dur="9s" repeatCount="indefinite"/>
+  </path>
+  <g fill="#ffffff" opacity="0.9">
+    <circle cx="84" cy="88" r="3"><animate attributeName="opacity" values="0.2;1;0.2" dur="1.6s" repeatCount="indefinite"/></circle>
+    <circle cx="154" cy="98" r="2.6"><animate attributeName="opacity" values="1;0.2;1" dur="1.8s" repeatCount="indefinite"/></circle>
+    <circle cx="152" cy="154" r="3.2"><animate attributeName="opacity" values="0.3;1;0.3" dur="2.2s" repeatCount="indefinite"/></circle>
+    <circle cx="88" cy="154" r="2.2"><animate attributeName="opacity" values="1;0.4;1" dur="1.4s" repeatCount="indefinite"/></circle>
+  </g>
+</svg>

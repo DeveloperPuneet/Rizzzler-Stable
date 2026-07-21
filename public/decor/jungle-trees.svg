@@ -1,0 +1,14 @@
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="240" height="240" fill="none"/>
+  <circle cx="176" cy="72" r="30" fill="#fef3c7" fill-opacity="0.9"/>
+  <path d="M84 194 L84 132 L60 132 L84 96 L70 96 L104 56 L118 96 L104 96 L128 132 L104 132 L104 194 Z" fill="#2f7a3d"/>
+  <path d="M128 194 L128 126 L106 126 L128 92 L116 92 L148 56 L162 92 L150 92 L174 126 L152 126 L152 194 Z" fill="#1d5b2e"/>
+  <path d="M58 194 L58 154 L40 154 L58 124 L48 124 L78 92 L90 124 L80 124 L102 154 L84 154 L84 194 Z" fill="#4f9d4f"/>
+  <path d="M152 194 L152 154 L134 154 L152 124 L142 124 L170 92 L182 124 L172 124 L194 154 L176 154 L176 194 Z" fill="#4f9d4f"/>
+  <path d="M98 92c10-22 28-34 44-34 12 0 24 6 30 16" stroke="#7dd3a1" stroke-width="6" stroke-linecap="round" fill="none">
+    <animate attributeName="stroke-dasharray" values="0 20; 40 20; 0 20" dur="3.2s" repeatCount="indefinite"/>
+  </path>
+  <path d="M70 144c8-16 20-24 36-28" stroke="#86efac" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M148 144c8-12 20-18 32-22" stroke="#86efac" stroke-opacity="0.7" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M76 172c14 10 34 14 56 10" stroke="#d9f99d" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>

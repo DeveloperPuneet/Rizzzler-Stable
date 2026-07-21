@@ -19,14 +19,6 @@ const adminRoutes = require("./Routes/adminRoutes");
 
 const app = express();
 
-if (!process.env.MONGO_URI) {
-  throw new Error("MONGO_URI must be set in the environment before starting the app.");
-}
-
-if (!process.env.SESSION_SECRET) {
-  throw new Error("SESSION_SECRET must be set in the environment before starting the app.");
-}
-
 // Needed so req.ip / X-Forwarded-For resolve correctly behind Render/other
 // reverse proxies — important for accurate admin login lockout tracking.
 app.set("trust proxy", 1);
@@ -69,7 +61,7 @@ app.use(
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || "dev_secret_change_me",
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({

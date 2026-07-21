@@ -1,5 +1,8 @@
 <% pageTitle = (profile.displayName || profile.username) + " — Rizzzler" %>
 <% const themeKey = theme.key || 'darknights'; %>
+<% const avatarEffectKey = avatarEffect || 'none'; %>
+<% const titleEffectKey = titleEffect || 'none'; %>
+<% const showcaseEffectKey = showcaseEffect || 'none'; %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,8 +43,8 @@
     .rz-hero-avatar-wrap { display:flex; justify-content:center; margin-bottom:24px; }
     .rz-hero-avatar { width:150px; height:150px; object-fit:cover; border-radius:50%; border:4px solid rgba(255,255,255,0.9); box-shadow:0 18px 50px rgba(0,0,0,0.35); }
     .rz-grand-text { font-size:clamp(2.8rem, 7vw, 5.6rem); font-weight:900; text-align:center; text-transform:uppercase; margin:0; line-height:1.02; letter-spacing:0.06em; }
-    .rz-image-wrapper { position:absolute; inset:0; overflow:hidden; }
-    .rz-image-wrapper img { width:100%; height:100%; object-fit:cover; }
+    .rz-image-wrapper { position:relative; width:100%; overflow:hidden; background:transparent; display:flex; align-items:center; justify-content:center; padding:clamp(10px, 2vw, 18px); box-sizing:border-box; }
+    .rz-image-wrapper img { width:auto; max-width:100%; height:auto; max-height:min(70vh, 560px); object-fit:contain; object-position:center; display:block; margin:0 auto; filter:saturate(1.08) contrast(1.04); }
     .rz-floating-particles { position:fixed; inset:0; z-index:0; pointer-events:none; }
     .rz-filler-divider { position:absolute; inset:0; pointer-events:none; }
     .rz-hero-name { font-size:clamp(2.4rem, 5vw, 3.8rem); margin:16px 0 10px; font-weight:800; }
@@ -67,8 +70,9 @@
     <div class="rz-loader-bar"><span></span></div>
   </div>
 </div>
-<div class="rz-showcase rz-theme-<%= themeKey %>">
+<div class="rz-showcase rz-theme-<%= themeKey %> rz-effect-<%= showcaseEffectKey %>">
   <div class="rz-showcase-bg"></div>
+  <canvas class="rz-rock-canvas" id="rockCanvas"></canvas>
   <div class="rz-floating-particles" id="floatingParticles"></div>
 
   <section class="rz-section rz-hero-section" id="heroSection">
@@ -83,15 +87,25 @@
     <div class="rz-hero-content">
       <div class="rz-hero-avatar-wrap">
         <% if (profile.avatar && profile.avatar.fileId) { %>
-          <img src="/file/<%= profile.avatar.fileId %>" class="rz-hero-avatar" alt="avatar" />
+          <div class="rz-avatar-shell rz-avatar-effect rz-avatar-effect--<%= avatarEffectKey %>">
+            <img src="/file/<%= profile.avatar.fileId %>" class="rz-hero-avatar" alt="avatar" />
+            <% if (avatarDecoration && avatarEffectKey !== 'none' && avatarEffectKey !== 'neon' && avatarEffectKey !== 'burn' && avatarEffectKey !== 'discord' && avatarEffectKey !== 'hologram') { %>
+              <img src="<%= avatarDecoration %>" class="rz-avatar-decoration" alt="avatar decoration" />
+            <% } %>
+          </div>
         <% } else { %>
-          <div class="rz-hero-avatar" style="background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:48px; color:#000;">
-            <%= (profile.displayName || profile.username).charAt(0).toUpperCase() %>
+          <div class="rz-avatar-shell rz-avatar-effect rz-avatar-effect--<%= avatarEffectKey %>">
+            <div class="rz-hero-avatar" style="background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:48px; color:#000;">
+              <%= (profile.displayName || profile.username).charAt(0).toUpperCase() %>
+            </div>
+            <% if (avatarDecoration && avatarEffectKey !== 'none' && avatarEffectKey !== 'neon' && avatarEffectKey !== 'burn' && avatarEffectKey !== 'discord' && avatarEffectKey !== 'hologram') { %>
+              <img src="<%= avatarDecoration %>" class="rz-avatar-decoration" alt="avatar decoration" />
+            <% } %>
           </div>
         <% } %>
       </div>
       <div class="rz-hero-badge">✦ <%= theme.heroEyebrow || 'The Legend' %></div>
-      <h1 class="rz-hero-name"><%= profile.displayName || profile.username %></h1>
+      <h1 class="rz-hero-name rz-title-effect rz-title-effect--<%= titleEffectKey %>" data-typing-text="<%= (profile.displayName || profile.username).replace(/"/g, '&quot;') %>"><%= profile.displayName || profile.username %></h1>
       <% if (profile.showLegacyBadge && profile.legacyNumber) { %>
         <span class="rz-badge">#<%= profile.legacyNumber %></span>
       <% } %>
@@ -115,7 +129,7 @@
             <h2 class="rz-grand-text"><%= grandWords[i % grandWords.length] %></h2>
             <p class="rz-story-copy"><%= storyBlurbs[i % storyBlurbs.length] %></p>
           </div>
-          <div class="rz-story-card" style="padding:0; overflow:hidden; min-height:360px;">
+          <div class="rz-story-card" style="padding:0; overflow:hidden;">
             <div class="rz-image-wrapper" data-parallax="0.3">
               <img src="/file/<%= img.fileId %>" alt="showcase image" loading="lazy" />
             </div>
@@ -209,7 +223,93 @@
     });
   });
 
+  const title = document.querySelector('.rz-title-effect');
+  if (title && title.classList.contains('rz-title-effect--typewriter')) {
+    const original = title.getAttribute('data-typing-text') || title.textContent;
+    title.textContent = '';
+    let i = 0;
+    const write = () => {
+      if (i <= original.length) {
+        title.textContent = original.slice(0, i);
+        i += 1;
+        setTimeout(write, 60);
+      }
+    };
+    write();
+  }
+
+  const showcase = document.querySelector('.rz-showcase');
   const sections = document.querySelectorAll('.rz-section');
+  const rockCanvas = document.getElementById('rockCanvas');
+
+  if (rockCanvas && showcase && showcase.classList.contains('rz-theme-rocky')) {
+    const ctx = rockCanvas.getContext('2d');
+    const particleCount = 90;
+    const particles = Array.from({ length: particleCount }, () => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      size: Math.random() * 2.8 + 0.6,
+      speedX: (Math.random() - 0.5) * 0.4,
+      speedY: Math.random() * 0.6 + 0.2,
+      alpha: Math.random() * 0.35 + 0.2,
+    }));
+
+    const resize = () => {
+      const ratio = window.devicePixelRatio || 1;
+      rockCanvas.width = window.innerWidth * ratio;
+      rockCanvas.height = window.innerHeight * ratio;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      ctx.fillStyle = 'rgba(255,255,255,0.04)';
+      ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+      ctx.beginPath();
+      ctx.moveTo(0, window.innerHeight * 0.82);
+      ctx.lineTo(window.innerWidth * 0.16, window.innerHeight * 0.72);
+      ctx.lineTo(window.innerWidth * 0.3, window.innerHeight * 0.76);
+      ctx.lineTo(window.innerWidth * 0.42, window.innerHeight * 0.62);
+      ctx.lineTo(window.innerWidth * 0.58, window.innerHeight * 0.75);
+      ctx.lineTo(window.innerWidth * 0.72, window.innerHeight * 0.68);
+      ctx.lineTo(window.innerWidth * 0.88, window.innerHeight * 0.78);
+      ctx.lineTo(window.innerWidth, window.innerHeight * 0.9);
+      ctx.lineTo(window.innerWidth, window.innerHeight);
+      ctx.lineTo(0, window.innerHeight);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(94, 69, 42, 0.72)';
+      ctx.fill();
+
+      particles.forEach((p) => {
+        p.x += p.speedX;
+        p.y += p.speedY;
+        if (p.x < -8) p.x = window.innerWidth + 8;
+        if (p.y > window.innerHeight + 8) p.y = -8;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 239, 214, ${p.alpha})`;
+        ctx.fill();
+      });
+      window.requestAnimationFrame(draw);
+    };
+
+    resize();
+    draw();
+    window.addEventListener('resize', resize);
+  }
+  if (showcase && showcase.classList.contains('rz-effect-aurora')) {
+    showcase.setAttribute('data-motion', 'aurora');
+  }
+  if (showcase && showcase.classList.contains('rz-effect-constellation')) {
+    showcase.setAttribute('data-motion', 'constellation');
+  }
+  if (showcase && showcase.classList.contains('rz-effect-plasma')) {
+    showcase.setAttribute('data-motion', 'plasma');
+  }
+  if (showcase && showcase.classList.contains('rz-effect-hologram')) {
+    showcase.setAttribute('data-motion', 'hologram');
+  }
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if(entry.isIntersecting) {

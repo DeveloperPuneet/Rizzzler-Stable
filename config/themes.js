@@ -1,4 +1,4 @@
-// Central registry of the 5 showcase themes.
+// Central registry of the showcase themes.
 // Each maps to a CSS file in /public/css/themes AND carries its own content
 // hooks (eyebrow text, grand words, story blurbs, credits line) so every
 // theme reads like a different page — not just a different color swap.
@@ -72,5 +72,33 @@ module.exports = [
       "Gold trim, big presence. This is the main character energy.",
     ],
     creditsTagline: "center stage, always",
+  },
+  {
+    key: "scifi",
+    label: "Scifi",
+    desc: "Neon grids, holographic glow, cyberpunk energy and starfield motion",
+    css: "/css/themes/scifi.css",
+    accent: "#5ee7ff",
+    heroEyebrow: "Signal Acquired",
+    grandWords: ["Neon", "Signal", "Quantum", "Future"],
+    storyBlurbs: [
+      "The future is already here — the signal is just getting louder.",
+      "Circuits hum, stars shimmer, and the whole page feels alive.",
+    ],
+    creditsTagline: "wired for the next era",
+  },
+  {
+    key: "rocky",
+    label: "Rocky",
+    desc: "Craggy terrain, warm earth tones, bold and rugged cinematic texture",
+    css: "/css/themes/rocky.css",
+    accent: "#d78b2e",
+    heroEyebrow: "Built to Last",
+    grandWords: ["Rugged", "Steady", "Wild", "Unshaken"],
+    storyBlurbs: [
+      "Grounded, bold, and impossible to ignore.",
+      "Each detail feels carved by real grit and real character.",
+    ],
+    creditsTagline: "carved in stone",
   },
 ];

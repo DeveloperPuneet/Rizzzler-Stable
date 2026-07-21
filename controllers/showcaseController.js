@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const themes = require("../config/themes");
+const visuals = require("../config/visuals");
 const { milestoneForCount } = require("../config/milestones");
 const { getSettings } = require("../models/Settings");
 const { sendMilestoneEmail } = require("../config/mailer");
@@ -60,6 +61,7 @@ exports.showProfile = async (req, res) => {
   }
 
   const theme = themes.find((t) => t.key === user.theme) || themes[0];
+  const selectedDecoration = visuals.avatarEffects.find((effect) => effect.value === (user.avatarEffect || "none"));
   const displayName = user.displayName || user.username;
   const description = user.bio
     ? `${displayName} — ${user.bio}`
@@ -67,6 +69,10 @@ exports.showProfile = async (req, res) => {
   res.render("showcase", {
     profile: user,
     theme,
+    avatarEffect: user.avatarEffect || "none",
+    avatarDecoration: selectedDecoration?.file || null,
+    titleEffect: user.titleEffect || "none",
+    showcaseEffect: user.showcaseEffect || "none",
     pageTitle: `${displayName} — Rizzzler`,
     metaDescription: description,
     metaKeywords: `${displayName}, Rizzzler, ${user.username}, one link, showcase page, personal links`,

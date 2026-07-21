@@ -1,0 +1,21 @@
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bolt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="45%" stop-color="#7dd3fc"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="120" cy="120" r="86" fill="rgba(125,211,252,0.12)"/>
+  <path d="M118 24 L154 94 L196 94 L136 160 L160 220 L94 142 L74 142 Z" fill="url(#bolt)" filter="url(#glow)"/>
+  <path d="M86 54 L106 96 L82 96 L104 138" stroke="#ffffff" stroke-opacity="0.85" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="1.1s" repeatCount="indefinite"/>
+  </path>
+  <path d="M112 36c20 0 40 8 54 24" stroke="#7dd3fc" stroke-opacity="0.65" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M86 164c18 18 42 28 68 24" stroke="#fef3c7" stroke-opacity="0.72" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <circle cx="158" cy="92" r="4" fill="#ffffff"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite"/></circle>
+</svg>
