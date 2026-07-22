@@ -1,0 +1,113 @@
+<% var pageTitle = "Analytics — Admin"; var activeNav = "analytics"; %>
+<%- include('partials/header') %>
+
+<div class="rz-admin-topbar">
+  <h1>Analytics</h1>
+  <p class="rz-muted">Visitor traffic and user growth at a glance.</p>
+</div>
+
+<h2 class="rz-admin-section-title">Visitor analytics</h2>
+<section class="rz-admin-stats-grid">
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Total visitors</span>
+    <span class="rz-admin-stat-value"><%= visitorStats.totalVisitors.toLocaleString() %></span>
+    <small class="rz-muted">total requests recorded</small>
+  </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Unique visitors</span>
+    <span class="rz-admin-stat-value"><%= visitorStats.uniqueVisitors.toLocaleString() %></span>
+    <small class="rz-muted">distinct IP addresses</small>
+  </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Returning visitors</span>
+    <span class="rz-admin-stat-value"><%= visitorStats.returningVisitors.toLocaleString() %></span>
+  </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">First-time visitors</span>
+    <span class="rz-admin-stat-value"><%= visitorStats.newVisitors.toLocaleString() %></span>
+  </div>
+</section>
+
+<div class="rz-admin-panel rz-admin-panel-scroll">
+  <% if (!recentVisitors.length) { %>
+    <p class="rz-muted">No visitor activity recorded yet.</p>
+  <% } else { %>
+    <table class="rz-admin-table">
+      <thead>
+        <tr>
+          <th>IP</th><th>Location</th><th>Browser / OS</th><th>Device</th>
+          <th>Referrer</th><th>First visit</th><th>Last visit</th><th>Requests</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% recentVisitors.forEach(v => { %>
+          <tr>
+            <td class="rz-admin-cell-muted"><%= v.ip %></td>
+            <td class="rz-admin-cell-muted">
+              <%= [v.city, v.region, v.country].filter(Boolean).join(', ') || 'Unknown' %>
+            </td>
+            <td class="rz-admin-cell-muted"><%= v.browser || 'Unknown' %> / <%= v.os || 'Unknown' %></td>
+            <td><span class="rz-admin-tag rz-admin-tag-muted"><%= v.deviceType || 'desktop' %></span></td>
+            <td class="rz-admin-cell-muted" title="<%= v.referrer || '' %>">
+              <%= v.referrerHost || 'Direct' %>
+            </td>
+            <td class="rz-admin-cell-muted"><%= new Date(v.firstVisit).toLocaleDateString() %></td>
+            <td class="rz-admin-cell-muted"><%= new Date(v.lastVisit).toLocaleString() %></td>
+            <td>
+              <%= v.totalRequests %>
+              <% if (v.suspicious) { %><span class="rz-admin-tag rz-admin-tag-warn">high rate</span><% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<h2 class="rz-admin-section-title">User analytics</h2>
+<section class="rz-admin-stats-grid">
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Total users</span>
+    <span class="rz-admin-stat-value"><%= userStats.totalUsers %></span>
+  </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Verified</span>
+    <span class="rz-admin-stat-value"><%= userStats.verifiedUsers %></span>
+    <small class="rz-muted"><%= userStats.unverifiedUsers %> unverified</small>
+  </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">New today</span>
+    <span class="rz-admin-stat-value"><%= userStats.newToday %></span>
+  </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">New this week / month</span>
+    <span class="rz-admin-stat-value"><%= userStats.newWeek %> / <%= userStats.newMonth %></span>
+  </div>
+</section>
+
+<div class="rz-admin-panel rz-admin-panel-scroll">
+  <% if (!recentActiveUsers.length) { %>
+    <p class="rz-muted">No users yet.</p>
+  <% } else { %>
+    <table class="rz-admin-table">
+      <thead>
+        <tr><th>User</th><th>Email</th><th>Status</th><th>Created</th><th>Last active</th></tr>
+      </thead>
+      <tbody>
+        <% recentActiveUsers.forEach(u => { %>
+          <tr>
+            <td><a href="/admin/users/<%= u._id %>">@<%= u.username %></a></td>
+            <td class="rz-admin-cell-muted"><%= u.email %></td>
+            <td>
+              <% if (u.isVerified) { %><span class="rz-admin-tag rz-admin-tag-on">Verified</span><% } else { %><span class="rz-admin-tag rz-admin-tag-warn">Unverified</span><% } %>
+            </td>
+            <td class="rz-admin-cell-muted"><%= new Date(u.createdAt).toLocaleDateString() %></td>
+            <td class="rz-admin-cell-muted"><%= u.lastActiveAt ? new Date(u.lastActiveAt).toLocaleString() : '—' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

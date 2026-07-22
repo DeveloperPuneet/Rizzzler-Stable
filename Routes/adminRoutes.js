@@ -26,4 +26,10 @@ router.post("/settings/invites", adminController.sendInvites);
 router.post("/settings/ai-test", adminController.testAiMail);
 router.post("/settings/test-mail", adminController.sendTestMail);
 
+router.get("/analytics", adminController.analytics);
+
+router.get("/security", adminController.security);
+router.post("/security/ip-rules", adminController.addIpRule);
+router.post("/security/ip-rules/:id/delete", adminController.removeIpRule);
+
 module.exports = router;

@@ -1,0 +1,59 @@
+/* =====================================================================
+   FROSTBYTE — icy cyan circuitry, crystalline frost drift, frozen glass
+   ===================================================================== */
+.rz-theme-frostbyte { --accent: #7ee8fa; --accent2: #cdeffb; color: #eaffff; background: #050d12; }
+
+/* ---------- Background: frost grid + drifting crystals ---------- */
+.rz-theme-frostbyte .rz-showcase-bg {
+  background:
+    linear-gradient(rgba(126,232,250,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(126,232,250,0.08) 1px, transparent 1px),
+    linear-gradient(160deg, #030a0f 0%, #0a1c24 55%, #041014 100%);
+  background-size: 42px 42px, 42px 42px, 100% 100%;
+  animation: frostGridDrift 14s linear infinite;
+}
+@keyframes frostGridDrift { from { background-position: 0 0, 0 0, 0 0; } to { background-position: 42px 84px, 42px 84px, 0 0; } }
+.rz-theme-frostbyte .rz-showcase-bg::before {
+  content: ''; position: absolute; top: 8%; right: 15%; width: 130px; height: 130px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #eafeff, #7ee8fa 55%, transparent 75%);
+  box-shadow: 0 0 90px 14px rgba(126,232,250,0.45), 0 0 160px 40px rgba(126,232,250,0.2);
+  filter: blur(2px);
+  animation: frostPulse 6s ease-in-out infinite alternate;
+}
+@keyframes frostPulse { from { opacity: 0.65; transform: scale(1); } to { opacity: 1; transform: scale(1.06); } }
+.rz-theme-frostbyte .rz-floating-particles {
+  background-image: radial-gradient(circle, rgba(205,239,251,0.55) 1.5px, transparent 1.5px);
+  background-size: 70px 70px;
+  animation: frostDust 26s linear infinite;
+  opacity: 0.5;
+}
+@keyframes frostDust { from { background-position: 0 0; } to { background-position: 360px -520px; } }
+
+/* ---------- Hero ---------- */
+.rz-theme-frostbyte .rz-hero-overlay { background: linear-gradient(180deg, rgba(5,13,18,0.1) 0%, rgba(5,13,18,0.65) 60%, #050d12 100%); }
+.rz-theme-frostbyte .rz-hero-avatar { box-shadow: 0 0 0 3px rgba(126,232,250,0.4), 0 0 46px rgba(126,232,250,0.5); animation: frostBreathe 3.6s ease-in-out infinite; }
+@keyframes frostBreathe { 0%,100% { box-shadow: 0 0 0 3px rgba(126,232,250,0.35), 0 0 34px rgba(126,232,250,0.35); } 50% { box-shadow: 0 0 0 3px rgba(126,232,250,0.6), 0 0 58px rgba(126,232,250,0.65); } }
+.rz-theme-frostbyte .rz-hero-badge { color: var(--accent); font-weight: 500; letter-spacing: 0.28em; background: rgba(126,232,250,0.08); border: 1px solid rgba(126,232,250,0.35); }
+.rz-theme-frostbyte .rz-hero-name { font-weight: 600; color: #f2feff; text-shadow: 0 0 30px rgba(126,232,250,0.7); }
+.rz-theme-frostbyte .rz-hero-username, .rz-theme-frostbyte .rz-hero-views { color: #b9e7ef; }
+.rz-theme-frostbyte .rz-story-card { border: 1px solid rgba(126,232,250,0.25); background: rgba(6,18,24,0.75); backdrop-filter: blur(12px); }
+
+/* ---------- Story grid: crisp glass tiles ---------- */
+.rz-theme-frostbyte .rz-story-grid { grid-template-columns: 1fr 1fr; }
+.rz-theme-frostbyte .rz-image-wrapper { border-radius: 14px; border: 1px solid rgba(126,232,250,0.3); background: rgba(126,232,250,0.04); }
+.rz-theme-frostbyte .rz-image-wrapper img { border-radius: 12px; filter: saturate(1.05) contrast(1.03); }
+.rz-theme-frostbyte .rz-grand-text { font-weight: 700; color: #f2feff; text-shadow: 0 0 36px rgba(126,232,250,0.6); letter-spacing: 0.01em; }
+.rz-theme-frostbyte .rz-section-eyebrow { color: var(--accent); background: rgba(126,232,250,0.1); }
+
+/* ---------- Links ---------- */
+.rz-theme-frostbyte .rz-links-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.rz-theme-frostbyte .rz-link-item { background: rgba(126,232,250,0.08); border: 1px solid rgba(126,232,250,0.3); color: #dffbff; transition: 0.25s; }
+.rz-theme-frostbyte .rz-link-item:hover { background: rgba(126,232,250,0.18); box-shadow: 0 0 22px rgba(126,232,250,0.45); transform: translateY(-2px); }
+
+/* ---------- Details ---------- */
+.rz-theme-frostbyte .rz-detail-item { border: 1px solid rgba(126,232,250,0.25); background: rgba(255,255,255,0.03); color: #dffbff; }
+.rz-theme-frostbyte .rz-detail-item a { color: var(--accent); }
+
+/* ---------- Credits ---------- */
+.rz-theme-frostbyte .rz-credits-logo { font-weight: 700; color: var(--accent); text-shadow: 0 0 34px rgba(126,232,250,0.7); animation: frostGlow 2.2s ease-in-out infinite alternate; }
+@keyframes frostGlow { from { filter: brightness(1); } to { filter: brightness(1.35); } }

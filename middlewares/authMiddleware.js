@@ -13,6 +13,15 @@ async function requireAuth(req, res, next) {
   if (!user.isVerified) {
     return res.redirect("/verify");
   }
+
+  // Throttled "last active" heartbeat (skip the extra write if we already
+  // recorded activity within the last 5 minutes) — keeps admin user
+  // analytics reasonably fresh without a write on every single request.
+  const STALE_MS = 5 * 60 * 1000;
+  if (!user.lastActiveAt || Date.now() - user.lastActiveAt.getTime() > STALE_MS) {
+    User.updateOne({ _id: user._id }, { $set: { lastActiveAt: new Date() } }).catch(() => {});
+  }
+
   req.user = user;
   next();
 }

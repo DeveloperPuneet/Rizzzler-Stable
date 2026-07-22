@@ -180,7 +180,7 @@
           <% } %>
           <form action="/dashboard/upload/avatar" method="POST" enctype="multipart/form-data" class="rz-inline-form">
             <input type="file" name="avatar" accept="image/*" required />
-            <button type="submit" class="rz-btn rz-btn-ghost">Upload (max 5MB)</button>
+            <button type="submit" class="rz-btn rz-btn-ghost">Upload (max 2MB)</button>
           </form>
         </div>
 
@@ -191,7 +191,7 @@
           <% } %>
           <form action="/dashboard/upload/banner" method="POST" enctype="multipart/form-data" class="rz-inline-form">
             <input type="file" name="banner" accept="image/*" required />
-            <button type="submit" class="rz-btn rz-btn-ghost">Upload (max 5MB)</button>
+            <button type="submit" class="rz-btn rz-btn-ghost">Upload (max 2MB)</button>
           </form>
         </div>
 
@@ -210,7 +210,7 @@
           <% if (user.showcaseImages.length < 2) { %>
             <form action="/dashboard/upload/showcase" method="POST" enctype="multipart/form-data" class="rz-inline-form">
               <input type="file" name="showcaseImage" accept="image/*" required />
-              <button type="submit" class="rz-btn rz-btn-ghost">Add photo (max 5MB)</button>
+              <button type="submit" class="rz-btn rz-btn-ghost">Add photo (max 2MB)</button>
             </form>
           <% } else { %>
             <p class="rz-muted">2/2 used — remove one to add another.</p>
@@ -287,6 +287,7 @@
 <script id="rzVisualsData" type="application/json"><%- JSON.stringify({
   themes: themes.map(t => ({ key: t.key, accent: t.accent })),
   avatarEffects: visuals.avatarEffects.map(e => ({ value: e.value, file: e.file || null })),
+  titleEffects: visuals.titleEffects.map(e => ({ value: e.value, label: e.label })),
 }) %></script>
 <script>
 (function () {
@@ -295,6 +296,8 @@
   data.themes.forEach(t => { themeAccents[t.key] = t.accent; });
   const decorationFiles = {};
   data.avatarEffects.forEach(e => { decorationFiles[e.value] = e.file; });
+  const titleEffectLabels = {};
+  data.titleEffects.forEach(e => { titleEffectLabels[e.value] = e.value === 'none' ? '' : e.label + ' title effect (plays on your live page)'; });
 
   const form = document.getElementById('profileForm');
   const lpPhone = document.getElementById('lpPhone');
@@ -357,8 +360,7 @@
     if (!select || !lpName) return;
     const value = select.value || 'none';
     lpName.className = 'rz-live-preview-name rz-title-effect rz-title-effect--' + value;
-    const labels = { none: '', typewriter: 'Typewriter title effect (plays on your live page)', glitch: 'Glitch title effect', shimmer: 'Shimmer title effect' };
-    lpEffectNote.textContent = labels[value] || '';
+    lpEffectNote.textContent = titleEffectLabels[value] || '';
   }
 
   function updateLinks() {

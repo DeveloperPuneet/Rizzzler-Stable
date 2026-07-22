@@ -1,0 +1,143 @@
+<% var pageTitle = "Security — Admin"; var activeNav = "security"; %>
+<%- include('partials/header') %>
+
+<div class="rz-admin-topbar">
+  <h1>Security</h1>
+  <p class="rz-muted">Failed logins, rate limiting, suspicious activity, and IP rules.</p>
+</div>
+
+<% if (error) { %><p class="rz-error"><%= error %></p><% } %>
+<% if (info) { %><p class="rz-info"><%= info %></p><% } %>
+
+<section class="rz-admin-stats-grid">
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Failed site logins (recent)</span>
+    <span class="rz-admin-stat-value"><%= failedLogins.length %></span>
+  </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Failed admin logins (recent)</span>
+    <span class="rz-admin-stat-value"><%= failedAdminLogins.length %></span>
+  </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Rate-limit blocks (recent)</span>
+    <span class="rz-admin-stat-value"><%= rateLimitEvents.length %></span>
+  </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Suspicious IPs</span>
+    <span class="rz-admin-stat-value"><%= suspiciousIps.length %></span>
+  </div>
+</section>
+
+<h2 class="rz-admin-section-title">Suspicious IP addresses</h2>
+<p class="rz-muted">Flagged for sustained high request rates (60+ requests/minute).</p>
+<div class="rz-admin-panel rz-admin-panel-scroll">
+  <% if (!suspiciousIps.length) { %>
+    <p class="rz-muted">Nothing suspicious right now.</p>
+  <% } else { %>
+    <table class="rz-admin-table">
+      <thead><tr><th>IP</th><th>Reason</th><th>Requests</th><th>Last seen</th><th></th></tr></thead>
+      <tbody>
+        <% suspiciousIps.forEach(v => { %>
+          <tr>
+            <td class="rz-admin-cell-muted"><%= v.ip %></td>
+            <td class="rz-admin-cell-muted"><%= v.suspiciousReason || '—' %></td>
+            <td><%= v.totalRequests %></td>
+            <td class="rz-admin-cell-muted"><%= new Date(v.lastVisit).toLocaleString() %></td>
+            <td>
+              <form action="/admin/security/ip-rules" method="POST" style="display:inline">
+                <input type="hidden" name="ip" value="<%= v.ip %>" />
+                <input type="hidden" name="listType" value="blacklist" />
+                <input type="hidden" name="reason" value="Auto-flagged: high request rate" />
+                <button type="submit" class="rz-btn rz-btn-ghost rz-btn-sm">Blacklist</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<h2 class="rz-admin-section-title">Blacklist / whitelist management</h2>
+<form action="/admin/security/ip-rules" method="POST" class="rz-admin-inline-form">
+  <input type="text" name="ip" placeholder="IP address" required />
+  <select name="listType">
+    <option value="blacklist">Blacklist</option>
+    <option value="whitelist">Whitelist</option>
+  </select>
+  <input type="text" name="reason" placeholder="Reason (optional)" maxlength="300" />
+  <button type="submit" class="rz-btn rz-btn-primary">Add rule</button>
+</form>
+
+<div class="rz-admin-panel rz-admin-panel-scroll">
+  <table class="rz-admin-table">
+    <thead><tr><th>IP</th><th>List</th><th>Reason</th><th>Added</th><th></th></tr></thead>
+    <tbody>
+      <% blacklist.concat(whitelist).forEach(rule => { %>
+        <tr>
+          <td class="rz-admin-cell-muted"><%= rule.ip %></td>
+          <td>
+            <span class="rz-admin-tag <%= rule.listType === 'blacklist' ? 'rz-admin-tag-off' : 'rz-admin-tag-on' %>">
+              <%= rule.listType %>
+            </span>
+          </td>
+          <td class="rz-admin-cell-muted"><%= rule.reason || '—' %></td>
+          <td class="rz-admin-cell-muted"><%= new Date(rule.createdAt).toLocaleDateString() %></td>
+          <td>
+            <form action="/admin/security/ip-rules/<%= rule._id %>/delete" method="POST" style="display:inline">
+              <button type="submit" class="rz-btn rz-btn-ghost rz-btn-sm">Remove</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+      <% if (!blacklist.length && !whitelist.length) { %>
+        <tr><td colspan="5" class="rz-muted">No IP rules yet.</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<h2 class="rz-admin-section-title">Failed login attempts</h2>
+<div class="rz-admin-panel rz-admin-panel-scroll">
+  <table class="rz-admin-table">
+    <thead><tr><th>Type</th><th>IP</th><th>Attempted identifier</th><th>When</th></tr></thead>
+    <tbody>
+      <% failedLogins.concat(failedAdminLogins).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 30).forEach(ev => { %>
+        <tr>
+          <td><span class="rz-admin-tag rz-admin-tag-muted"><%= ev.type === 'failed_admin_login' ? 'Admin panel' : 'Site login' %></span></td>
+          <td class="rz-admin-cell-muted"><%= ev.ip %></td>
+          <td class="rz-admin-cell-muted"><%= ev.identifier || '—' %></td>
+          <td class="rz-admin-cell-muted"><%= new Date(ev.createdAt).toLocaleString() %></td>
+        </tr>
+      <% }) %>
+      <% if (!failedLogins.length && !failedAdminLogins.length) { %>
+        <tr><td colspan="4" class="rz-muted">No failed login attempts recorded.</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<h2 class="rz-admin-section-title">Temporary rate limiting</h2>
+<p class="rz-muted">
+  Global limit: 300 requests / 5 minutes per IP. Auth endpoints: 20 attempts / 15 minutes per IP.
+  Whitelisted IPs bypass both. Recent blocks:
+</p>
+<div class="rz-admin-panel rz-admin-panel-scroll">
+  <table class="rz-admin-table">
+    <thead><tr><th>IP</th><th>Path</th><th>When</th></tr></thead>
+    <tbody>
+      <% rateLimitEvents.forEach(ev => { %>
+        <tr>
+          <td class="rz-admin-cell-muted"><%= ev.ip %></td>
+          <td class="rz-admin-cell-muted"><%= ev.path %></td>
+          <td class="rz-admin-cell-muted"><%= new Date(ev.createdAt).toLocaleString() %></td>
+        </tr>
+      <% }) %>
+      <% if (!rateLimitEvents.length) { %>
+        <tr><td colspan="3" class="rz-muted">No rate-limit blocks recorded.</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('partials/footer') %>

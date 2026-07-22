@@ -9,6 +9,7 @@ const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 const startKeepAlive = require("./config/keepAlive");
 const { startAiMailScheduler } = require("./config/aiMailScheduler");
+const { startAccountCleanupScheduler } = require("./config/accountCleanup");
 const User = require("./models/User");
 
 const authRoutes = require("./Routes/authRoutes");
@@ -16,6 +17,11 @@ const dashboardRoutes = require("./Routes/dashboardRoutes");
 const showcaseRoutes = require("./Routes/showcaseRoutes");
 const fileRoutes = require("./Routes/fileRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
+const apiRoutes = require("./Routes/apiRoutes");
+
+const { visitorTracker } = require("./middlewares/visitorTracker");
+const { ipAccessControl } = require("./middlewares/ipAccessControl");
+const { globalLimiter, authLimiter } = require("./middlewares/rateLimiter");
 
 const app = express();
 
@@ -26,6 +32,7 @@ app.set("trust proxy", 1);
 connectDB();
 startKeepAlive();
 startAiMailScheduler();
+startAccountCleanupScheduler(); // deletes accounts left unverified for 15+ days (config/accountCleanup.js)
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -92,6 +99,14 @@ app.use((req, res, next) => {
   next();
 });
 
+// ---- Analytics + security middleware (see requirement #5) ----
+// Order matters: visitorTracker resolves+caches req.clientIp for the rest
+// of the request, ipAccessControl uses it to block/allow, and the global
+// rate limiter uses it as its bucket key.
+app.use(visitorTracker);
+app.use(ipAccessControl);
+app.use(globalLimiter);
+
 const escapeXml = (value = "") =>
   String(value)
     .replace(/&/g, "&amp;")
@@ -149,10 +164,11 @@ app.get("/sitemap.xml", async (req, res) => {
 });
 
 // ---- Routes ----
+app.use("/api", apiRoutes); // GET /api/registry — shared themes/effects as JSON
 app.use("/file", fileRoutes); // GridFS file streaming: /file/:id
 app.use("/dashboard", dashboardRoutes); // /dashboard, /dashboard/settings, uploads
 app.use("/admin", adminRoutes); // admin panel (own password, own lockout) — MUST be before showcase catch-all
-app.use("/", authRoutes); // /register /login /verify /forgot-password /reset-password
+app.use("/", authLimiter, authRoutes); // /register /login /verify /forgot-password /reset-password (extra-strict rate limit)
 app.use("/", showcaseRoutes); // "/" landing + "/:username" showcase (KEEP LAST - catch-all)
 
 // 404
@@ -163,7 +179,7 @@ app.use((req, res) => {
 // Multer/file errors
 app.use((err, req, res, next) => {
   if (err && err.message && err.message.includes("File too large")) {
-    return res.status(413).send("File too large. Max upload size is 5MB.");
+    return res.status(413).send("File too large. Max upload size is 2MB.");
   }
   console.error(err);
   res.status(500).send("Something went wrong.");

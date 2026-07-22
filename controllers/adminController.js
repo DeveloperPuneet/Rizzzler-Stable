@@ -1,6 +1,11 @@
 const User = require("../models/User");
+const storageRouter = require("../config/storageRouter");
 const { getSettings } = require("../models/Settings");
 const { recordFailedAttempt, clearAttempts, MAX_ATTEMPTS } = require("../models/AdminAccess");
+const SecurityEvent = require("../models/SecurityEvent");
+const Visitor = require("../models/Visitor");
+const IpRule = require("../models/IpRule");
+const { invalidateCache } = require("../middlewares/ipAccessControl");
 const { sendNewsletterEmail, sendInviteEmail, sendBulk } = require("../config/mailer");
 const { maybeSendAIMail } = require("../config/aiMailScheduler");
 
@@ -28,6 +33,13 @@ exports.postLogin = async (req, res) => {
     }
 
     const { blocked, attemptsLeft } = await recordFailedAttempt(req.adminIp, req.adminDeviceToken);
+    SecurityEvent.create({
+      type: "failed_admin_login",
+      ip: req.adminIp,
+      identifier: req.adminDeviceToken,
+      userAgent: req.headers["user-agent"],
+      path: req.originalUrl,
+    }).catch(() => {});
     if (blocked) {
       return res.status(403).render("admin/blocked", { layout: false });
     }
@@ -159,21 +171,11 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
-    const mongoose = require("mongoose");
     const user = await User.findById(req.params.id);
     if (!user) return res.redirect("/admin/users");
 
-    const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: "uploads" });
-    const cleanupFiles = async (refs) => {
-      for (const ref of refs || []) {
-        if (ref && ref.fileId) {
-          try {
-            await bucket.delete(ref.fileId);
-          } catch (e) {}
-        }
-      }
-    };
-    await cleanupFiles([user.avatar, user.banner, ...user.showcaseImages]);
+    const fileIds = [user.avatar?.fileId, user.banner?.fileId, ...user.showcaseImages.map((i) => i.fileId)];
+    await storageRouter.deleteFiles(fileIds);
     await User.deleteOne({ _id: user._id });
     res.redirect("/admin/users?deleted=1");
   } catch (err) {
@@ -432,4 +434,124 @@ exports.sendInvites = async (req, res) => {
     newsletterResult: null,
     inviteResult: { sent, failed, total: emailList.length },
   });
+};
+
+// ---------- Analytics (visitor + user) ----------
+exports.analytics = async (req, res) => {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfWeek = new Date(startOfToday.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const startOfMonth = new Date(startOfToday.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  const [
+    // Visitor analytics
+    uniqueVisitors,
+    returningVisitors,
+    totalRequestsAgg,
+    recentVisitors,
+    // User analytics
+    totalUsers,
+    verifiedUsers,
+    newToday,
+    newWeek,
+    newMonth,
+    recentActiveUsers,
+  ] = await Promise.all([
+    Visitor.countDocuments({}),
+    Visitor.countDocuments({ totalRequests: { $gt: 1 } }),
+    Visitor.aggregate([{ $group: { _id: null, total: { $sum: "$totalRequests" } } }]),
+    Visitor.find({}).sort({ lastVisit: -1 }).limit(50).lean(),
+    User.countDocuments({}),
+    User.countDocuments({ isVerified: true }),
+    User.countDocuments({ createdAt: { $gte: startOfToday } }),
+    User.countDocuments({ createdAt: { $gte: startOfWeek } }),
+    User.countDocuments({ createdAt: { $gte: startOfMonth } }),
+    User.find({}).sort({ lastActiveAt: -1 }).limit(50).select("username email createdAt lastActiveAt isVerified").lean(),
+  ]);
+
+  res.render("admin/analytics", {
+    layout: false,
+    visitorStats: {
+      totalVisitors: (totalRequestsAgg[0] && totalRequestsAgg[0].total) || 0,
+      uniqueVisitors,
+      returningVisitors,
+      newVisitors: Math.max(0, uniqueVisitors - returningVisitors),
+    },
+    recentVisitors: recentVisitors.map((v) => {
+      let referrerHost = null;
+      if (v.referrer) {
+        try {
+          referrerHost = new URL(v.referrer).hostname;
+        } catch (e) {
+          referrerHost = null;
+        }
+      }
+      return { ...v, referrerHost };
+    }),
+    userStats: {
+      totalUsers,
+      verifiedUsers,
+      unverifiedUsers: totalUsers - verifiedUsers,
+      newToday,
+      newWeek,
+      newMonth,
+    },
+    recentActiveUsers,
+  });
+};
+
+// ---------- Security ----------
+exports.security = async (req, res) => {
+  const [failedLogins, failedAdminLogins, rateLimitEvents, blacklistEvents, suspiciousIps, ipRules] =
+    await Promise.all([
+      SecurityEvent.find({ type: "failed_login" }).sort({ createdAt: -1 }).limit(30).lean(),
+      SecurityEvent.find({ type: "failed_admin_login" }).sort({ createdAt: -1 }).limit(30).lean(),
+      SecurityEvent.find({ type: "rate_limited" }).sort({ createdAt: -1 }).limit(30).lean(),
+      SecurityEvent.find({ type: "blacklist_blocked" }).sort({ createdAt: -1 }).limit(30).lean(),
+      Visitor.find({ suspicious: true }).sort({ lastVisit: -1 }).limit(30).lean(),
+      IpRule.find({}).sort({ createdAt: -1 }).lean(),
+    ]);
+
+  res.render("admin/security", {
+    layout: false,
+    failedLogins,
+    failedAdminLogins,
+    rateLimitEvents,
+    blacklistEvents,
+    suspiciousIps,
+    blacklist: ipRules.filter((r) => r.listType === "blacklist"),
+    whitelist: ipRules.filter((r) => r.listType === "whitelist"),
+    error: req.query.error || null,
+    info: req.query.saved ? "Saved." : null,
+  });
+};
+
+exports.addIpRule = async (req, res) => {
+  try {
+    const { ip, listType, reason } = req.body;
+    if (!ip || !["blacklist", "whitelist"].includes(listType)) {
+      return res.redirect("/admin/security?error=" + encodeURIComponent("IP address and list type are required."));
+    }
+    await IpRule.findOneAndUpdate(
+      { ip: ip.trim() },
+      { ip: ip.trim(), listType, reason: (reason || "").slice(0, 300) },
+      { upsert: true }
+    );
+    invalidateCache();
+    res.redirect("/admin/security?saved=1");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/admin/security?error=" + encodeURIComponent("Could not save that rule."));
+  }
+};
+
+exports.removeIpRule = async (req, res) => {
+  try {
+    await IpRule.deleteOne({ _id: req.params.id });
+    invalidateCache();
+    res.redirect("/admin/security?saved=1");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/admin/security");
+  }
 };

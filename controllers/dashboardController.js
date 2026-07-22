@@ -1,7 +1,12 @@
-const mongoose = require("mongoose");
 const User = require("../models/User");
-const themes = require("../config/themes");
-const visuals = require("../config/visuals");
+const storageRouter = require("../config/storageRouter");
+const registry = require("../shared/registry");
+const themes = registry.themes;
+const visuals = {
+  avatarEffects: registry.avatarEffects,
+  titleEffects: registry.titleEffects,
+  showcaseEffects: registry.showcaseEffects,
+};
 const fs = require("fs");
 const path = require("path");
 
@@ -39,7 +44,8 @@ exports.getSettings = (req, res) => {
   let error = null;
   if (req.query.saved) info = "Saved! Your changes are live.";
   if (req.query.error === "nofile") error = "Please choose a file first.";
-  else if (req.query.error) error = "Something went wrong. Please try again.";
+  else if (req.query.error === "filesize") error = "That file is too large. Max upload size is 2MB.";
+  else if (req.query.error) error = String(req.query.error).slice(0, 200);
 
   res.render("dashboard/settings", {
     user: req.user,
@@ -71,25 +77,50 @@ exports.updateProfile = async (req, res) => {
       showcaseEffect,
     } = req.body;
 
+    // ---- Server-side validation against the shared registry ----
+    // Every customization value submitted by the client is checked against
+    // shared/registry.js — the same source the dropdowns/theme grid were
+    // rendered from. Anything not present in the registry is rejected
+    // outright (never silently coerced to a default), so arbitrary strings
+    // can never reach the database or get reflected into CSS class names
+    // like `rz-avatar-effect--<value>` on the showcase page.
+    if (theme !== undefined) {
+      if (!registry.isValidTheme(theme)) {
+        return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Invalid theme selected."));
+      }
+      user.theme = theme;
+    }
+
+    if (req.body.hasOwnProperty("avatarEffect")) {
+      const value = avatarEffect || "none";
+      if (!registry.isValidAvatarEffect(value)) {
+        return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Invalid avatar effect selected."));
+      }
+      user.avatarEffect = value;
+    }
+    if (req.body.hasOwnProperty("titleEffect")) {
+      const value = titleEffect || "none";
+      if (!registry.isValidTitleEffect(value)) {
+        return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Invalid title effect selected."));
+      }
+      user.titleEffect = value;
+    }
+    if (req.body.hasOwnProperty("showcaseEffect")) {
+      const value = showcaseEffect || "none";
+      if (!registry.isValidShowcaseEffect(value)) {
+        return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Invalid showcase effect selected."));
+      }
+      user.showcaseEffect = value;
+    }
+
     if (displayName !== undefined) user.displayName = displayName.slice(0, 40);
     if (bio !== undefined) user.bio = bio.slice(0, 300);
     if (phoneNumber !== undefined) user.phoneNumber = phoneNumber.slice(0, 20).trim();
     if (location !== undefined) user.location = location.slice(0, 80).trim();
     if (profession !== undefined) user.profession = profession.slice(0, 80).trim();
-    if (theme && themes.some((t) => t.key === theme)) user.theme = theme;
 
     if (req.body.hasOwnProperty("showLegacyBadge")) {
       user.showLegacyBadge = showLegacyBadge === "on" || showLegacyBadge === "true";
-    }
-
-    if (req.body.hasOwnProperty("avatarEffect")) {
-      user.avatarEffect = avatarEffect || "none";
-    }
-    if (req.body.hasOwnProperty("titleEffect")) {
-      user.titleEffect = titleEffect || "none";
-    }
-    if (req.body.hasOwnProperty("showcaseEffect")) {
-      user.showcaseEffect = showcaseEffect || "none";
     }
 
     if (req.body.hasOwnProperty("audioKey") || req.body.hasOwnProperty("audioAutoplay") || req.body.hasOwnProperty("audioLoop")) {
@@ -155,23 +186,16 @@ exports.updateEmailPreferences = async (req, res) => {
   }
 };
 
-// Generic helper to swap out a single-image field (avatar/banner), deleting the old GridFS file
+// Generic helper to swap out a single-image field (avatar/banner), deleting
+// the old file via the storage router (which resolves the correct cluster
+// regardless of how many are configured).
 async function replaceSingleImage(req, res, field) {
   const user = req.user;
   if (!req.file) return res.redirect("/dashboard/settings?error=nofile");
 
-  const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-    bucketName: "uploads",
-  });
-
-  // delete old file if present
   const old = user[field];
   if (old && old.fileId) {
-    try {
-      await bucket.delete(old.fileId);
-    } catch (e) {
-      /* ignore if already gone */
-    }
+    await storageRouter.deleteFile(old.fileId);
   }
 
   user[field] = { fileId: req.file.id, filename: req.file.filename };
@@ -187,16 +211,10 @@ exports.uploadShowcaseImage = async (req, res) => {
   const user = req.user;
   if (!req.file) return res.redirect("/dashboard/settings?error=nofile");
 
-  const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-    bucketName: "uploads",
-  });
-
   if (user.showcaseImages.length >= 2) {
     const removed = user.showcaseImages.shift();
     if (removed && removed.fileId) {
-      try {
-        await bucket.delete(removed.fileId);
-      } catch (e) {}
+      await storageRouter.deleteFile(removed.fileId);
     }
   }
   user.showcaseImages.push({ fileId: req.file.id, filename: req.file.filename });
@@ -208,17 +226,10 @@ exports.deleteShowcaseImage = async (req, res) => {
   const user = req.user;
   const { fileId } = req.params;
 
-  const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-    bucketName: "uploads",
-  });
-  user.showcaseImages = user.showcaseImages.filter((img) => {
-    if (img.fileId.toString() === fileId) {
-      bucket.delete(img.fileId).catch(() => {});
-      return false;
-    }
-    return true;
-  });
+  const toRemove = user.showcaseImages.find((img) => img.fileId.toString() === fileId);
+  user.showcaseImages = user.showcaseImages.filter((img) => img.fileId.toString() !== fileId);
   await user.save();
+  if (toRemove) await storageRouter.deleteFile(toRemove.fileId);
   res.redirect("/dashboard/settings?saved=1");
 };
 
@@ -238,21 +249,8 @@ exports.toggleAccountStatus = async (req, res) => {
 exports.deleteAccount = async (req, res) => {
   try {
     const user = req.user;
-    const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-      bucketName: "uploads",
-    });
-
-    const cleanupFiles = async (refs) => {
-      for (const ref of refs || []) {
-        if (ref && ref.fileId) {
-          try {
-            await bucket.delete(ref.fileId);
-          } catch (e) {}
-        }
-      }
-    };
-
-    await cleanupFiles([user.avatar, user.banner, ...user.showcaseImages]);
+    const fileIds = [user.avatar?.fileId, user.banner?.fileId, ...user.showcaseImages.map((i) => i.fileId)];
+    await storageRouter.deleteFiles(fileIds);
     await User.deleteOne({ _id: user._id });
     req.session.destroy(() => res.redirect("/"));
   } catch (err) {

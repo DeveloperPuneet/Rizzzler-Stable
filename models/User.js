@@ -82,9 +82,18 @@ const userSchema = new mongoose.Schema(
     },
 
     createdAt: { type: Date, default: Date.now },
+    // Updated whenever the user hits an authenticated dashboard route or
+    // their public showcase gets viewed — powers "Last active" in admin
+    // user analytics.
+    lastActiveAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
+
+// Speeds up the account-cleanup job's `{ isVerified: false, createdAt: { $lt } }`
+// query (see config/accountCleanup.js) — without this it would be a full
+// collection scan as the user base grows.
+userSchema.index({ isVerified: 1, createdAt: 1 });
 
 userSchema.methods.comparePassword = function (candidate) {
   return bcrypt.compare(candidate, this.password);

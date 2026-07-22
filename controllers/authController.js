@@ -2,6 +2,8 @@ const crypto = require("crypto");
 const User = require("../models/User");
 const { getNextSequence } = require("../models/Counter");
 const { sendVerificationEmail, sendPasswordResetEmail } = require("../config/mailer");
+const SecurityEvent = require("../models/SecurityEvent");
+const { getClientIp } = require("../middlewares/visitorTracker");
 
 const CODE_TTL_MS = 15 * 60 * 1000; // 15 minutes
 
@@ -155,6 +157,13 @@ exports.postLogin = async (req, res) => {
     const user = await User.findOne({ email: (email || "").toLowerCase() });
 
     if (!user || !(await user.comparePassword(password))) {
+      SecurityEvent.create({
+        type: "failed_login",
+        ip: req.clientIp || getClientIp(req),
+        identifier: (email || "").toLowerCase().slice(0, 120),
+        userAgent: req.headers["user-agent"],
+        path: req.originalUrl,
+      }).catch(() => {});
       return res.render("auth/login", { error: "Invalid email or password.", old: req.body });
     }
 
