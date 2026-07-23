@@ -126,23 +126,24 @@ exports.postVerify = async (req, res) => {
 exports.resendVerify = async (req, res) => {
   const userId = req.session.pendingUserId;
   if (!userId) return res.redirect("/login");
-  const user = await User.findById(userId);
-  if (!user) return res.redirect("/login");
-
-  const code = genCode();
-  user.verifyCode = code;
-  user.verifyCodeExpires = new Date(Date.now() + CODE_TTL_MS);
-  await user.save();
 
   try {
+    const user = await User.findById(userId);
+    if (!user) return res.redirect("/login");
+
+    const code = genCode();
+    user.verifyCode = code;
+    user.verifyCodeExpires = new Date(Date.now() + CODE_TTL_MS);
+    await user.save();
+
     await sendVerificationEmail(user.email, code);
     console.log("mail sent");
     res.render("auth/verify", {
       error: null,
       info: "A new verification code has been sent to your email. Please check your inbox and spam folder.",
     });
-  } catch (mailErr) {
-    console.error("Resend verification email failed:", mailErr?.message || mailErr);
+  } catch (err) {
+    console.error("Resend verification failed:", err?.message || err);
     res.render("auth/verify", {
       error: "We couldn't send the email right now. Please wait a moment and try again.",
       info: null,

@@ -43,6 +43,10 @@ const FileLocation = require("../models/FileLocation");
 
 const STATS_CACHE_MS = 5 * 60 * 1000; // refresh capacity stats at most every 5 minutes
 const clusters = discoverClusters(); // throws at boot if MONGO_URI is missing
+console.log(
+  `📦 Storage clusters discovered: ${clusters.map((c) => c.key).join(", ")}` +
+    (clusters.length === 1 ? " (only the primary — set MONGO_URI_2 to add more capacity)" : "")
+);
 const clusterByKey = new Map(clusters.map((c) => [c.key, c]));
 
 // connection + bucket + stats cache, per cluster key
@@ -72,7 +76,16 @@ function getConnection(clusterKey) {
     connection.once("open", () => console.log(`✅ Storage cluster "${clusterKey}" connected`));
   }
 
-  entry = { cluster, connection, bucket: null, statsCachedAt: 0, freeBytes: cluster.capacityBytes };
+  // NOTE: freeBytes starts at 0 (not cluster.capacityBytes) on purpose.
+  // It used to default to "fully free", which meant a cluster that had
+  // never actually connected (e.g. a mistyped/unreachable MONGO_URI_2)
+  // looked MORE attractive to the allocator than a healthy primary that
+  // has real usage subtracted from its capacity. That made the allocator
+  // route every single upload at the broken cluster, which then failed
+  // (or hung, depending on how it failed) on every request. Starting
+  // pessimistic means a cluster only becomes eligible for writes once
+  // refreshStats() has proven it's actually reachable — see refreshStats.
+  entry = { cluster, connection, bucket: null, statsCachedAt: 0, freeBytes: 0, everConnected: false };
   state.set(clusterKey, entry);
   return entry;
 }
@@ -113,9 +126,15 @@ async function refreshStats(clusterKey) {
     const used = stats.dataSize || 0;
     entry.freeBytes = Math.max(0, entry.cluster.capacityBytes - used);
     entry.statsCachedAt = Date.now();
+    entry.everConnected = true;
   } catch (err) {
     console.error(`⚠️  Could not refresh storage stats for "${clusterKey}":`, err.message);
-    // Leave the previous cached estimate in place rather than blocking uploads.
+    // If we've connected successfully before, keep that cached estimate
+    // rather than blocking uploads over one transient blip. But if this
+    // cluster has NEVER successfully connected, freeBytes stays at 0 (its
+    // pessimistic default) — an unreachable cluster must not outrank
+    // healthy ones just because its "usage" was never actually measured.
+    entry.statsCachedAt = Date.now(); // still respect the cache TTL so we don't hammer a down cluster every request
   }
   return entry.freeBytes;
 }

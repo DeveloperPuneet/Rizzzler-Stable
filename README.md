@@ -2,8 +2,9 @@
 
 A social media "showcase" profile platform (think cards.lol / guns.lol style).
 Every user gets `rizzzler.onrender.com/username` — a themed, customizable
-page with their bio, socials, links, photos, and background music.
-
+page with their bio, socials, links, photos, and background music.<br>
+sample: https://rizzzler.onrender.com/puneet2010
+<br>
 Built as a classic **MVC** app: Express + EJS + MongoDB/Mongoose.
 **Every uploaded file (avatar, banner, showcase photos) is streamed straight
 into MongoDB via GridFS — nothing is ever written to local/server disk.**
@@ -28,15 +29,6 @@ Max upload size is enforced server-side at **5MB**.
   2. **Milestone mail** — users automatically get an email when their showcase crosses 50, 100, 500, 1,000, 2,000 views, then every +1,000 after that.
   3. **AI fun mail** — a Gemini-generated playful email (like a food-delivery app notification) sent to everyone at a random time on random days. Requires `GEMINI_API_KEY`.
   All three can be toggled on/off from the admin Customize page. After **3 incorrect admin password attempts**, that device/IP is **permanently blocked** from ever reaching `/admin` again.
-
----
-
-## 🔐 Admin panel setup
-
-1. Set `ADMIN_PASSWORD` in `.env` to a strong password.
-2. (Optional, for AI fun mail) Set `GEMINI_API_KEY` — get one at https://aistudio.google.com/app/apikey.
-3. Visit `/admin` and log in with just that password (no username).
-4. ⚠️ You get 3 attempts. On the 3rd wrong attempt, your current device **and** IP are permanently blocked from `/admin` — there is no automatic unblock. Double-check your password before entering it.
 
 ---
 

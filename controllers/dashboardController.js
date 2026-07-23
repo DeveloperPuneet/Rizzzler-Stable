@@ -159,24 +159,21 @@ exports.updateProfile = async (req, res) => {
 };
 
 // Update email preferences
+//
+// IMPORTANT: unchecked HTML checkboxes are simply omitted from the POST
+// body by the browser (there's no "off" value sent). This form only ever
+// contains these 3 checkboxes, so absence unambiguously means "the user
+// left it unchecked" — we must NOT gate these on req.body.hasOwnProperty()
+// like updateProfile() does for its optional/partial fields, or an
+// unchecked box can never be saved as false (it'll just silently keep
+// whatever the previous value was).
 exports.updateEmailPreferences = async (req, res) => {
   try {
     const user = req.user;
-    
-    // Newsletter preference
-    if (req.body.hasOwnProperty("emailNewsletter")) {
-      user.emailPreferences.newsletter = req.body.emailNewsletter === "on" || req.body.emailNewsletter === "true";
-    }
 
-    // AI mail preference
-    if (req.body.hasOwnProperty("emailAiMail")) {
-      user.emailPreferences.aiMail = req.body.emailAiMail === "on" || req.body.emailAiMail === "true";
-    }
-
-    // Milestone emails preference
-    if (req.body.hasOwnProperty("emailMilestone")) {
-      user.emailPreferences.milestoneEmails = req.body.emailMilestone === "on" || req.body.emailMilestone === "true";
-    }
+    user.emailPreferences.newsletter = req.body.emailNewsletter === "on" || req.body.emailNewsletter === "true";
+    user.emailPreferences.aiMail = req.body.emailAiMail === "on" || req.body.emailAiMail === "true";
+    user.emailPreferences.milestoneEmails = req.body.emailMilestone === "on" || req.body.emailMilestone === "true";
 
     await user.save();
     res.redirect("/dashboard/settings?saved=1");
@@ -193,14 +190,25 @@ async function replaceSingleImage(req, res, field) {
   const user = req.user;
   if (!req.file) return res.redirect("/dashboard/settings?error=nofile");
 
-  const old = user[field];
-  if (old && old.fileId) {
-    await storageRouter.deleteFile(old.fileId);
-  }
+  try {
+    const old = user[field];
+    if (old && old.fileId) {
+      await storageRouter.deleteFile(old.fileId);
+    }
 
-  user[field] = { fileId: req.file.id, filename: req.file.filename };
-  await user.save();
-  res.redirect("/dashboard/settings?saved=1");
+    user[field] = { fileId: req.file.id, filename: req.file.filename };
+    await user.save();
+    res.redirect("/dashboard/settings?saved=1");
+  } catch (err) {
+    // Without this catch, any failure here (old-file cleanup, a slow/
+    // unreachable secondary storage cluster, a save() error) becomes an
+    // unhandled promise rejection: Express never sends a response, so the
+    // browser just spins forever with no feedback. This is what was
+    // behind the "avatar upload never finishes" report — surface it as a
+    // visible error instead of hanging the request.
+    console.error(`${field} upload failed:`, err);
+    res.redirect("/dashboard/settings?error=" + encodeURIComponent("Upload failed. Please try again."));
+  }
 }
 
 exports.uploadAvatar = (req, res) => replaceSingleImage(req, res, "avatar");
@@ -211,26 +219,36 @@ exports.uploadShowcaseImage = async (req, res) => {
   const user = req.user;
   if (!req.file) return res.redirect("/dashboard/settings?error=nofile");
 
-  if (user.showcaseImages.length >= 2) {
-    const removed = user.showcaseImages.shift();
-    if (removed && removed.fileId) {
-      await storageRouter.deleteFile(removed.fileId);
+  try {
+    if (user.showcaseImages.length >= 2) {
+      const removed = user.showcaseImages.shift();
+      if (removed && removed.fileId) {
+        await storageRouter.deleteFile(removed.fileId);
+      }
     }
+    user.showcaseImages.push({ fileId: req.file.id, filename: req.file.filename });
+    await user.save();
+    res.redirect("/dashboard/settings?saved=1");
+  } catch (err) {
+    console.error("Showcase image upload failed:", err);
+    res.redirect("/dashboard/settings?error=" + encodeURIComponent("Upload failed. Please try again."));
   }
-  user.showcaseImages.push({ fileId: req.file.id, filename: req.file.filename });
-  await user.save();
-  res.redirect("/dashboard/settings?saved=1");
 };
 
 exports.deleteShowcaseImage = async (req, res) => {
   const user = req.user;
   const { fileId } = req.params;
 
-  const toRemove = user.showcaseImages.find((img) => img.fileId.toString() === fileId);
-  user.showcaseImages = user.showcaseImages.filter((img) => img.fileId.toString() !== fileId);
-  await user.save();
-  if (toRemove) await storageRouter.deleteFile(toRemove.fileId);
-  res.redirect("/dashboard/settings?saved=1");
+  try {
+    const toRemove = user.showcaseImages.find((img) => img.fileId.toString() === fileId);
+    user.showcaseImages = user.showcaseImages.filter((img) => img.fileId.toString() !== fileId);
+    await user.save();
+    if (toRemove) await storageRouter.deleteFile(toRemove.fileId);
+    res.redirect("/dashboard/settings?saved=1");
+  } catch (err) {
+    console.error("Showcase image delete failed:", err);
+    res.redirect("/dashboard/settings?error=" + encodeURIComponent("Couldn't remove that photo. Please try again."));
+  }
 };
 
 exports.toggleAccountStatus = async (req, res) => {

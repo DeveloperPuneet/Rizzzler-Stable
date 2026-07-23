@@ -1,78 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2GM4TWFFR5"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-2GM4TWFFR5');
-</script>
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2GM4TWFFR5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-2GM4TWFFR5');
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#06060e" />
-  <meta name="description" content="<%= typeof metaDescription !== 'undefined' && metaDescription ? metaDescription : defaultDescription %>" />
-  <meta name="keywords" content="<%= typeof metaKeywords !== 'undefined' && metaKeywords ? metaKeywords : defaultKeywords %>" />
+  <meta name="description"
+    content="<%= typeof metaDescription !== 'undefined' && metaDescription ? metaDescription : defaultDescription %>" />
+  <meta name="keywords"
+    content="<%= typeof metaKeywords !== 'undefined' && metaKeywords ? metaKeywords : defaultKeywords %>" />
   <meta name="robots" content="index, follow" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="<%= typeof pageTitle !== 'undefined' ? pageTitle : siteName %>" />
-  <meta property="og:description" content="<%= typeof metaDescription !== 'undefined' && metaDescription ? metaDescription : defaultDescription %>" />
+  <meta property="og:description"
+    content="<%= typeof metaDescription !== 'undefined' && metaDescription ? metaDescription : defaultDescription %>" />
   <meta property="og:image" content="<%= baseUrl %>/images/logo.png" />
   <meta property="og:url" content="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : currentUrl %>" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="<%= typeof pageTitle !== 'undefined' ? pageTitle : siteName %>" />
-  <meta name="twitter:description" content="<%= typeof metaDescription !== 'undefined' && metaDescription ? metaDescription : defaultDescription %>" />
+  <meta name="twitter:description"
+    content="<%= typeof metaDescription !== 'undefined' && metaDescription ? metaDescription : defaultDescription %>" />
   <meta name="twitter:image" content="<%= baseUrl %>/images/logo.png" />
   <link rel="canonical" href="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : currentUrl %>" />
-  <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Rizzzler' %></title>
-  <% if (typeof structuredData !== 'undefined' && structuredData) { %>
+  <title>
+    <%= typeof pageTitle !=='undefined' ? pageTitle : 'Rizzzler' %>
+  </title>
+  <% if (typeof structuredData !=='undefined' && structuredData) { %>
     <script type="application/ld+json"><%- JSON.stringify(structuredData) %></script>
-  <% } %>
-  <link rel="icon" type="image/png" href="/images/logo.png" />
-  <link rel="apple-touch-icon" href="/images/logo.png" />
-  <link rel="stylesheet" href="/css/main.css" />
-  <% if (typeof extraCss !== 'undefined' && extraCss) { %>
-    <link rel="stylesheet" href="<%= extraCss %>" />
-  <% } %>
-  <!-- additional header styling (already in main.css but we can override) -->
-  <style>
-    /* styling extra */
-  </style>
-  <meta name="monetag" content="6eea333ba778f5a0f0fd630462dfd7b3">
-  <meta name='admaven-placement' content=BqTY9qHwF>
-</head>
-<body>
-<div class="rz-page-loader" id="pageLoader" aria-hidden="true">
-  <div class="rz-loader-card">
-    <div class="rz-loader-logo-wrap">
-      <img src="/images/logo.png" alt="Rizzzler logo" class="rz-loader-logo" />
-    </div>
-    <div class="rz-loader-text">Loading your page…</div>
-    <div class="rz-loader-bar"><span></span></div>
-  </div>
-</div>
-<nav class="rz-nav">
-  <a href="/" class="rz-logo">
-    <img src="/images/logo.png" alt="Rizzzler logo" class="rz-nav-logo" />
-    <span>Rizzzler</span>
-  </a>
-  <div class="rz-nav-links">
-    <a href="/about-developer">About</a>
-    <a href="/privacy-policy">Privacy</a>
-    <a href="/terms">Terms</a>
-    <% if (isLoggedIn) { %>
-      <a href="/dashboard">Dashboard</a>
-      <a href="/dashboard/settings">Customize</a>
-      <a href="/dashboard/settings" class="rz-nav-user" title="Account settings">
-        <div class="rz-nav-avatar"><%= (typeof user !== 'undefined' && user.displayName) ? user.displayName.charAt(0).toUpperCase() : 'U' %></div>
-      </a>
-    <% } else { %>
-      <a href="/login">Login</a>
-      <a href="/register" class="rz-nav-signup">Sign up</a>
     <% } %>
+      <link rel="icon" type="image/png" href="/images/logo.png" />
+      <link rel="apple-touch-icon" href="/images/logo.png" />
+      <link rel="stylesheet" href="/css/main.css" />
+      <% if (typeof extraCss !=='undefined' && extraCss) { %>
+        <link rel="stylesheet" href="<%= extraCss %>" />
+        <% } %>
+          <!-- additional header styling (already in main.css but we can override) -->
+          <style>
+            /* styling extra */
+          </style>
+          <meta name="monetag" content="6eea333ba778f5a0f0fd630462dfd7b3">
+          <meta name='admaven-placement' content=BqTY9qHwF>
+</head>
+
+<body>
+  <div class="rz-page-loader" id="pageLoader" aria-hidden="true">
+    <div class="rz-loader-card">
+      <div class="rz-loader-logo-wrap">
+        <img src="/images/logo.png" alt="Rizzzler logo" class="rz-loader-logo" />
+      </div>
+      <div class="rz-loader-text">Loading your page…</div>
+      <div class="rz-loader-bar"><span></span></div>
+    </div>
   </div>
-</nav>
-<main class="rz-main">
-  
+  <nav class="rz-nav">
+    <a href="/" class="rz-logo">
+      <img src="/images/logo.png" alt="Rizzzler logo" class="rz-nav-logo" />
+      <span>Rizzzler</span>
+    </a>
+    <div class="rz-nav-links">
+      <a href="/about-developer">About</a>
+      <a href="/privacy-policy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <% if (isLoggedIn) { %>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/dashboard/settings">Customize</a>
+        <a href="/dashboard/settings" class="rz-nav-user" title="Account settings">
+          <div class="rz-nav-avatar">
+            <%= (typeof user !=='undefined' && user.displayName) ? user.displayName.charAt(0).toUpperCase() : 'U' %>
+          </div>
+        </a>
+        <% } else { %>
+          <a href="/login">Login</a>
+          <a href="/register" class="rz-nav-signup">Sign up</a>
+          <% } %>
+    </div>
+  </nav>
+  <main class="rz-main">
