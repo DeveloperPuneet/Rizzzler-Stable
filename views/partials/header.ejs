@@ -2,17 +2,14 @@
 <html lang="en">
 
 <head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2GM4TWFFR5"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-
-    gtag('config', 'G-2GM4TWFFR5');
-  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#06060e" />
+  <!-- Warm up the analytics connection early without letting it block the
+       first paint — the actual gtag script stays async and loads further
+       down, after the render-critical stylesheet link. -->
+  <link rel="preconnect" href="https://www.googletagmanager.com" />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
   <meta name="description"
     content="<%= typeof metaDescription !== 'undefined' && metaDescription ? metaDescription : defaultDescription %>" />
   <meta name="keywords"
@@ -42,12 +39,18 @@
       <% if (typeof extraCss !=='undefined' && extraCss) { %>
         <link rel="stylesheet" href="<%= extraCss %>" />
         <% } %>
-          <!-- additional header styling (already in main.css but we can override) -->
-          <style>
-            /* styling extra */
-          </style>
           <meta name="monetag" content="6eea333ba778f5a0f0fd630462dfd7b3">
           <meta name='admaven-placement' content=BqTY9qHwF>
+          <!-- Loaded after the stylesheet so it never competes with CSS for
+               bandwidth on the critical rendering path; still async so it
+               doesn't block parsing either way. -->
+          <script async src="https://www.googletagmanager.com/gtag/js?id=G-2GM4TWFFR5"></script>
+          <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', 'G-2GM4TWFFR5');
+          </script>
 </head>
 
 <body>
@@ -66,6 +69,7 @@
       <span>Rizzzler</span>
     </a>
     <div class="rz-nav-links">
+      <a href="/explore">Explore</a>
       <a href="/about-developer">About</a>
       <a href="/privacy-policy">Privacy</a>
       <a href="/terms">Terms</a>

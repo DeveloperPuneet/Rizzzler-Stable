@@ -1,0 +1,8 @@
+<%
+/* Expects a local `active` string: 'explore' | 'featured' | 'trending' */
+%>
+<div class="rz-discover-tabs">
+  <a href="/explore" class="rz-discover-tab <%= active === 'explore' ? 'is-active' : '' %>">🧭 Explore</a>
+  <a href="/featured-creators" class="rz-discover-tab <%= active === 'featured' ? 'is-active' : '' %>">⭐ Featured Creators</a>
+  <a href="/trending-developers" class="rz-discover-tab <%= active === 'trending' ? 'is-active' : '' %>">🔥 Trending Developers</a>
+</div>

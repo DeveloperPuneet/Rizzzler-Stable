@@ -44,6 +44,15 @@ const userSchema = new mongoose.Schema(
     profession: { type: String, maxlength: 80, default: "" },
     links: [linkSchema],
     profileViews: { type: Number, default: 0 },
+    // Rolling counter used to rank the "Trending" page — incremented on every
+    // profile view alongside profileViews, then zeroed out weekly by
+    // config/trendingReset.js so the ranking reflects recent momentum
+    // instead of lifetime totals (which would just always show the oldest
+    // accounts).
+    weeklyViews: { type: Number, default: 0 },
+    // Admin-curated flag (see admin/user-detail) that surfaces a profile on
+    // the public "Featured Creators" page.
+    isFeatured: { type: Boolean, default: false },
 
     // GridFS file references (fileId = ObjectId in uploads.files, filename kept for convenience)
     avatar: {
@@ -94,6 +103,15 @@ const userSchema = new mongoose.Schema(
 // query (see config/accountCleanup.js) — without this it would be a full
 // collection scan as the user base grows.
 userSchema.index({ isVerified: 1, createdAt: 1 });
+
+// Powers the public discovery pages (Routes/showcaseRoutes.js -> exploreController):
+// Explore (newest verified+active profiles), Trending (weeklyViews desc),
+// Featured (admin-curated). All three filter on isVerified/isActive first,
+// so a compound index keeps those queries index-only instead of scanning
+// every user in the collection.
+userSchema.index({ isVerified: 1, isActive: 1, createdAt: -1 });
+userSchema.index({ isVerified: 1, isActive: 1, weeklyViews: -1 });
+userSchema.index({ isVerified: 1, isActive: 1, isFeatured: 1, createdAt: -1 });
 
 userSchema.methods.comparePassword = function (candidate) {
   return bcrypt.compare(candidate, this.password);

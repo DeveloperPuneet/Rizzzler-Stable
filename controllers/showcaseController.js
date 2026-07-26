@@ -42,7 +42,7 @@ exports.showProfile = async (req, res) => {
 
   const updated = await User.findOneAndUpdate(
     { _id: user._id },
-    { $inc: { profileViews: 1 } },
+    { $inc: { profileViews: 1, weeklyViews: 1 } },
     { new: true }
   );
   user.profileViews = updated ? updated.profileViews : (user.profileViews || 0) + 1;

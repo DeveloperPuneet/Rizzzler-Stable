@@ -1,0 +1,38 @@
+<%- include('partials/header') %>
+
+<section class="rz-section rz-discover-hero">
+  <div class="rz-section-header">
+    <span class="rz-section-eyebrow">Discover</span>
+    <h1>Featured <span class="rz-gradient-text">Creators</span></h1>
+    <p class="rz-section-sub">A curated lineup of standout Rizzzler showcases — handpicked for style, polish, and personality.</p>
+  </div>
+  <%- include('partials/discover-tabs', { active: 'featured' }) %>
+</section>
+
+<section class="rz-section rz-discover-grid-section">
+  <% if (profiles.length) { %>
+    <div class="rz-profile-grid">
+      <% profiles.forEach((card) => { %>
+        <%- include('partials/profile-card', { card }) %>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="rz-discover-empty">
+      <div class="rz-discover-empty-icon">⭐</div>
+      <h3>No featured creators yet</h3>
+      <p>We're still curating this list — check back soon, or explore every public profile in the meantime.</p>
+      <a href="/explore" class="rz-btn rz-btn-primary rz-btn-glow">Browse all profiles</a>
+    </div>
+  <% } %>
+</section>
+
+<section class="rz-section rz-cta-bottom">
+  <div class="rz-cta-bottom-card">
+    <div class="rz-cta-bottom-blob"></div>
+    <h2>Want to be <span class="rz-gradient-text">featured</span>?</h2>
+    <p>Build a showcase that stands out — great theme, sharp bio, a gallery that tells your story.</p>
+    <a href="/register" class="rz-btn rz-btn-primary rz-btn-glow rz-btn-lg">Create your Rizzzler page</a>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

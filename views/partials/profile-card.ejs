@@ -1,0 +1,35 @@
+<%
+/* Expects a local `card` object shaped by controllers/exploreController.js#toCard.
+   Included per-item from the discovery pages via partials/profile-card. */
+%>
+<a href="/<%= card.username %>" class="rz-profile-card" style="--card-accent: <%= card.accent %>;">
+  <div class="rz-profile-card-banner"<% if (card.bannerFileId) { %> style="background-image:url('/file/<%= card.bannerFileId %>')"<% } %>></div>
+  <% if (card.isFeatured) { %><span class="rz-profile-card-ribbon">★ Featured</span><% } %>
+  <div class="rz-profile-card-body">
+    <div class="rz-profile-card-avatar-wrap">
+      <% if (card.avatarFileId) { %>
+        <img src="/file/<%= card.avatarFileId %>" alt="<%= card.displayName %>" class="rz-profile-card-avatar" loading="lazy" decoding="async" width="72" height="72" />
+      <% } else { %>
+        <div class="rz-profile-card-avatar rz-profile-card-avatar--fallback"><%= card.displayName.charAt(0).toUpperCase() %></div>
+      <% } %>
+    </div>
+    <h3 class="rz-profile-card-name">
+      <%= card.displayName %>
+      <% if (card.legacyNumber) { %><span class="rz-profile-card-legacy">#<%= card.legacyNumber %></span><% } %>
+    </h3>
+    <p class="rz-profile-card-username">@<%= card.username %></p>
+    <% if (card.profession || card.location) { %>
+      <p class="rz-profile-card-meta">
+        <% if (card.profession) { %><span>💼 <%= card.profession %></span><% } %>
+        <% if (card.location) { %><span>📍 <%= card.location %></span><% } %>
+      </p>
+    <% } %>
+    <% if (card.bio) { %><p class="rz-profile-card-bio"><%= card.bio %></p><% } %>
+    <div class="rz-profile-card-footer">
+      <span class="rz-profile-card-views">👁️ <%= card.profileViews.toLocaleString() %></span>
+      <% if (card.weeklyViews > 0) { %>
+        <span class="rz-profile-card-trend">🔥 <%= card.weeklyViews.toLocaleString() %> this week</span>
+      <% } %>
+    </div>
+  </div>
+</a>

@@ -141,7 +141,7 @@ exports.updateUser = async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).send("User not found");
 
-    const { displayName, email, username, bio, isVerified, isActive, showLegacyBadge, newPassword } = req.body;
+    const { displayName, email, username, bio, isVerified, isActive, showLegacyBadge, isFeatured, newPassword } = req.body;
 
     if (displayName !== undefined) user.displayName = displayName.slice(0, 40);
     if (bio !== undefined) user.bio = bio.slice(0, 300);
@@ -150,6 +150,7 @@ exports.updateUser = async (req, res) => {
     user.isVerified = isVerified === "on" || isVerified === "true";
     user.isActive = isActive === "on" || isActive === "true";
     user.showLegacyBadge = showLegacyBadge === "on" || showLegacyBadge === "true";
+    user.isFeatured = isFeatured === "on" || isFeatured === "true";
 
     if (newPassword && newPassword.trim().length >= 6) {
       user.password = newPassword.trim(); // hashed by pre-save hook

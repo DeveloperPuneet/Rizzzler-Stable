@@ -1,0 +1,56 @@
+<%- include('partials/header') %>
+
+<section class="rz-section rz-discover-hero">
+  <div class="rz-section-header">
+    <span class="rz-section-eyebrow">Discover</span>
+    <h1>Explore <span class="rz-gradient-text">Profiles</span></h1>
+    <p class="rz-section-sub">Browse every public Rizzzler showcase — search by name, profession, or location.</p>
+  </div>
+  <%- include('partials/discover-tabs', { active: 'explore' }) %>
+
+  <form action="/explore" method="GET" class="rz-explore-search" role="search">
+    <input type="text" name="q" value="<%= q %>" placeholder="Search by name, profession, or location…" maxlength="60" aria-label="Search profiles" />
+    <% if (sortBy === 'popular') { %><input type="hidden" name="sort" value="popular" /><% } %>
+    <button type="submit" class="rz-btn rz-btn-primary">Search</button>
+  </form>
+
+  <div class="rz-explore-toolbar">
+    <span class="rz-explore-count"><%= total.toLocaleString() %> profile<%= total === 1 ? '' : 's' %><%= q ? ` for “${q}”` : '' %></span>
+    <div class="rz-explore-sort">
+      <a href="/explore?sort=newest<%= q ? '&q=' + encodeURIComponent(q) : '' %>" class="<%= sortBy === 'newest' ? 'is-active' : '' %>">Newest</a>
+      <a href="/explore?sort=popular<%= q ? '&q=' + encodeURIComponent(q) : '' %>" class="<%= sortBy === 'popular' ? 'is-active' : '' %>">Most viewed</a>
+    </div>
+  </div>
+</section>
+
+<section class="rz-section rz-discover-grid-section">
+  <% if (profiles.length) { %>
+    <div class="rz-profile-grid">
+      <% profiles.forEach((card) => { %>
+        <%- include('partials/profile-card', { card }) %>
+      <% }) %>
+    </div>
+
+    <% if (totalPages > 1) { %>
+      <nav class="rz-pagination" aria-label="Pagination">
+        <% const qs = (p) => `?page=${p}${sortBy === 'popular' ? '&sort=popular' : ''}${q ? '&q=' + encodeURIComponent(q) : ''}`; %>
+        <% if (page > 1) { %>
+          <a href="/explore<%= qs(page - 1) %>" class="rz-page-link">← Prev</a>
+        <% } %>
+        <span class="rz-page-status">Page <%= page %> of <%= totalPages %></span>
+        <% if (page < totalPages) { %>
+          <a href="/explore<%= qs(page + 1) %>" class="rz-page-link">Next →</a>
+        <% } %>
+      </nav>
+    <% } %>
+  <% } else { %>
+    <div class="rz-discover-empty">
+      <div class="rz-discover-empty-icon">🔍</div>
+      <h3>No profiles found</h3>
+      <p><% if (q) { %>Nothing matched “<%= q %>”. Try a different search.<% } else { %>No public profiles yet — be the first to claim your page.<% } %></p>
+      <a href="/register" class="rz-btn rz-btn-primary rz-btn-glow">Create your Rizzzler page</a>
+    </div>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>

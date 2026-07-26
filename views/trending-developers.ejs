@@ -1,0 +1,41 @@
+<%- include('partials/header') %>
+
+<section class="rz-section rz-discover-hero">
+  <div class="rz-section-header">
+    <span class="rz-section-eyebrow">Discover</span>
+    <h1>Trending <span class="rz-gradient-text">Developers</span></h1>
+    <p class="rz-section-sub">The Rizzzler showcases getting the most love this week, ranked by recent views. Resets every Monday.</p>
+  </div>
+  <%- include('partials/discover-tabs', { active: 'trending' }) %>
+</section>
+
+<section class="rz-section rz-discover-grid-section">
+  <% if (profiles.length) { %>
+    <div class="rz-profile-grid">
+      <% profiles.forEach((card, i) => { %>
+        <div class="rz-trending-item">
+          <span class="rz-trending-rank">#<%= i + 1 %></span>
+          <%- include('partials/profile-card', { card }) %>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="rz-discover-empty">
+      <div class="rz-discover-empty-icon">🔥</div>
+      <h3>Nothing trending yet this week</h3>
+      <p>Trending resets every Monday and ranks profiles by recent views. Be the first — share your page and get views rolling in.</p>
+      <a href="/explore" class="rz-btn rz-btn-primary rz-btn-glow">Browse all profiles</a>
+    </div>
+  <% } %>
+</section>
+
+<section class="rz-section rz-cta-bottom">
+  <div class="rz-cta-bottom-card">
+    <div class="rz-cta-bottom-blob"></div>
+    <h2>Climb the <span class="rz-gradient-text">trending list</span></h2>
+    <p>Share your Rizzzler link everywhere — every view this week counts toward the rankings.</p>
+    <a href="/register" class="rz-btn rz-btn-primary rz-btn-glow rz-btn-lg">Create your Rizzzler page</a>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

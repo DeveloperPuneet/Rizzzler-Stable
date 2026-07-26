@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
+const compression = require("compression");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const methodOverride = require("method-override");
@@ -10,6 +11,7 @@ const connectDB = require("./config/db");
 const startKeepAlive = require("./config/keepAlive");
 const { startAiMailScheduler } = require("./config/aiMailScheduler");
 const { startAccountCleanupScheduler } = require("./config/accountCleanup");
+const { startTrendingReset } = require("./config/trendingReset");
 const User = require("./models/User");
 
 const authRoutes = require("./Routes/authRoutes");
@@ -33,9 +35,17 @@ connectDB();
 startKeepAlive();
 startAiMailScheduler();
 startAccountCleanupScheduler(); // deletes accounts left unverified for 15+ days (config/accountCleanup.js)
+startTrendingReset(); // weekly reset of User.weeklyViews that powers /trending-developers (config/trendingReset.js)
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+
+// gzip/brotli-equivalent compression for every response (HTML, CSS, JSON,
+// EJS-rendered pages). Skips already-compressed types (images, etc.) on
+// its own — this is the single biggest "fast loading" win available for
+// close to zero cost. Must be registered before anything that writes a
+// response body.
+app.use(compression());
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -56,11 +66,23 @@ const AUDIO_MIME_OVERRIDES = {
 };
 app.use(
   express.static(path.join(__dirname, "public"), {
+    // Static assets (CSS/JS/images/decor/audio presets) aren't cache-busted
+    // with a hash in the filename, so we use a moderate max-age rather than
+    // a year-long "immutable" cache — long enough to skip a re-download on
+    // most repeat visits, short enough that a future deploy's CSS/JS
+    // changes still show up within a day instead of being stuck in a
+    // visitor's cache.
+    maxAge: "1d",
     setHeaders: (res, filePath) => {
       const ext = path.extname(filePath).toLowerCase();
       if (AUDIO_MIME_OVERRIDES[ext]) {
         res.setHeader("Content-Type", AUDIO_MIME_OVERRIDES[ext]);
         res.setHeader("Accept-Ranges", "bytes");
+      }
+      // Images change even less often than CSS/JS in this app (they're
+      // basically static brand assets), so give them a longer cache.
+      if ([".png", ".jpg", ".jpeg", ".webp", ".svg", ".gif", ".ico"].includes(ext)) {
+        res.setHeader("Cache-Control", "public, max-age=604800"); // 7 days
       }
     },
   })
@@ -123,16 +145,20 @@ app.get("/robots.txt", (req, res) => {
 app.get("/sitemap.xml", async (req, res) => {
   try {
     const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const now = new Date().toISOString();
     const staticPages = [
       { path: "/", priority: "1.0", changefreq: "weekly" },
-      { path: "/about-developer", priority: "0.8", changefreq: "monthly" },
-      { path: "/privacy-policy", priority: "0.7", changefreq: "monthly" },
-      { path: "/terms", priority: "0.7", changefreq: "monthly" },
+      { path: "/explore", priority: "0.9", changefreq: "daily" },
+      { path: "/featured-creators", priority: "0.8", changefreq: "weekly" },
+      { path: "/trending-developers", priority: "0.8", changefreq: "daily" },
+      { path: "/about-developer", priority: "0.6", changefreq: "monthly" },
+      { path: "/privacy-policy", priority: "0.5", changefreq: "monthly" },
+      { path: "/terms", priority: "0.5", changefreq: "monthly" },
       { path: "/register", priority: "0.9", changefreq: "weekly" },
-      { path: "/login", priority: "0.8", changefreq: "monthly" },
+      { path: "/login", priority: "0.7", changefreq: "monthly" },
     ];
     const users = await User.find({ isVerified: true, isActive: { $ne: false } })
-      .select("username")
+      .select("username updatedAt")
       .lean();
 
     const urls = [
@@ -140,17 +166,19 @@ app.get("/sitemap.xml", async (req, res) => {
         loc: `${baseUrl}${path}`,
         priority,
         changefreq,
+        lastmod: now,
       })),
       ...users.map((user) => ({
         loc: `${baseUrl}/${user.username}`,
         priority: "0.6",
         changefreq: "monthly",
+        lastmod: (user.updatedAt || new Date()).toISOString(),
       })),
     ];
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls
       .map(
-        ({ loc, priority, changefreq }) => `\n  <url>\n    <loc>${escapeXml(loc)}</loc>\n    <changefreq>${escapeXml(changefreq)}</changefreq>\n    <priority>${escapeXml(priority)}</priority>\n  </url>`
+        ({ loc, priority, changefreq, lastmod }) => `\n  <url>\n    <loc>${escapeXml(loc)}</loc>\n    <lastmod>${escapeXml(lastmod)}</lastmod>\n    <changefreq>${escapeXml(changefreq)}</changefreq>\n    <priority>${escapeXml(priority)}</priority>\n  </url>`
       )
       .join("")}\n</urlset>\n`;
 
