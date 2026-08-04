@@ -1,55 +1,83 @@
 # Rizzzler 🌙
 
-A social media "showcase" profile platform (think cards.lol / guns.lol style).
-Every user gets `rizzzler.onrender.com/username` — a themed, customizable
-page with their bio, socials, links, photos, and background music.<br>
-sample: https://rizzzler.onrender.com/puneet2010
+Rizzzler is a polished one-link showcase platform for creators, founders, and personal brands. Each user gets a custom public profile at `/username` with themes, visuals, audio, links, and gallery photos — all designed to feel more like a personal landing page than a plain link-in-bio.
 <br>
-Built as a classic **MVC** app: Express + EJS + MongoDB/Mongoose.
-**Every uploaded file (avatar, banner, showcase photos) is streamed straight
-into MongoDB via GridFS — nothing is ever written to local/server disk.**
-Max upload size is enforced server-side at **5MB**.
+sample: https://www.rizzzler.work.gd/puneet2010
+<br>
+Built with Express, EJS, MongoDB/Mongoose, and GridFS. Every uploaded image is stored in MongoDB rather than local disk.
 
 ---
 
-## ✨ Features
+## ✨ What’s included
 
-- **Email-verified auth**: register → 6-digit code emailed → enter code → verified & logged in.
-- **Unverified login guard**: if an unverified user tries to log in, they're auto-sent a fresh code and dropped on the verify screen.
-- **Forgot / reset password**: email a 6-digit reset code, confirm, set new password.
-- **Dashboard**: "Good morning/afternoon/evening, {name}" greeting, your unique showcase link, quick stats.
-- **Settings page**: edit display name, bio, social/portfolio links, theme, background audio, avatar, banner, and up to 2 showcase photos — all editable, instantly reflected on your public page.
-- **7 built-in themes**: Moonlight, Scary Sky, Dark Nights, Cute Foxy, Diva, Scifi, and Rocky — each its own color palette + layout accents. Easy to add more (see below).
-- **Custom visual effects**: choose avatar glow styles, typing/glitch/shimmer title effects, and full-page showcase motion transforms for a more Discord-like, high-end profile vibe.
-- **Legacy badge**: the Nth person to ever verify their account gets a permanent `#N` badge, togglable on/off per user.
-- **Preset audio**: drop `.mp3/.wav/.ogg` files in `public/audios/` and they instantly become pickable, loopable, autoplay-able background tracks on users' showcase pages.
-- **GridFS file storage**: all images stream through MongoDB, served via `/file/:id`, 5MB hard limit, image-type validated.
-- **Admin panel** (`/admin`): password-protected control center (password from `ADMIN_PASSWORD` in `.env`). View stats, search/manage/edit/delete users, and control three mail features:
-  1. **Newsletter** — write a subject/message in the admin panel and send it to every verified, active user.
-  2. **Milestone mail** — users automatically get an email when their showcase crosses 50, 100, 500, 1,000, 2,000 views, then every +1,000 after that.
-  3. **AI fun mail** — a Gemini-generated playful email (like a food-delivery app notification) sent to everyone at a random time on random days. Requires `GEMINI_API_KEY`.
-  All three can be toggled on/off from the admin Customize page. After **3 incorrect admin password attempts**, that device/IP is **permanently blocked** from ever reaching `/admin` again.
+### Public profile experience
+- A public showcase page for every verified user.
+- Custom bio, display name, socials, portfolio links, and gallery photos.
+- Optional background audio with autoplay/loop controls.
+- A pause toggle so a user can hide their showcase temporarily.
+
+### Discovery pages
+- `/explore` — browse all public profiles with search and sorting.
+- `/featured-creators` — curated featured creators.
+- `/trending-developers` — weekly trending showcases ranked by views.
+- `/about-developer` — project story and creator intro.
+- `/privacy-policy` and `/terms` — public docs for the platform.
+
+### Customization system
+- 8 built-in themes:
+  - Moonlight
+  - Scary Sky
+  - Dark Nights
+  - Cute Foxy
+  - Diva
+  - Scifi
+  - Rocky
+  - Frostbyte
+- Multiple avatar effects: neon, burn, discord pulse, hologram, and more.
+- Multiple title effects: typewriter, glitch, shimmer, and static.
+- Multiple showcase motion effects: aurora, constellation, plasma, hologram, and no-extra-motion.
+- Easy theme/effect expansion through the shared registry.
+
+### Auth and account tools
+- Email verified registration with 6-digit verification codes.
+- Unverified login guard that resends the code automatically.
+- Forgot/reset password flow.
+- Legacy badge system for early verified users.
+
+### Admin panel
+- Secure admin area at `/admin`.
+- User management, analytics, security controls, and mail settings.
+- Mail features:
+  1. Newsletter emails to verified users.
+  2. Milestone mails at view thresholds (50, 100, 500, 1000, 2000, and every +1000 after).
+  3. AI-generated fun mail via Gemini.
+- IP/device lockout after repeated incorrect admin password attempts.
+
+### Self-cleaning automation
+- Unverified accounts older than 15 days are automatically removed with their uploaded assets.
+- Visitor analytics are automatically pruned every 2 days to keep the database lean and self-sustaining.
 
 ---
 
-## 🧱 Stack
+## 🧱 Tech stack
 
-Node.js · Express · MongoDB + Mongoose · GridFS · EJS · express-session (Mongo-backed) · bcryptjs · Nodemailer · Multer (in-memory only)
+Node.js · Express · EJS · MongoDB + Mongoose · GridFS · express-session · bcryptjs · Nodemailer · Multer · node-cron · UA parser / GeoIP helpers
 
 ---
 
-## 📂 Structure (MVC)
+## 📂 Project structure
 
-```
-config/         db.js, mailer.js, themes.js, milestones.js, aiMailScheduler.js
-controllers/    authController, dashboardController, showcaseController, fileController, adminController
-middlewares/    authMiddleware.js, upload.js (GridFS streaming), adminMiddleware.js
-models/         User.js, Counter.js (legacy badge counter), Settings.js, AdminAccess.js
-services/       geminiService.js (AI fun mail content generation)
-Routes/         authRoutes, dashboardRoutes, showcaseRoutes, fileRoutes, adminRoutes
-views/          landing, auth/*, dashboard/*, admin/*, showcase.ejs, partials/*
-public/         css/main.css + css/admin.css + css/themes/*.css, js/, audios/
+```text
 app.js
+config/          accountCleanup.js, aiMailScheduler.js, mailer.js, themes.js, visuals.js, storageRouter.js
+controllers/     adminController.js, authController.js, dashboardController.js, exploreController.js, fileController.js, showcaseController.js
+middlewares/     authMiddleware.js, adminMiddleware.js, rateLimiter.js, upload.js, visitorTracker.js
+models/          User.js, Visitor.js, Settings.js, AdminAccess.js, SecurityEvent.js, IpRule.js
+Routes/          adminRoutes.js, authRoutes.js, dashboardRoutes.js, fileRoutes.js, showcaseRoutes.js, apiRoutes.js
+services/        geminiService.js
+shared/          registry.js
+views/           landing, auth, dashboard, admin, discover pages, privacy/terms/showcase templates
+public/          css, audios, decor, images
 ```
 
 ---
@@ -67,17 +95,20 @@ Copy `.env.example` to `.env` and fill in your values:
 cp .env.example .env
 ```
 
-- `MONGO_URI` — your MongoDB connection string (MongoDB Atlas free tier works great — this same database stores both your data *and* uploaded files via GridFS).
-- `SESSION_SECRET` — any long random string.
-- `SMTP_*` — an SMTP account to send verification/reset emails. Easiest: a Gmail address with a generated **App Password** (Google Account → Security → App Passwords).
-- `BASE_URL` — e.g. `http://localhost:3000` locally, or `https://rizzzler.onrender.com` in production.
+Required values include:
+- `MONGO_URI` — MongoDB connection string.
+- `SESSION_SECRET` — long random string.
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` — mail delivery for verification/reset mail.
+- `BASE_URL` — your local or production domain (e.g. `https://www.rizzzler.work.gd`).
+- `ADMIN_PASSWORD` — admin panel access.
+- `GEMINI_API_KEY` — optional for AI mail generation.
 
-### 3. Add some background audio (optional but recommended)
-Drop a few `.mp3` files into `public/audios/` — they'll automatically show up in every user's Settings → Audio dropdown.
+### 3. Add audio presets (optional)
+Drop `.mp3`, `.wav`, `.ogg`, or other supported audio files into `public/audios/` and they will appear in the settings picker.
 
 ### 4. Run it
 ```bash
-npm run dev     # with nodemon, auto-restarts on changes
+npm run dev
 # or
 npm start
 ```
@@ -86,32 +117,32 @@ Visit `http://localhost:3000`.
 
 ---
 
-## 🎨 Adding another theme
+## 🎨 Adding a new theme
 
-1. Add a CSS file at `public/css/themes/yourtheme.css`, styling the `.rz-theme-yourtheme` classes (copy an existing theme file as a starting point — it only needs to override colors/gradients on `.rz-showcase-card`, `.rz-showcase-name`, etc.).
-2. Register it in `config/themes.js`:
-   ```js
-   { key: "yourtheme", label: "Your Theme", desc: "...", css: "/css/themes/yourtheme.css", accent: "#hexcolor" }
-   ```
-That's it — it'll automatically appear as a selectable option in Settings.
+1. Create a CSS file in `public/css/themes/yourtheme.css`.
+2. Add the theme definition in `shared/registry.js`.
+3. Restart the app — the theme will appear in the dashboard and on the public showcase.
 
-You can also expand the visual effect catalog in `config/visuals.js` for new avatar, title, and showcase motion styles.
+You can also add more avatar, title, and showcase motion effects by extending the same registry file.
 
 ---
 
-## 🔐 Notes on the auth flow
+## 🔐 Notes on the auth and security flow
 
-- Passwords are hashed with bcrypt before ever touching the database.
-- Verification/reset codes are 6-digit, expire after 15 minutes, and are single-use (cleared after success).
-- Sessions are stored in MongoDB via `connect-mongo` — no filesystem session storage either.
-- The `/forgot-password` flow intentionally never reveals whether an email exists in the system.
+- Passwords are hashed before storage.
+- Verification and reset codes expire after 15 minutes and are single-use.
+- Sessions are stored in MongoDB via `connect-mongo`.
+- The `/forgot-password` flow does not reveal whether an email exists.
+- Admin access can be blocked permanently after repeated incorrect attempts.
 
-## 📦 Deploying (e.g. Render)
+---
+
+## 📦 Deployment
 
 - Build command: `npm install`
 - Start command: `npm start`
-- Add the same environment variables from `.env.example` in your host's dashboard.
-- Point `BASE_URL` at your live domain so the dashboard link (`rizzzler.onrender.com/username`) displays correctly.
+- Add the same environment variables from `.env.example` in your host dashboard.
+- Point `BASE_URL` to your live domain so links and public pages resolve correctly.
 
 ---
 

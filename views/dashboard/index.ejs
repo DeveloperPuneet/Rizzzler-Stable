@@ -73,6 +73,162 @@
       <small class="rz-muted">Since creation</small>
     </div>
   </section>
+
+  <!-- Your stats -->
+  <section class="rz-stats-panel" id="rzStatsPanel">
+    <div class="rz-stats-header">
+      <div>
+        <h2>Your stats</h2>
+        <p class="rz-muted">How your page has been doing lately — updated in real time.</p>
+      </div>
+    </div>
+
+    <div class="rz-stats-summary" id="rzStatsSummary">
+      <div class="rz-stat-tile">
+        <span class="rz-stat-tile-label">Views this week</span>
+        <span class="rz-stat-tile-value" id="rzStatWeekly">—</span>
+      </div>
+      <div class="rz-stat-tile">
+        <span class="rz-stat-tile-label">Visitors (30d)</span>
+        <span class="rz-stat-tile-value" id="rzStatUnique">—</span>
+        <small class="rz-muted">estimated, not tracked individually</small>
+      </div>
+      <div class="rz-stat-tile">
+        <span class="rz-stat-tile-label">Avg. time on page</span>
+        <span class="rz-stat-tile-value" id="rzStatAvgTime">—</span>
+      </div>
+      <div class="rz-stat-tile">
+        <span class="rz-stat-tile-label">All-time views</span>
+        <span class="rz-stat-tile-value" id="rzStatTotal">—</span>
+      </div>
+    </div>
+
+    <div class="rz-stats-body">
+      <div class="rz-stats-chart-card">
+        <h3>Views — last 14 days</h3>
+        <div id="rzStatsChart" class="rz-stats-chart">
+          <p class="rz-muted">Loading…</p>
+        </div>
+      </div>
+
+      <div class="rz-stats-side">
+        <div class="rz-stats-side-card">
+          <h3>Device mix</h3>
+          <div id="rzStatsDevices"><p class="rz-muted">Loading…</p></div>
+        </div>
+        <div class="rz-stats-side-card">
+          <h3>Top sources</h3>
+          <div id="rzStatsReferrers"><p class="rz-muted">Loading…</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
+
+<script>
+(function () {
+  const summaryEls = {
+    weekly: document.getElementById('rzStatWeekly'),
+    unique: document.getElementById('rzStatUnique'),
+    avgTime: document.getElementById('rzStatAvgTime'),
+    total: document.getElementById('rzStatTotal'),
+  };
+  const chartEl = document.getElementById('rzStatsChart');
+  const devicesEl = document.getElementById('rzStatsDevices');
+  const referrersEl = document.getElementById('rzStatsReferrers');
+
+  function formatDuration(seconds) {
+    if (!seconds && seconds !== 0) return '—';
+    if (seconds < 60) return seconds + 's';
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return m + 'm ' + s + 's';
+  }
+
+  function renderChart(trend) {
+    if (!trend || !trend.length) {
+      chartEl.innerHTML = '<p class="rz-muted">Not enough data yet.</p>';
+      return;
+    }
+    const w = 640, h = 180, pad = 24;
+    const max = Math.max(1, ...trend.map((d) => d.views));
+    const stepX = (w - pad * 2) / (trend.length - 1 || 1);
+    const points = trend.map((d, i) => {
+      const x = pad + i * stepX;
+      const y = h - pad - (d.views / max) * (h - pad * 2);
+      return [x, y];
+    });
+    const linePath = points.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+    const areaPath = linePath + ` L${points[points.length - 1][0].toFixed(1)},${h - pad} L${points[0][0].toFixed(1)},${h - pad} Z`;
+
+    const dots = points
+      .map((p, i) => {
+        const d = trend[i];
+        const label = new Date(d.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" class="rz-stats-dot"><title>${label}: ${d.views} view${d.views === 1 ? '' : 's'}</title></circle>`;
+      })
+      .join('');
+
+    chartEl.innerHTML = `
+      <svg viewBox="0 0 ${w} ${h}" class="rz-stats-svg" preserveAspectRatio="none">
+        <path d="${areaPath}" class="rz-stats-area"></path>
+        <path d="${linePath}" class="rz-stats-line"></path>
+        ${dots}
+      </svg>
+      <div class="rz-stats-chart-labels">
+        <span>${new Date(trend[0].date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+        <span>${new Date(trend[trend.length - 1].date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+      </div>
+    `;
+  }
+
+  function renderDevices(devices) {
+    if (!devices || !devices.length) {
+      devicesEl.innerHTML = '<p class="rz-muted">Not enough data yet.</p>';
+      return;
+    }
+    const icons = { mobile: '📱', tablet: '📟', desktop: '🖥️' };
+    devicesEl.innerHTML = devices
+      .map(
+        (d) => `
+        <div class="rz-stats-bar-row">
+          <span class="rz-stats-bar-label">${icons[d.type] || '🖥️'} ${d.type}</span>
+          <div class="rz-stats-bar-track"><div class="rz-stats-bar-fill" style="width:${d.pct}%"></div></div>
+          <span class="rz-stats-bar-pct">${d.pct}%</span>
+        </div>`
+      )
+      .join('');
+  }
+
+  function renderReferrers(referrers) {
+    if (!referrers || !referrers.length) {
+      referrersEl.innerHTML = '<p class="rz-muted">No external traffic yet — shares go straight to your page.</p>';
+      return;
+    }
+    referrersEl.innerHTML = referrers
+      .map((r) => `<div class="rz-stats-ref-row"><span>${r.host}</span><span class="rz-muted">${r.count}</span></div>`)
+      .join('');
+  }
+
+  fetch('/dashboard/api/stats')
+    .then((r) => r.json())
+    .then((data) => {
+      if (!data.success) throw new Error('failed');
+      const s = data.stats;
+      summaryEls.weekly.textContent = s.weeklyViews.toLocaleString();
+      summaryEls.unique.textContent = s.uniqueVisitors30d.toLocaleString();
+      summaryEls.avgTime.textContent = s.avgSecondsOnPage === null ? 'Not enough data' : formatDuration(s.avgSecondsOnPage);
+      summaryEls.total.textContent = s.totalViews.toLocaleString();
+      renderChart(s.trend);
+      renderDevices(s.devices);
+      renderReferrers(s.topReferrers);
+    })
+    .catch(() => {
+      chartEl.innerHTML = '<p class="rz-muted">Couldn\'t load your stats right now.</p>';
+      devicesEl.innerHTML = '';
+      referrersEl.innerHTML = '';
+    });
+})();
+</script>
 
 <%- include('../partials/footer') %>

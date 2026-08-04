@@ -239,7 +239,30 @@
           <strong>Milestone celebrations</strong><br/>
           <small class="rz-muted">Notifications when your showcase reaches view milestones</small>
         </label>
+        <label class="rz-checkbox">
+          <input type="checkbox" name="emailMessageMail" <%= user.emailPreferences && user.emailPreferences.messageMail !== false ? 'checked' : '' %> value="true" />
+          <strong>New message emails</strong><br/>
+          <small class="rz-muted">Get an email when someone messages you or replies to your message</small>
+        </label>
         <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" style="margin-top:16px;">Save preferences</button>
+      </form>
+    </div>
+
+    <!-- Rizz messaging price -->
+    <div class="rz-panel rz-panel-glass">
+      <h2><img src="/images/coins.png" alt="Rizz" class="rz-coin-icon" /> Rizz &amp; messaging</h2>
+      <p class="rz-muted" style="margin-top:-8px;">You earn 2 Rizz per genuine profile view. Set what it costs someone to message you — they pay this out of their own Rizz, and it lands straight in your balance.</p>
+      <div class="rz-coin-balance-row">
+        <span class="rz-coin-balance">
+          <img src="/images/coins.png" alt="Rizz" class="rz-coin-icon" />
+          <%= (user.rizz || 0).toLocaleString() %> Rizz
+        </span>
+      </div>
+      <form action="/dashboard/settings/message-rate" method="POST" class="rz-inline-form" style="margin-top:12px;">
+        <label style="max-width:220px;">Price to message you (Rizz)
+          <input type="number" name="messageRate" min="0" max="100000" value="<%= user.messageRate != null ? user.messageRate : 20 %>" />
+        </label>
+        <button type="submit" class="rz-btn rz-btn-ghost">Save rate</button>
       </form>
     </div>
 
@@ -251,7 +274,7 @@
       <div class="rz-account-card">
         <div>
           <h3>Deactivate showcase</h3>
-          <p>Temporarily hide your public showcase page. Nobody can view <strong>rizzzler.app/<%= user.username %></strong> until you switch it back on — your data stays untouched.</p>
+          <p>Temporarily hide your public showcase page. Nobody can view <strong><%= baseUrl.replace(/^https?:\/\//, '') %>/<%= user.username %></strong> until you switch it back on — your data stays untouched.</p>
         </div>
         <form action="/dashboard/settings/status" method="POST" class="rz-toggle-form">
           <label class="rz-toggle-row">

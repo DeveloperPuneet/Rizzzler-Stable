@@ -13,6 +13,7 @@ const { startAiMailScheduler } = require("./config/aiMailScheduler");
 const { startAccountCleanupScheduler } = require("./config/accountCleanup");
 const { startTrendingReset } = require("./config/trendingReset");
 const User = require("./models/User");
+const Notification = require("./models/Notification");
 
 const authRoutes = require("./Routes/authRoutes");
 const dashboardRoutes = require("./Routes/dashboardRoutes");
@@ -107,7 +108,7 @@ app.use(
 // Make current user id available to all views (for nav state etc.)
 app.use((req, res, next) => {
   const protocol = req.protocol || "https";
-  const host = req.get("host") || "rizzzler.app";
+  const host = req.get("host") || "www.rizzzler.work.gd";
   const baseUrl = `${protocol}://${host}`;
 
   res.locals.isLoggedIn = !!req.session.userId;
@@ -118,6 +119,29 @@ app.use((req, res, next) => {
   res.locals.baseUrl = baseUrl;
   res.locals.currentUrl = `${baseUrl}${req.originalUrl}`;
   res.locals.canonicalUrl = res.locals.currentUrl;
+  res.locals.navUser = null;
+  res.locals.navUnreadCount = 0;
+  next();
+});
+
+// Small, indexed lookup so the header (Rizz balance pill + notification
+// bell) has fresh data on every page — not just inside /dashboard, which
+// has its own richer req.user via requireAuth. Skipped entirely for
+// logged-out traffic, which is the overwhelming majority of requests.
+app.use(async (req, res, next) => {
+  if (!req.session.userId) return next();
+  try {
+    const [navUser, navUnreadCount] = await Promise.all([
+      User.findById(req.session.userId).select("username displayName avatar rizz").lean(),
+      Notification.countDocuments({ user: req.session.userId, read: false }),
+    ]);
+    if (navUser) {
+      res.locals.navUser = navUser;
+      res.locals.navUnreadCount = navUnreadCount;
+    }
+  } catch (err) {
+    console.error("Nav user lookup failed:", err.message);
+  }
   next();
 });
 

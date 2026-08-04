@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Notification = require("../models/Notification");
 const storageRouter = require("../config/storageRouter");
 const { getSettings } = require("../models/Settings");
 const { recordFailedAttempt, clearAttempts, MAX_ATTEMPTS } = require("../models/AdminAccess");
@@ -259,13 +260,32 @@ exports.sendNewsletter = async (req, res) => {
     });
   }
 
-  // Only send to users who have opted in to newsletters
+  // Only send the EMAIL to users who have opted in to newsletters...
   const users = await User.find({ 
     isVerified: true, 
     isActive: { $ne: false },
     "emailPreferences.newsletter": true  // Only to users who opted in
   }).select("email").lean();
   const { sent, failed } = await sendBulk(users, (u) => sendNewsletterEmail(u.email, subject, body));
+
+  // ...but everyone still sees it in-app via the notification bell, even
+  // if they turned the newsletter email off — the email preference only
+  // ever controls the email, never whether Rizzzler tells them at all.
+  const allActiveUserIds = await User.find({ isVerified: true, isActive: { $ne: false } })
+    .select("_id")
+    .lean();
+  if (allActiveUserIds.length) {
+    const notifDocs = allActiveUserIds.map((u) => ({
+      user: u._id,
+      type: "newsletter",
+      title: subject,
+      body: String(body || "").slice(0, 500),
+      link: "/",
+    }));
+    Notification.insertMany(notifDocs, { ordered: false }).catch((err) =>
+      console.error("Newsletter in-app notification insert failed:", err.message)
+    );
+  }
 
   settings.lastNewsletterSubject = subject;
   settings.lastNewsletterSentAt = new Date();

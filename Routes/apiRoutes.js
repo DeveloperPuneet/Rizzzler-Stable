@@ -1,6 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const registry = require("../shared/registry");
+const showcaseController = require("../controllers/showcaseController");
+const asyncHandler = require("../middlewares/asyncHandler");
+
+// POST /api/track/:viewId/duration — beacon fired when a visitor leaves a
+// showcase page, so the owner's "Your stats" panel can show avg. time on
+// page. See showcaseController.trackViewDuration for details.
+router.post("/track/:viewId/duration", asyncHandler(showcaseController.trackViewDuration));
 
 // GET /api/registry
 // Exposes the same themes/effects registry the server renders EJS views

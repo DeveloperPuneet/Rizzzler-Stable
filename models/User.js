@@ -54,6 +54,15 @@ const userSchema = new mongoose.Schema(
     // the public "Featured Creators" page.
     isFeatured: { type: Boolean, default: false },
 
+    // ---- Rizz coin economy ----
+    // Earned automatically (2 per genuine, non-self profile view) and via
+    // paid messages from other users (see models/Message.js). Spent when
+    // this user pays someone else's messageRate to send them a message.
+    rizz: { type: Number, default: 0, min: 0 },
+    // What it costs (in Rizz) for someone else to message this user.
+    // Owner-configurable in dashboard settings; 20 by default.
+    messageRate: { type: Number, default: 20, min: 0 },
+
     // GridFS file references (fileId = ObjectId in uploads.files, filename kept for convenience)
     avatar: {
       fileId: { type: mongoose.Schema.Types.ObjectId, default: null },
@@ -88,6 +97,7 @@ const userSchema = new mongoose.Schema(
       newsletter: { type: Boolean, default: true }, // Opt-in for newsletter
       aiMail: { type: Boolean, default: true }, // Opt-in for fun AI mails
       milestoneEmails: { type: Boolean, default: true }, // Opt-in for milestone celebration mails
+      messageMail: { type: Boolean, default: true }, // Opt-in for "you got a message" mailbox emails
     },
 
     createdAt: { type: Date, default: Date.now },

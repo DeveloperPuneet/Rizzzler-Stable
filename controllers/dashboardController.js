@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const ProfileView = require("../models/ProfileView");
 const storageRouter = require("../config/storageRouter");
 const registry = require("../shared/registry");
 const themes = registry.themes;
@@ -25,6 +26,84 @@ exports.index = (req, res) => {
     themes,
     baseUrl,
   });
+};
+
+// GET /dashboard/api/stats — powers the "Your stats" panel with a light
+// JSON payload: nothing IP-level or per-visitor here, just enough for the
+// owner to see how their page is trending.
+const DAYS_IN_TREND = 14;
+const WINDOW_DAYS = 30; // referrers/devices/avg-time look at a rolling 30d window
+
+exports.getStats = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const windowStart = new Date(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000);
+    const trendStart = new Date(Date.now() - (DAYS_IN_TREND - 1) * 24 * 60 * 60 * 1000);
+    trendStart.setHours(0, 0, 0, 0);
+
+    const [dailyAgg, durationAgg, deviceAgg, referrerAgg, uniqueAgg] = await Promise.all([
+      ProfileView.aggregate([
+        { $match: { user: userId, visitedAt: { $gte: trendStart } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$visitedAt" } },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+      ProfileView.aggregate([
+        { $match: { user: userId, visitedAt: { $gte: windowStart }, durationSeconds: { $ne: null } } },
+        { $group: { _id: null, avgSeconds: { $avg: "$durationSeconds" }, sampleSize: { $sum: 1 } } },
+      ]),
+      ProfileView.aggregate([
+        { $match: { user: userId, visitedAt: { $gte: windowStart } } },
+        { $group: { _id: "$deviceType", count: { $sum: 1 } } },
+      ]),
+      ProfileView.aggregate([
+        { $match: { user: userId, visitedAt: { $gte: windowStart }, referrerHost: { $ne: null } } },
+        { $group: { _id: "$referrerHost", count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 5 },
+      ]),
+      ProfileView.aggregate([
+        { $match: { user: userId, visitedAt: { $gte: windowStart } } },
+        { $group: { _id: "$visitorHash" } },
+        { $count: "unique" },
+      ]),
+    ]);
+
+    // Fill in every day in the trend window, even ones with zero views, so
+    // the graph always has a continuous line instead of gaps.
+    const dailyMap = new Map(dailyAgg.map((d) => [d._id, d.count]));
+    const trend = [];
+    for (let i = 0; i < DAYS_IN_TREND; i++) {
+      const d = new Date(trendStart.getTime() + i * 24 * 60 * 60 * 1000);
+      const key = d.toISOString().slice(0, 10);
+      trend.push({ date: key, views: dailyMap.get(key) || 0 });
+    }
+
+    const deviceTotal = deviceAgg.reduce((sum, d) => sum + d.count, 0) || 1;
+    const devices = deviceAgg
+      .map((d) => ({ type: d._id || "desktop", count: d.count, pct: Math.round((d.count / deviceTotal) * 100) }))
+      .sort((a, b) => b.count - a.count);
+
+    res.json({
+      success: true,
+      stats: {
+        totalViews: req.user.profileViews || 0,
+        weeklyViews: req.user.weeklyViews || 0,
+        uniqueVisitors30d: uniqueAgg[0]?.unique || 0,
+        avgSecondsOnPage: durationAgg[0] ? Math.round(durationAgg[0].avgSeconds) : null,
+        avgSampleSize: durationAgg[0]?.sampleSize || 0,
+        trend,
+        devices,
+        topReferrers: referrerAgg.map((r) => ({ host: r._id, count: r.count })),
+      },
+    });
+  } catch (err) {
+    console.error("Error fetching dashboard stats:", err);
+    res.status(500).json({ success: false, error: "Could not fetch stats" });
+  }
 };
 
 exports.getSettings = (req, res) => {
@@ -158,6 +237,22 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+// Owner-set price (in Rizz) for someone else to send them a message.
+exports.updateMessageRate = async (req, res) => {
+  try {
+    const user = req.user;
+    let rate = parseInt(req.body.messageRate, 10);
+    if (!Number.isFinite(rate) || rate < 0) rate = 20;
+    rate = Math.min(rate, 100000); // sanity cap
+    user.messageRate = rate;
+    await user.save();
+    res.redirect("/dashboard/settings?saved=1");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/dashboard/settings?error=1");
+  }
+};
+
 // Update email preferences
 //
 // IMPORTANT: unchecked HTML checkboxes are simply omitted from the POST
@@ -174,6 +269,7 @@ exports.updateEmailPreferences = async (req, res) => {
     user.emailPreferences.newsletter = req.body.emailNewsletter === "on" || req.body.emailNewsletter === "true";
     user.emailPreferences.aiMail = req.body.emailAiMail === "on" || req.body.emailAiMail === "true";
     user.emailPreferences.milestoneEmails = req.body.emailMilestone === "on" || req.body.emailMilestone === "true";
+    user.emailPreferences.messageMail = req.body.emailMessageMail === "on" || req.body.emailMessageMail === "true";
 
     await user.save();
     res.redirect("/dashboard/settings?saved=1");

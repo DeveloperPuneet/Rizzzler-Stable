@@ -1,0 +1,41 @@
+<% pageTitle = "Messages — Rizzzler" %>
+<%- include('../partials/header') %>
+
+<div class="rz-dash-wrapper">
+  <section class="rz-dash-hero">
+    <div class="rz-dash-hero-content">
+      <h1>Messages 💬</h1>
+      <p class="rz-muted">Conversations people have started with you, and ones you've started with them.</p>
+    </div>
+  </section>
+
+  <section class="rz-inbox-list">
+    <% if (!threads.length) { %>
+      <div class="rz-panel rz-panel-glass">
+        <p class="rz-muted">No messages yet. When someone pays Rizz to message you, it'll show up here.</p>
+      </div>
+    <% } else { %>
+      <% threads.forEach(t => { %>
+        <a href="/dashboard/messages/<%= t.lastMessage._id %>" class="rz-inbox-row <%= t.unread ? 'rz-inbox-row--unread' : '' %>">
+          <div class="rz-inbox-avatar">
+            <% if (t.partner.avatar && t.partner.avatar.fileId) { %>
+              <img src="/file/<%= t.partner.avatar.fileId %>" alt="" />
+            <% } else { %>
+              <span><%= (t.partner.displayName || t.partner.username).charAt(0).toUpperCase() %></span>
+            <% } %>
+          </div>
+          <div class="rz-inbox-content">
+            <div class="rz-inbox-row-top">
+              <strong><%= t.partner.displayName || t.partner.username %></strong>
+              <span class="rz-muted">@<%= t.partner.username %></span>
+            </div>
+            <p class="rz-inbox-preview"><%= t.lastMessage.body.slice(0, 90) %><%= t.lastMessage.body.length > 90 ? '…' : '' %></p>
+          </div>
+          <% if (t.unread) { %><span class="rz-badge"><%= t.unread %> new</span><% } %>
+        </a>
+      <% }) %>
+    <% } %>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

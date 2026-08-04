@@ -76,9 +76,22 @@
       <% if (isLoggedIn) { %>
         <a href="/dashboard">Dashboard</a>
         <a href="/dashboard/settings">Customize</a>
+        <a href="/dashboard/messages" class="rz-nav-coins" title="Your inbox">✉️</a>
+        <span class="rz-nav-coins" title="Your Rizz balance">
+          <img src="/images/coins.png" alt="Rizz" class="rz-coin-icon" style="aspect-ratio:1/1; height:18px;"/>
+          <%= ((typeof navUser !== 'undefined' && navUser && navUser.rizz) || 0).toLocaleString() %>
+        </span>
+        <div class="rz-notif-wrap" id="rzNotifWrap">
+          <button type="button" class="rz-notif-bell" id="rzNotifBell" aria-label="Notifications">
+            🔔
+            <% if (typeof navUnreadCount !== 'undefined' && navUnreadCount > 0) { %>
+              <span class="rz-notif-badge" id="rzNotifBadge"><%= navUnreadCount > 99 ? '99+' : navUnreadCount %></span>
+            <% } %>
+          </button>
+        </div>
         <a href="/dashboard/settings" class="rz-nav-user" title="Account settings">
           <div class="rz-nav-avatar">
-            <%= (typeof user !=='undefined' && user.displayName) ? user.displayName.charAt(0).toUpperCase() : 'U' %>
+            <%= (typeof user !=='undefined' && user.displayName) ? user.displayName.charAt(0).toUpperCase() : ((typeof navUser !== 'undefined' && navUser && navUser.displayName) ? navUser.displayName.charAt(0).toUpperCase() : 'U') %>
           </div>
         </a>
         <% } else { %>
@@ -87,4 +100,124 @@
           <% } %>
     </div>
   </nav>
+  <% if (isLoggedIn) { %>
+  <div class="rz-notif-dropdown" id="rzNotifDropdown" hidden>
+    <div class="rz-notif-dropdown-header">
+      <span>Notifications</span>
+      <button type="button" id="rzNotifMarkAll">Mark all read</button>
+    </div>
+    <div class="rz-notif-list" id="rzNotifList">
+      <p class="rz-muted" style="padding:14px;">Loading…</p>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const bell = document.getElementById('rzNotifBell');
+      const dropdown = document.getElementById('rzNotifDropdown');
+      const list = document.getElementById('rzNotifList');
+      const badge = document.getElementById('rzNotifBadge');
+      const markAllBtn = document.getElementById('rzNotifMarkAll');
+      if (!bell) return;
+
+      let loaded = false;
+
+      function timeAgo(dateStr) {
+        const diff = Math.max(1, Math.round((Date.now() - new Date(dateStr).getTime()) / 1000));
+        if (diff < 60) return diff + 's ago';
+        if (diff < 3600) return Math.round(diff / 60) + 'm ago';
+        if (diff < 86400) return Math.round(diff / 3600) + 'h ago';
+        return Math.round(diff / 86400) + 'd ago';
+      }
+
+      function render(notifications) {
+        if (!notifications.length) {
+          list.innerHTML = '<p class="rz-muted" style="padding:14px;">No notifications yet.</p>';
+          return;
+        }
+        list.innerHTML = notifications
+          .map(
+            (n) => `
+            <a href="${n.link || '#'}" class="rz-notif-item ${n.read ? '' : 'rz-notif-item--unread'}" data-id="${n._id}">
+              <span class="rz-notif-item-title">${n.title}</span>
+              ${n.body ? `<span class="rz-notif-item-body">${n.body}</span>` : ''}
+              <span class="rz-notif-item-time">${timeAgo(n.createdAt)}</span>
+            </a>`
+          )
+          .join('');
+      }
+
+      function loadNotifications() {
+        fetch('/dashboard/api/notifications')
+          .then((r) => r.json())
+          .then((data) => {
+            if (!data.success) return;
+            render(data.notifications || []);
+            loaded = true;
+          })
+          .catch(() => {
+            list.innerHTML = '<p class="rz-muted" style="padding:14px;">Couldn\'t load notifications.</p>';
+          });
+      }
+
+      bell.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = dropdown.hasAttribute('hidden');
+        if (isHidden) {
+          dropdown.removeAttribute('hidden');
+          if (!loaded) loadNotifications();
+        } else {
+          dropdown.setAttribute('hidden', '');
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target) && e.target !== bell) {
+          dropdown.setAttribute('hidden', '');
+        }
+      });
+
+      list.addEventListener('click', (e) => {
+        const item = e.target.closest('.rz-notif-item');
+        if (!item) return;
+        fetch('/dashboard/api/notifications/' + item.dataset.id + '/read', { method: 'POST' }).catch(() => {});
+      });
+
+      if (markAllBtn) {
+        markAllBtn.addEventListener('click', () => {
+          fetch('/dashboard/api/notifications/read-all', { method: 'POST' })
+            .then(() => {
+              if (badge) badge.remove();
+              document.querySelectorAll('.rz-notif-item--unread').forEach((el) => el.classList.remove('rz-notif-item--unread'));
+            })
+            .catch(() => {});
+        });
+      }
+    })();
+  </script>
+  <% } %>
+  <div class="rz-domain-notice" id="rzDomainNotice">
+    <p>
+      📍 We've moved! Rizzzler now lives at
+      <a href="https://www.rizzzler.work.gd" target="_blank" rel="noopener noreferrer">www.rizzzler.work.gd</a>
+      — update your bookmarks.
+    </p>
+    <button type="button" id="rzDomainNoticeClose" aria-label="Dismiss">✕</button>
+  </div>
+  <script>
+    (function () {
+      var el = document.getElementById('rzDomainNotice');
+      if (!el) return;
+      if (localStorage.getItem('rz_domain_notice_dismissed') === '1') {
+        el.remove();
+        return;
+      }
+      var closeBtn = document.getElementById('rzDomainNoticeClose');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+          localStorage.setItem('rz_domain_notice_dismissed', '1');
+          el.remove();
+        });
+      }
+    })();
+  </script>
   <main class="rz-main">

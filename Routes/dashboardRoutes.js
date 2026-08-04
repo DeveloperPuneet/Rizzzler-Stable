@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const dashboardController = require("../controllers/dashboardController");
+const messageController = require("../controllers/messageController");
+const notificationController = require("../controllers/notificationController");
 const { requireAuth } = require("../middlewares/authMiddleware");
 const { gridfsUpload } = require("../middlewares/upload");
 const asyncHandler = require("../middlewares/asyncHandler");
@@ -8,9 +10,22 @@ const asyncHandler = require("../middlewares/asyncHandler");
 router.use(requireAuth);
 
 router.get("/", dashboardController.index);
+router.get("/api/stats", asyncHandler(dashboardController.getStats));
 router.get("/settings", dashboardController.getSettings);
 router.post("/settings", asyncHandler(dashboardController.updateProfile));
 router.post("/settings/email-preferences", asyncHandler(dashboardController.updateEmailPreferences));
+router.post("/settings/message-rate", asyncHandler(dashboardController.updateMessageRate));
+
+// ---- Rizz-paid messaging ----
+router.get("/messages", asyncHandler(messageController.inbox));
+router.get("/messages/:id", asyncHandler(messageController.thread));
+router.post("/messages/send", asyncHandler(messageController.send));
+router.post("/messages/:id/reply", asyncHandler(messageController.reply));
+
+// ---- Header notification bell ----
+router.get("/api/notifications", asyncHandler(notificationController.list));
+router.post("/api/notifications/:id/read", asyncHandler(notificationController.markRead));
+router.post("/api/notifications/read-all", asyncHandler(notificationController.markAllRead));
 
 router.post("/upload/avatar", ...gridfsUpload("avatar"), asyncHandler(dashboardController.uploadAvatar));
 router.post("/upload/banner", ...gridfsUpload("banner"), asyncHandler(dashboardController.uploadBanner));
