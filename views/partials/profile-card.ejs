@@ -20,15 +20,15 @@
     <p class="rz-profile-card-username">@<%= card.username %></p>
     <% if (card.profession || card.location) { %>
       <p class="rz-profile-card-meta">
-        <% if (card.profession) { %><span>💼 <%= card.profession %></span><% } %>
-        <% if (card.location) { %><span>📍 <%= card.location %></span><% } %>
+        <% if (card.profession) { %><span><span class="material-symbols-rounded rz-inline-icon" aria-hidden="true">work</span> <%= card.profession %></span><% } %>
+        <% if (card.location) { %><span><span class="material-symbols-rounded rz-inline-icon" aria-hidden="true">location_on</span> <%= card.location %></span><% } %>
       </p>
     <% } %>
     <% if (card.bio) { %><p class="rz-profile-card-bio"><%= card.bio %></p><% } %>
     <div class="rz-profile-card-footer">
-      <span class="rz-profile-card-views">👁️ <%= card.profileViews.toLocaleString() %></span>
+      <span class="rz-profile-card-views"><span class="material-symbols-rounded rz-inline-icon" aria-hidden="true">visibility</span> <%= card.profileViews.toLocaleString() %></span>
       <% if (card.weeklyViews > 0) { %>
-        <span class="rz-profile-card-trend">🔥 <%= card.weeklyViews.toLocaleString() %> this week</span>
+        <span class="rz-profile-card-trend"><span class="material-symbols-rounded rz-inline-icon" aria-hidden="true">local_fire_department</span> <%= card.weeklyViews.toLocaleString() %> this week</span>
       <% } %>
     </div>
   </div>

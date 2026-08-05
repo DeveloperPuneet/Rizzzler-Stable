@@ -2,7 +2,7 @@
 /* Expects a local `active` string: 'explore' | 'featured' | 'trending' */
 %>
 <div class="rz-discover-tabs">
-  <a href="/explore" class="rz-discover-tab <%= active === 'explore' ? 'is-active' : '' %>">🧭 Explore</a>
-  <a href="/featured-creators" class="rz-discover-tab <%= active === 'featured' ? 'is-active' : '' %>">⭐ Featured Creators</a>
-  <a href="/trending-developers" class="rz-discover-tab <%= active === 'trending' ? 'is-active' : '' %>">🔥 Trending Developers</a>
+  <a href="/explore" class="rz-discover-tab <%= active === 'explore' ? 'is-active' : '' %>"><span class="material-symbols-rounded rz-inline-icon" aria-hidden="true">travel_explore</span> Explore</a>
+  <a href="/featured-creators" class="rz-discover-tab <%= active === 'featured' ? 'is-active' : '' %>"><span class="material-symbols-rounded rz-inline-icon" aria-hidden="true">star</span> Featured Creators</a>
+  <a href="/trending-developers" class="rz-discover-tab <%= active === 'trending' ? 'is-active' : '' %>"><span class="material-symbols-rounded rz-inline-icon" aria-hidden="true">whatshot</span> Trending Developers</a>
 </div>

@@ -31,7 +31,7 @@
     <!-- mini preview of own page (static mockup) -->
     <div class="rz-dash-preview">
       <div class="rz-dash-preview-card">
-        <div class="rz-dash-preview-banner"></div>
+        <div class="rz-dash-preview-banner" <% if (user.banner && user.banner.fileId) { %>style="background-image:url('/file/<%= user.banner.fileId %>')"<% } %>></div>
         <div class="rz-dash-preview-avatar">
           <% if (user.avatar && user.avatar.fileId) { %>
             <img src="/file/<%= user.avatar.fileId %>" alt="avatar" />

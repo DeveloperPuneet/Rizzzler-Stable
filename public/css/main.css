@@ -29,12 +29,28 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: "Segoe UI", "Inter", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+.material-symbols-rounded {
+  font-family: "Material Symbols Rounded", "Segoe UI Symbol", sans-serif;
+  font-size: 20px;
+  line-height: 1;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+.rz-inline-icon {
+  font-size: 16px;
+  margin-right: 4px;
+  vertical-align: text-bottom;
 }
 a { color: var(--accent); text-decoration: none; transition: var(--transition); }
 a:hover { text-decoration: none; }
@@ -151,12 +167,18 @@ a:hover { text-decoration: none; }
   background: rgba(255,255,255,0.2);
   border: none;
   color: #fff;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   cursor: pointer;
   line-height: 1;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.rz-domain-notice #rzDomainNoticeClose .material-symbols-rounded {
+  font-size: 18px;
 }
 .rz-domain-notice #rzDomainNoticeClose:hover { background: rgba(255,255,255,0.35); }
 @media (max-width: 600px) {
@@ -271,6 +293,19 @@ a:hover { text-decoration: none; }
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.rz-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(circle at center, black 35%, transparent 95%);
+  opacity: 0.18;
+  pointer-events: none;
+  z-index: 0;
 }
 .rz-hero-content {
   position: relative;
@@ -517,13 +552,32 @@ a:hover { text-decoration: none; }
 .rz-feature-card:hover::before { opacity: 1; }
 .rz-feature-card:hover {
   border-color: var(--border-glow);
-  transform: translateY(-4px);
+  transform: translateY(-4px) scale(1.01);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(168, 85, 247, 0.15) inset;
 }
+.rz-feature-card::after {
+  content: '';
+  position: absolute;
+  inset: auto -30% -35% auto;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(168,85,247,0.28), transparent 68%);
+  pointer-events: none;
+}
 .rz-feature-icon {
-  font-size: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
   margin-bottom: 14px;
-  display: block;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(168,85,247,0.22), rgba(236,72,153,0.18));
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.rz-feature-icon .material-symbols-rounded {
+  font-size: 28px;
 }
 .rz-feature-card h3 {
   margin: 0 0 8px;
@@ -912,12 +966,24 @@ a:hover { text-decoration: none; }
 .rz-form { display: flex; flex-direction: column; gap: 14px; }
 .rz-form label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted); }
 .rz-form input, .rz-form select, .rz-form textarea {
-  background: #0b0b12;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
+  background: linear-gradient(180deg, rgba(12, 12, 20, 0.95), rgba(8, 8, 16, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 12px 14px;
   color: var(--text);
   font-size: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 18px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.rz-form input:focus, .rz-form select:focus, .rz-form textarea:focus {
+  outline: none;
+  border-color: rgba(168, 85, 247, 0.8);
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.16), 0 12px 22px rgba(0, 0, 0, 0.22);
+  transform: translateY(-1px);
+}
+.rz-form textarea {
+  min-height: 110px;
+  resize: vertical;
 }
 .rz-switch { text-align: center; margin-top: 16px; color: var(--muted); font-size: 14px; }
 .rz-error { background: rgba(255,92,92,0.12); border: 1px solid var(--danger); color: var(--danger); padding: 10px 14px; border-radius: 8px; font-size: 14px; }
@@ -1123,13 +1189,19 @@ a:hover { text-decoration: none; }
   text-shadow: none;
 }
 .rz-nav-user {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  flex-shrink: 0;
+  line-height: 0;
+  text-decoration: none;
 }
 .rz-nav-avatar {
   width: 32px;
   height: 32px;
+  min-width: 32px;
+  min-height: 32px;
   border-radius: 50%;
   background: linear-gradient(135deg, #a855f7, #ec4899);
   display: flex;
@@ -1138,6 +1210,23 @@ a:hover { text-decoration: none; }
   font-weight: 800;
   font-size: 14px;
   color: #0b0b12;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 8px 18px rgba(0,0,0,0.28);
+  position: relative;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+.rz-nav-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 50%;
+}
+.rz-nav-avatar-img[src*="/file/"] {
+  transform: scale(1.02);
 }
 
 /* ---- Upgraded Footer ---- */
@@ -1465,6 +1554,18 @@ a:hover { text-decoration: none; }
   padding: 40px 24px;
   overflow: hidden;
 }
+.rz-dash-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(circle at center, black 40%, transparent 92%);
+  opacity: 0.45;
+  pointer-events: none;
+}
 .rz-dash-blob {
   position: absolute;
   border-radius: 50%;
@@ -1521,14 +1622,26 @@ a:hover { text-decoration: none; }
   width: 260px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.5);
   transform: rotate(-2deg);
-  transition: transform 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+}
+.rz-dash-preview-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top, rgba(168,85,247,0.20), transparent 48%);
+  pointer-events: none;
 }
 .rz-dash-preview-card:hover {
   transform: rotate(0deg) scale(1.02);
+  box-shadow: 0 24px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(168,85,247,0.18) inset;
 }
 .rz-dash-preview-banner {
   height: 80px;
   background: linear-gradient(135deg, var(--accent), #ec4899);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 .rz-dash-preview-avatar {
   width: 60px; height: 60px;
@@ -2167,7 +2280,6 @@ a:hover { text-decoration: none; }
   justify-content: center;
   width: 40px;
   height: 40px;
-  font-size: 1.25rem;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -2184,6 +2296,9 @@ a:hover { text-decoration: none; }
   border-color: rgba(168, 85, 247, 0.45);
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(168, 85, 247, 0.25);
+}
+.rz-notif-bell .material-symbols-rounded {
+  font-size: 20px;
 }
 
 .rz-notif-badge {

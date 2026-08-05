@@ -9,7 +9,10 @@
        first paint — the actual gtag script stays async and loads further
        down, after the render-critical stylesheet link. -->
   <link rel="preconnect" href="https://www.googletagmanager.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet" />
   <meta name="description"
     content="<%= typeof metaDescription !== 'undefined' && metaDescription ? metaDescription : defaultDescription %>" />
   <meta name="keywords"
@@ -76,14 +79,16 @@
       <% if (isLoggedIn) { %>
         <a href="/dashboard">Dashboard</a>
         <a href="/dashboard/settings">Customize</a>
-        <a href="/dashboard/messages" class="rz-nav-coins" title="Your inbox">✉️</a>
+        <a href="/dashboard/messages" class="" title="Your inbox">
+          <span class="material-symbols-rounded" aria-hidden="true">mail</span>
+        </a>
         <span class="rz-nav-coins" title="Your Rizz balance">
           <img src="/images/coins.png" alt="Rizz" class="rz-coin-icon" style="aspect-ratio:1/1; height:18px;"/>
           <%= ((typeof navUser !== 'undefined' && navUser && navUser.rizz) || 0).toLocaleString() %>
         </span>
         <div class="rz-notif-wrap" id="rzNotifWrap">
-          <button type="button" class="rz-notif-bell" id="rzNotifBell" aria-label="Notifications">
-            🔔
+          <button type="button" class="rz-notif-bell" id="rzNotifBell" aria-label="Notifications" aria-expanded="false">
+            <span class="material-symbols-rounded" aria-hidden="true">notifications</span>
             <% if (typeof navUnreadCount !== 'undefined' && navUnreadCount > 0) { %>
               <span class="rz-notif-badge" id="rzNotifBadge"><%= navUnreadCount > 99 ? '99+' : navUnreadCount %></span>
             <% } %>
@@ -91,7 +96,11 @@
         </div>
         <a href="/dashboard/settings" class="rz-nav-user" title="Account settings">
           <div class="rz-nav-avatar">
-            <%= (typeof user !=='undefined' && user.displayName) ? user.displayName.charAt(0).toUpperCase() : ((typeof navUser !== 'undefined' && navUser && navUser.displayName) ? navUser.displayName.charAt(0).toUpperCase() : 'U') %>
+            <% if (typeof navUser !== 'undefined' && navUser && navUser.avatar && navUser.avatar.fileId) { %>
+              <img src="/file/<%= navUser.avatar.fileId %>" alt="<%= (navUser.displayName || navUser.username || 'Profile').replace(/"/g, '&quot;') %> avatar" class="rz-nav-avatar-img" />
+            <% } else { %>
+              <%= (typeof user !=='undefined' && user.displayName) ? user.displayName.charAt(0).toUpperCase() : ((typeof navUser !== 'undefined' && navUser && navUser.displayName) ? navUser.displayName.charAt(0).toUpperCase() : 'U') %>
+            <% } %>
           </div>
         </a>
         <% } else { %>
@@ -117,9 +126,23 @@
       const list = document.getElementById('rzNotifList');
       const badge = document.getElementById('rzNotifBadge');
       const markAllBtn = document.getElementById('rzNotifMarkAll');
-      if (!bell) return;
+      if (!bell || !dropdown || !list) return;
 
       let loaded = false;
+
+      function setDropdownState(open) {
+        if (open) {
+          dropdown.removeAttribute('hidden');
+          bell.setAttribute('aria-expanded', 'true');
+        } else {
+          dropdown.setAttribute('hidden', '');
+          bell.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      function isDropdownTarget(target) {
+        return !!(target && (dropdown.contains(target) || bell.contains(target)));
+      }
 
       function timeAgo(dateStr) {
         const diff = Math.max(1, Math.round((Date.now() - new Date(dateStr).getTime()) / 1000));
@@ -161,24 +184,27 @@
 
       bell.addEventListener('click', (e) => {
         e.stopPropagation();
-        const isHidden = dropdown.hasAttribute('hidden');
-        if (isHidden) {
-          dropdown.removeAttribute('hidden');
-          if (!loaded) loadNotifications();
-        } else {
-          dropdown.setAttribute('hidden', '');
-        }
+        const shouldOpen = dropdown.hasAttribute('hidden');
+        setDropdownState(shouldOpen);
+        if (shouldOpen && !loaded) loadNotifications();
       });
 
       document.addEventListener('click', (e) => {
-        if (!dropdown.contains(e.target) && e.target !== bell) {
-          dropdown.setAttribute('hidden', '');
+        if (!isDropdownTarget(e.target)) {
+          setDropdownState(false);
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          setDropdownState(false);
         }
       });
 
       list.addEventListener('click', (e) => {
         const item = e.target.closest('.rz-notif-item');
         if (!item) return;
+        setDropdownState(false);
         fetch('/dashboard/api/notifications/' + item.dataset.id + '/read', { method: 'POST' }).catch(() => {});
       });
 
@@ -197,11 +223,13 @@
   <% } %>
   <div class="rz-domain-notice" id="rzDomainNotice">
     <p>
-      📍 We've moved! Rizzzler now lives at
+      <span class="material-symbols-rounded rz-inline-icon" aria-hidden="true">location_on</span> We've moved! Rizzzler now lives at
       <a href="https://www.rizzzler.work.gd" target="_blank" rel="noopener noreferrer">www.rizzzler.work.gd</a>
       — update your bookmarks.
     </p>
-    <button type="button" id="rzDomainNoticeClose" aria-label="Dismiss">✕</button>
+    <button type="button" id="rzDomainNoticeClose" aria-label="Dismiss">
+      <span class="material-symbols-rounded" aria-hidden="true">close</span>
+    </button>
   </div>
   <script>
     (function () {
