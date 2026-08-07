@@ -6,6 +6,7 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const methodOverride = require("method-override");
 const cookieParser = require("cookie-parser");
+const passport = require("./config/passport");
 
 const connectDB = require("./config/db");
 const startKeepAlive = require("./config/keepAlive");
@@ -104,6 +105,8 @@ app.use(
     },
   })
 );
+
+app.use(passport.initialize());
 
 // Make current user id available to all views (for nav state etc.)
 app.use((req, res, next) => {

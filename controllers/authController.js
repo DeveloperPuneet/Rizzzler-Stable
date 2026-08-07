@@ -195,6 +195,26 @@ exports.logout = (req, res) => {
   req.session.destroy(() => res.redirect("/"));
 };
 
+// ---------- OAuth (Google / GitHub) ----------
+// Used as passport.authenticate('google'|'github', { session: false }, THIS)
+// on each /auth/*/callback route — passport's "custom callback" form, which
+// hands us (err, user) instead of doing its own redirect/session dance.
+// We deliberately mirror postLogin's ending — set req.session.userId,
+// redirect to /dashboard — rather than using passport.session(), so the
+// rest of the app (which reads req.session.userId directly everywhere)
+// doesn't need to know OAuth exists at all.
+exports.oauthCallback = (req, res) => (err, user) => {
+  if (err || !user) {
+    console.error("OAuth login failed:", err ? err.message : "no user returned");
+    return res.render("auth/login", {
+      error: err && err.oauthNoEmail ? err.message : "Login with that provider failed. Please try again.",
+      old: {},
+    });
+  }
+  req.session.userId = user._id.toString();
+  res.redirect("/dashboard");
+};
+
 // ---------- Forgot / Reset password ----------
 exports.postForgot = async (req, res) => {
   try {

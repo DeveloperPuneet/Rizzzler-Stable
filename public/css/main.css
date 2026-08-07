@@ -279,6 +279,37 @@ a:hover { text-decoration: none; }
   box-shadow: 0 0 24px rgba(168, 85, 247, 0.2);
 }
 .rz-btn-lg { padding: 15px 32px; font-size: 17px; border-radius: var(--radius-lg); }
+
+/* ---- OAuth (Google / GitHub) buttons on login/register ---- */
+.rz-oauth-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.rz-btn-oauth {
+  width: 100%;
+  justify-content: center;
+  background: var(--card-bg, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.rz-btn-oauth:hover {
+  border-color: var(--accent);
+  background: rgba(168, 85, 247, 0.06);
+  text-decoration: none;
+}
+.rz-btn-oauth svg { flex-shrink: 0; }
+.rz-auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.rz-auth-divider::before,
+.rz-auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
 .rz-link-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 14px; padding: 0; }
 .rz-danger { color: var(--danger); }
 

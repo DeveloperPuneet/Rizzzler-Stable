@@ -23,7 +23,18 @@ const userSchema = new mongoose.Schema(
       match: /^[a-z0-9_]{3,20}$/,
     },
     displayName: { type: String, trim: true, default: "" },
-    password: { type: String, required: true },
+    // Not required at the schema level because OAuth-created accounts
+    // (Google/GitHub) never set a local password. Enforced conditionally
+    // in the pre-validate hook below instead.
+    password: { type: String },
+
+    // ---- OAuth (Google / GitHub) ----
+    // Sparse unique indexes: most users won't have these, and `sparse`
+    // means the unique constraint only applies to documents that actually
+    // have the field set (otherwise every password-only user would
+    // collide on `null`).
+    googleId: { type: String, unique: true, sparse: true },
+    githubId: { type: String, unique: true, sparse: true },
 
     isVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
@@ -123,12 +134,26 @@ userSchema.index({ isVerified: 1, isActive: 1, createdAt: -1 });
 userSchema.index({ isVerified: 1, isActive: 1, weeklyViews: -1 });
 userSchema.index({ isVerified: 1, isActive: 1, isFeatured: 1, createdAt: -1 });
 
+// OAuth-only accounts (no local password set) never have anything to
+// compare against — treat that as "can't log in with a password" rather
+// than letting bcrypt.compare throw on an undefined hash.
 userSchema.methods.comparePassword = function (candidate) {
+  if (!this.password) return Promise.resolve(false);
   return bcrypt.compare(candidate, this.password);
 };
 
+userSchema.pre("validate", function (next) {
+  // A password is only mandatory when the account has no OAuth login
+  // attached — Google/GitHub-created accounts authenticate entirely via
+  // the provider and never touch this field.
+  if (!this.password && !this.googleId && !this.githubId) {
+    this.invalidate("password", "Password is required.");
+  }
+  next();
+});
+
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password") || !this.password) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });

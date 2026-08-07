@@ -110,7 +110,8 @@
     </div>
   </nav>
   <% if (isLoggedIn) { %>
-  <div class="rz-notif-dropdown" id="rzNotifDropdown" hidden>
+  <!-- Notification dropdown – closed by default, toggled with style.display -->
+  <div class="rz-notif-dropdown" id="rzNotifDropdown" style="display:none;" aria-hidden="true">
     <div class="rz-notif-dropdown-header">
       <span>Notifications</span>
       <button type="button" id="rzNotifMarkAll">Mark all read</button>
@@ -132,10 +133,12 @@
 
       function setDropdownState(open) {
         if (open) {
-          dropdown.removeAttribute('hidden');
+          dropdown.style.display = '';               // remove inline display:none
+          dropdown.setAttribute('aria-hidden', 'false');
           bell.setAttribute('aria-expanded', 'true');
         } else {
-          dropdown.setAttribute('hidden', '');
+          dropdown.style.display = 'none';
+          dropdown.setAttribute('aria-hidden', 'true');
           bell.setAttribute('aria-expanded', 'false');
         }
       }
@@ -184,9 +187,9 @@
 
       bell.addEventListener('click', (e) => {
         e.stopPropagation();
-        const shouldOpen = dropdown.hasAttribute('hidden');
-        setDropdownState(shouldOpen);
-        if (shouldOpen && !loaded) loadNotifications();
+        const currentlyOpen = dropdown.style.display !== 'none';
+        setDropdownState(!currentlyOpen);
+        if (!currentlyOpen && !loaded) loadNotifications();
       });
 
       document.addEventListener('click', (e) => {
@@ -221,6 +224,7 @@
     })();
   </script>
   <% } %>
+  <!-- Domain‑notice bar (closed on click, even if localStorage fails) -->
   <div class="rz-domain-notice" id="rzDomainNotice">
     <p>
       <span class="material-symbols-rounded rz-inline-icon" aria-hidden="true">location_on</span> We've moved! Rizzzler now lives at
@@ -235,15 +239,30 @@
     (function () {
       var el = document.getElementById('rzDomainNotice');
       if (!el) return;
-      if (localStorage.getItem('rz_domain_notice_dismissed') === '1') {
+
+      var DISMISS_KEY = 'rz_domain_notice_dismissed';
+
+      var dismissed = false;
+      try {
+        dismissed = localStorage.getItem(DISMISS_KEY) === '1';
+      } catch (e) { /* ignore */ }
+
+      if (dismissed) {
         el.remove();
         return;
       }
+
       var closeBtn = document.getElementById('rzDomainNoticeClose');
       if (closeBtn) {
         closeBtn.addEventListener('click', function () {
-          localStorage.setItem('rz_domain_notice_dismissed', '1');
-          el.remove();
+          el.remove();  // always remove first
+          try {
+            localStorage.setItem(DISMISS_KEY, '1');
+          } catch (e) {
+            try {
+              document.cookie = DISMISS_KEY + '=1; path=/; max-age=0; SameSite=Lax';
+            } catch (e2) { /* ignore */ }
+          }
         });
       }
     })();
