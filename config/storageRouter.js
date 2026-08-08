@@ -147,6 +147,46 @@ async function getFreeBytes(clusterKey) {
   return entry.freeBytes;
 }
 
+async function getStorageUsageSnapshot() {
+  const usage = await Promise.all(
+    clusters.map(async (cluster) => {
+      const entry = getConnection(cluster.key);
+      try {
+        await ensureReady(cluster.key);
+        const stats = await entry.connection.db.stats();
+        const usedBytes = Number(stats.dataSize || 0);
+        const capacityBytes = Number(cluster.capacityBytes || 0);
+        return {
+          key: cluster.key,
+          usedBytes,
+          capacityBytes,
+          freeBytes: Math.max(0, capacityBytes - usedBytes),
+        };
+      } catch (err) {
+        console.warn(`⚠️  Could not read storage stats for "${cluster.key}":`, err.message);
+        return {
+          key: cluster.key,
+          usedBytes: 0,
+          capacityBytes: Number(cluster.capacityBytes || 0),
+          freeBytes: 0,
+        };
+      }
+    })
+  );
+
+  const totalUsedBytes = usage.reduce((sum, item) => sum + Number(item.usedBytes || 0), 0);
+  const totalCapacityBytes = usage.reduce((sum, item) => sum + Number(item.capacityBytes || 0), 0);
+  const totalFreeBytes = totalCapacityBytes - totalUsedBytes;
+
+  return {
+    clusters: usage,
+    totalUsedBytes,
+    totalCapacityBytes,
+    totalFreeBytes: Math.max(0, totalFreeBytes),
+    usedPercent: totalCapacityBytes > 0 ? Math.min(100, (totalUsedBytes / totalCapacityBytes) * 100) : 0,
+  };
+}
+
 // Picks the cluster with the most headroom. Falls back to primary (with a
 // warning) if every cluster is effectively full — writes should never hard
 // fail just because the allocator ran out of "preferred" options.
@@ -268,4 +308,5 @@ module.exports = {
   listClusters,
   refreshStats,
   getFreeBytes,
+  getStorageUsageSnapshot,
 };

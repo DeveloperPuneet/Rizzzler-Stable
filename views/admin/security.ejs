@@ -9,6 +9,93 @@
 <% if (error) { %><p class="rz-error"><%= error %></p><% } %>
 <% if (info) { %><p class="rz-info"><%= info %></p><% } %>
 
+<div class="rz-admin-panel" style="margin-top: 0;">
+  <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
+    <div>
+      <h2 style="margin:0 0 6px; font-size:1.1rem;">Maintenance</h2>
+      <p class="rz-muted" style="margin:0;">Clear stale operational data. All of this is automatically purged after <%= retentionDays %> days.</p>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+      <form action="/admin/security/run-cleanup" method="POST" style="display:inline;">
+        <button type="submit" class="rz-btn rz-btn-primary rz-btn-sm">Run cleanup now</button>
+      </form>
+      <form action="/admin/security/clear-notifications" method="POST" style="display:inline;">
+        <button type="submit" class="rz-btn rz-btn-ghost rz-btn-sm">Clear notifications</button>
+      </form>
+      <form action="/admin/security/clear-visitors" method="POST" style="display:inline;">
+        <button type="submit" class="rz-btn rz-btn-ghost rz-btn-sm">Clear visitors</button>
+      </form>
+      <form action="/admin/security/clear-security-events" method="POST" style="display:inline;">
+        <button type="submit" class="rz-btn rz-btn-ghost rz-btn-sm">Clear failed logins</button>
+      </form>
+      <form action="/admin/security/clear-ip-rules" method="POST" style="display:inline;">
+        <button type="submit" class="rz-btn rz-btn-ghost rz-btn-sm">Clear IP rules</button>
+      </form>
+      <form action="/admin/security/clear-admin-access" method="POST" style="display:inline;">
+        <button type="submit" class="rz-btn rz-btn-ghost rz-btn-sm">Clear admin access</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<section class="rz-admin-health-panel" aria-label="System health overview">
+  <div class="rz-admin-health-card">
+    <span class="rz-admin-health-label">Health status</span>
+    <strong class="rz-admin-health-status <%= systemHealth.status === 'healthy' ? 'rz-ok' : (systemHealth.status === 'monitor' ? 'rz-warn' : 'rz-alert') %>"><%= systemHealth.status === 'healthy' ? 'Healthy' : (systemHealth.status === 'monitor' ? 'Monitor' : 'Needs attention') %></strong>
+  </div>
+  <div class="rz-admin-health-card">
+    <span class="rz-admin-health-label">Notifications</span>
+    <strong><%= systemHealth.notificationCount %></strong>
+  </div>
+  <div class="rz-admin-health-card">
+    <span class="rz-admin-health-label">Visitor logs</span>
+    <strong><%= systemHealth.visitorCount %></strong>
+  </div>
+  <div class="rz-admin-health-card">
+    <span class="rz-admin-health-label">Security events</span>
+    <strong><%= systemHealth.securityCount %></strong>
+  </div>
+  <div class="rz-admin-health-card">
+    <span class="rz-admin-health-label">Unverified</span>
+    <strong><%= systemHealth.unverifiedUsers %></strong>
+  </div>
+  <div class="rz-admin-health-card">
+    <span class="rz-admin-health-label">Orphaned files</span>
+    <strong><%= systemHealth.orphanedFiles %></strong>
+  </div>
+</section>
+
+<h2 class="rz-admin-section-title">Cleanup log</h2>
+<div class="rz-admin-panel rz-admin-panel-scroll">
+  <% if (!cleanupLog.length) { %>
+    <p class="rz-muted">No cleanup runs logged yet.</p>
+  <% } else { %>
+    <table class="rz-admin-table">
+      <thead><tr><th>Run at</th><th>Status</th><th>Removed</th><th>Summary</th></tr></thead>
+      <tbody>
+        <% cleanupLog.forEach((entry) => { %>
+          <% const summary = entry.summary || {}; %>
+          <% const removed = (summary.totalDeleted || 0) + (summary.notifications?.deletedCount || 0) + (summary.visitors?.deletedCount || 0) + (summary.securityEvents?.deletedCount || 0) + (summary.adminAccess?.deletedCount || 0); %>
+          <tr>
+            <td class="rz-admin-cell-muted"><%= new Date(entry.runAt).toLocaleString() %></td>
+            <td><span class="rz-admin-tag <%= entry.status === 'cleanup_ran' ? 'rz-admin-tag-on' : 'rz-admin-tag-muted' %>"><%= entry.status === 'cleanup_ran' ? 'Ran' : 'No action' %></span></td>
+            <td><%= removed %></td>
+            <td class="rz-admin-cell-muted">
+              <% if (summary.notifications && summary.notifications.deletedCount) { %>N:<%= summary.notifications.deletedCount %> <% } %>
+              <% if (summary.visitors && summary.visitors.deletedCount) { %>V:<%= summary.visitors.deletedCount %> <% } %>
+              <% if (summary.securityEvents && summary.securityEvents.deletedCount) { %>S:<%= summary.securityEvents.deletedCount %> <% } %>
+              <% if (summary.adminAccess && summary.adminAccess.deletedCount) { %>A:<%= summary.adminAccess.deletedCount %> <% } %>
+              <% if (summary.unverifiedAccounts && summary.unverifiedAccounts.deleted) { %>U:<%= summary.unverifiedAccounts.deleted %> <% } %>
+              <% if (summary.orphanedFiles && summary.orphanedFiles.deleted) { %>F:<%= summary.orphanedFiles.deleted %> <% } %>
+              <% if (!removed) { %>No stale items found.<% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
 <section class="rz-admin-stats-grid">
   <div class="rz-admin-stat-card">
     <span class="rz-admin-stat-label">Failed site logins (recent)</span>

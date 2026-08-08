@@ -44,5 +44,6 @@ const visitorSchema = new mongoose.Schema(
 
 visitorSchema.index({ lastVisit: -1 });
 visitorSchema.index({ totalRequests: -1 });
+visitorSchema.index({ createdAt: 1 }, { expireAfterSeconds: 7 * 24 * 60 * 60 });
 
 module.exports = mongoose.model("Visitor", visitorSchema);

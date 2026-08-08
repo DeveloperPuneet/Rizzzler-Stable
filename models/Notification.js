@@ -34,8 +34,8 @@ const notificationSchema = new mongoose.Schema(
 
 notificationSchema.index({ user: 1, createdAt: -1 });
 notificationSchema.index({ user: 1, read: 1 });
-// Auto-expire after 60 days so this collection doesn't grow forever —
-// long enough for anyone to reasonably catch up on a backlog.
-notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 24 * 60 * 60 });
+// Keep in-app notifications short-lived so the notification tray remains
+// useful and storage remains modest on free-tier hosting.
+notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 7 * 24 * 60 * 60 });
 
 module.exports = mongoose.model("Notification", notificationSchema);

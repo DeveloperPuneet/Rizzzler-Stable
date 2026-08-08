@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Notification = require("../models/Notification");
+const FileLocation = require("../models/FileLocation");
 const storageRouter = require("../config/storageRouter");
 const { getSettings } = require("../models/Settings");
 const { recordFailedAttempt, clearAttempts, MAX_ATTEMPTS } = require("../models/AdminAccess");
@@ -9,6 +10,7 @@ const IpRule = require("../models/IpRule");
 const { invalidateCache } = require("../middlewares/ipAccessControl");
 const { sendNewsletterEmail, sendInviteEmail, sendBulk } = require("../config/mailer");
 const { maybeSendAIMail } = require("../config/aiMailScheduler");
+const { getSystemHealthSnapshot, runCleanupCycle, DATA_RETENTION_DAYS } = require("../config/accountCleanup");
 
 // ---------- Login ----------
 exports.getLogin = (req, res) => {
@@ -60,18 +62,35 @@ exports.logout = (req, res) => {
   res.redirect("/admin/login");
 };
 
+function formatBytes(bytes) {
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = Number(bytes || 0);
+  let unitIndex = 0;
+
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+
+  return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+}
+
 // ---------- Dashboard ----------
 exports.dashboard = async (req, res) => {
-  const [totalUsers, verifiedUsers, activeUsers, viewAgg, recentUsers, topViewed] = await Promise.all([
+  const [totalUsers, verifiedUsers, activeUsers, viewAgg, recentUsers, topViewed, storageSnapshot] = await Promise.all([
     User.countDocuments({}),
     User.countDocuments({ isVerified: true }),
     User.countDocuments({ isActive: { $ne: false } }),
     User.aggregate([{ $group: { _id: null, totalViews: { $sum: "$profileViews" } } }]),
     User.find({}).sort({ createdAt: -1 }).limit(6).select("username displayName createdAt isVerified isActive").lean(),
     User.find({}).sort({ profileViews: -1 }).limit(6).select("username displayName profileViews").lean(),
+    storageRouter.getStorageUsageSnapshot(),
   ]);
 
   const settings = await getSettings();
+  const usedBytes = Number(storageSnapshot.totalUsedBytes || 0);
+  const totalCapacityBytes = Number(storageSnapshot.totalCapacityBytes || 0);
+  const usedPercent = storageSnapshot.usedPercent || 0;
 
   res.render("admin/dashboard", {
     layout: false,
@@ -82,6 +101,14 @@ exports.dashboard = async (req, res) => {
       activeUsers,
       inactiveUsers: totalUsers - activeUsers,
       totalViews: (viewAgg[0] && viewAgg[0].totalViews) || 0,
+    },
+    storage: {
+      usedBytes,
+      totalCapacityBytes,
+      usedPercent,
+      usedLabel: formatBytes(usedBytes),
+      capacityLabel: formatBytes(totalCapacityBytes),
+      freeLabel: formatBytes(Math.max(0, totalCapacityBytes - usedBytes)),
     },
     recentUsers,
     topViewed,
@@ -523,7 +550,7 @@ exports.analytics = async (req, res) => {
 
 // ---------- Security ----------
 exports.security = async (req, res) => {
-  const [failedLogins, failedAdminLogins, rateLimitEvents, blacklistEvents, suspiciousIps, ipRules] =
+  const [failedLogins, failedAdminLogins, rateLimitEvents, blacklistEvents, suspiciousIps, ipRules, systemHealth, settings] =
     await Promise.all([
       SecurityEvent.find({ type: "failed_login" }).sort({ createdAt: -1 }).limit(30).lean(),
       SecurityEvent.find({ type: "failed_admin_login" }).sort({ createdAt: -1 }).limit(30).lean(),
@@ -531,7 +558,11 @@ exports.security = async (req, res) => {
       SecurityEvent.find({ type: "blacklist_blocked" }).sort({ createdAt: -1 }).limit(30).lean(),
       Visitor.find({ suspicious: true }).sort({ lastVisit: -1 }).limit(30).lean(),
       IpRule.find({}).sort({ createdAt: -1 }).lean(),
+      getSystemHealthSnapshot(),
+      getSettings(),
     ]);
+
+  const cleanupLog = Array.isArray(settings.cleanupLog) ? settings.cleanupLog : [];
 
   res.render("admin/security", {
     layout: false,
@@ -540,11 +571,25 @@ exports.security = async (req, res) => {
     rateLimitEvents,
     blacklistEvents,
     suspiciousIps,
+    systemHealth,
+    cleanupLog,
+    retentionDays: DATA_RETENTION_DAYS,
     blacklist: ipRules.filter((r) => r.listType === "blacklist"),
     whitelist: ipRules.filter((r) => r.listType === "whitelist"),
     error: req.query.error || null,
-    info: req.query.saved ? "Saved." : null,
+    info: req.query.info || (req.query.saved ? "Saved." : null),
   });
+};
+
+exports.runCleanupNow = async (req, res) => {
+  try {
+    const summary = await runCleanupCycle();
+    const total = summary.totalDeleted || 0;
+    return res.redirect("/admin/security?info=" + encodeURIComponent(`Cleanup finished. Removed ${total} stale item(s).`));
+  } catch (err) {
+    console.error(err);
+    return res.redirect("/admin/security?error=" + encodeURIComponent("Cleanup could not finish. Check server logs."));
+  }
 };
 
 exports.addIpRule = async (req, res) => {
@@ -574,5 +619,56 @@ exports.removeIpRule = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.redirect("/admin/security");
+  }
+};
+
+exports.clearNotifications = async (req, res) => {
+  try {
+    const result = await Notification.deleteMany({});
+    res.redirect("/admin/security?info=" + encodeURIComponent(`Removed ${result.deletedCount} notification(s).`));
+  } catch (err) {
+    console.error(err);
+    res.redirect("/admin/security?error=" + encodeURIComponent("Could not clear notifications."));
+  }
+};
+
+exports.clearVisitors = async (req, res) => {
+  try {
+    const result = await Visitor.deleteMany({});
+    res.redirect("/admin/security?info=" + encodeURIComponent(`Removed ${result.deletedCount} visitor record(s).`));
+  } catch (err) {
+    console.error(err);
+    res.redirect("/admin/security?error=" + encodeURIComponent("Could not clear visitor analytics."));
+  }
+};
+
+exports.clearSecurityEvents = async (req, res) => {
+  try {
+    const result = await SecurityEvent.deleteMany({});
+    res.redirect("/admin/security?info=" + encodeURIComponent(`Removed ${result.deletedCount} security event(s).`));
+  } catch (err) {
+    console.error(err);
+    res.redirect("/admin/security?error=" + encodeURIComponent("Could not clear security events."));
+  }
+};
+
+exports.clearIpRules = async (req, res) => {
+  try {
+    const result = await IpRule.deleteMany({});
+    invalidateCache();
+    res.redirect("/admin/security?info=" + encodeURIComponent(`Removed ${result.deletedCount} IP rule(s).`));
+  } catch (err) {
+    console.error(err);
+    res.redirect("/admin/security?error=" + encodeURIComponent("Could not clear IP rules."));
+  }
+};
+
+exports.clearAdminAccess = async (req, res) => {
+  try {
+    const result = await require("../models/AdminAccess").AdminAccess.deleteMany({});
+    res.redirect("/admin/security?info=" + encodeURIComponent(`Removed ${result.deletedCount} admin access record(s).`));
+  } catch (err) {
+    console.error(err);
+    res.redirect("/admin/security?error=" + encodeURIComponent("Could not clear admin access attempts."));
   }
 };

@@ -150,34 +150,64 @@
       chartEl.innerHTML = '<p class="rz-muted">Not enough data yet.</p>';
       return;
     }
-    const w = 640, h = 180, pad = 24;
+
+    const w = 640, h = 180;
+    const pad = { top: 12, right: 18, bottom: 28, left: 36 };
+    const plotW = w - pad.left - pad.right;
+    const plotH = h - pad.top - pad.bottom;
     const max = Math.max(1, ...trend.map((d) => d.views));
-    const stepX = (w - pad * 2) / (trend.length - 1 || 1);
+    const stepX = trend.length > 1 ? plotW / (trend.length - 1) : 0;
+
     const points = trend.map((d, i) => {
-      const x = pad + i * stepX;
-      const y = h - pad - (d.views / max) * (h - pad * 2);
-      return [x, y];
+      const x = pad.left + i * stepX;
+      const y = h - pad.bottom - (d.views / max) * plotH;
+      return { x, y, d, value: d.views };
     });
-    const linePath = points.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
-    const areaPath = linePath + ` L${points[points.length - 1][0].toFixed(1)},${h - pad} L${points[0][0].toFixed(1)},${h - pad} Z`;
+
+    const linePath = points
+      .map((p, i) => (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1))
+      .join(' ');
+    const areaPath = linePath + ` L${points[points.length - 1].x.toFixed(1)},${h - pad.bottom} L${points[0].x.toFixed(1)},${h - pad.bottom} Z`;
+
+    const yTicks = [0, Math.round(max * 0.25), Math.round(max * 0.5), Math.round(max * 0.75), max];
+    const gridLines = yTicks
+      .map((tick) => {
+        const y = h - pad.bottom - (tick / max) * plotH;
+        return `<line x1="${pad.left}" y1="${y.toFixed(1)}" x2="${w - pad.right}" y2="${y.toFixed(1)}" class="rz-stats-grid-line"></line>
+                <text x="${pad.left - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" class="rz-stats-axis-text" style="fill: #dfe3ff; font-size: 10px; font-weight: 700;">${tick}</text>`;
+      })
+      .join('');
+
+    const xLabels = points
+      .map((p, i) => {
+        const label = new Date(trend[i].date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        return `<text x="${p.x.toFixed(1)}" y="${h - 8}" text-anchor="middle" class="rz-stats-axis-text" style="fill: #dfe3ff; font-size: 10px; font-weight: 700;">${label}</text>`;
+      })
+      .join('');
 
     const dots = points
       .map((p, i) => {
-        const d = trend[i];
-        const label = new Date(d.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-        return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" class="rz-stats-dot"><title>${label}: ${d.views} view${d.views === 1 ? '' : 's'}</title></circle>`;
+        const label = new Date(trend[i].date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        return `
+          <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" class="rz-stats-dot">
+            <title>${label}: ${p.d.views} view${p.d.views === 1 ? '' : 's'}</title>
+          </circle>
+          <text x="${p.x.toFixed(1)}" y="${Math.max(18, p.y - 10).toFixed(1)}" text-anchor="middle" class="rz-stats-value-tag" style="font-size: 9px; font-weight: 800; fill: #f5f7ff;">${p.d.views}</text>
+        `;
       })
       .join('');
 
     chartEl.innerHTML = `
-      <svg viewBox="0 0 ${w} ${h}" class="rz-stats-svg" preserveAspectRatio="none">
-        <path d="${areaPath}" class="rz-stats-area"></path>
-        <path d="${linePath}" class="rz-stats-line"></path>
-        ${dots}
-      </svg>
-      <div class="rz-stats-chart-labels">
-        <span>${new Date(trend[0].date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-        <span>${new Date(trend[trend.length - 1].date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+      <div class="rz-stats-chart-shell">
+        <svg viewBox="0 0 ${w} ${h}" class="rz-stats-svg" preserveAspectRatio="none">
+          <line x1="${pad.left}" y1="${h - pad.bottom}" x2="${w - pad.right}" y2="${h - pad.bottom}" class="rz-stats-axis-line"></line>
+          <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${h - pad.bottom}" class="rz-stats-axis-line"></line>
+          ${gridLines}
+          <path d="${areaPath}" class="rz-stats-area"></path>
+          <path d="${linePath}" class="rz-stats-line"></path>
+          ${dots}
+          ${xLabels}
+        </svg>
       </div>
     `;
   }

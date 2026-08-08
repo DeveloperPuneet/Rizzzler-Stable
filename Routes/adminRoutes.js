@@ -30,6 +30,12 @@ router.post("/settings/test-mail", asyncHandler(adminController.sendTestMail));
 router.get("/analytics", asyncHandler(adminController.analytics));
 
 router.get("/security", asyncHandler(adminController.security));
+router.post("/security/run-cleanup", asyncHandler(adminController.runCleanupNow));
+router.post("/security/clear-notifications", asyncHandler(adminController.clearNotifications));
+router.post("/security/clear-visitors", asyncHandler(adminController.clearVisitors));
+router.post("/security/clear-security-events", asyncHandler(adminController.clearSecurityEvents));
+router.post("/security/clear-ip-rules", asyncHandler(adminController.clearIpRules));
+router.post("/security/clear-admin-access", asyncHandler(adminController.clearAdminAccess));
 router.post("/security/ip-rules", asyncHandler(adminController.addIpRule));
 router.post("/security/ip-rules/:id/delete", asyncHandler(adminController.removeIpRule));
 

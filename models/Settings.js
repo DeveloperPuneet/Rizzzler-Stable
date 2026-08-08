@@ -30,6 +30,15 @@ const settingsSchema = new mongoose.Schema(
     lastAiMailSubject: { type: String, default: "" },
     lastAiMailPreview: { type: String, default: "" },
     lastAiMailRecipientCount: { type: Number, default: 0 },
+
+    // ---- Maintenance / system health ----
+    lastCleanupAt: { type: Date, default: null },
+    lastCleanupSummary: { type: String, default: "" },
+    cleanupLog: [{
+      runAt: { type: Date, default: Date.now },
+      status: { type: String, default: "ok" },
+      summary: { type: Object, default: {} },
+    }],
   },
   { timestamps: true }
 );

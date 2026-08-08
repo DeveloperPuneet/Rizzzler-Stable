@@ -25,6 +25,11 @@
     <span class="rz-admin-stat-label">Total profile views</span>
     <span class="rz-admin-stat-value"><%= stats.totalViews.toLocaleString() %></span>
   </div>
+  <div class="rz-admin-stat-card">
+    <span class="rz-admin-stat-label">Storage used</span>
+    <span class="rz-admin-stat-value"><%= storage.usedLabel %></span>
+    <small class="rz-muted"><%= storage.capacityLabel %> total / <%= storage.usedPercent.toFixed(1) %>% used</small>
+  </div>
 </section>
 
 <section class="rz-admin-feature-row">

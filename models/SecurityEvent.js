@@ -23,7 +23,7 @@ const securityEventSchema = new mongoose.Schema({
   identifier: { type: String, default: null }, // e.g. attempted email, or device token
   userAgent: { type: String, default: null },
   path: { type: String, default: null },
-  createdAt: { type: Date, default: Date.now, expires: 60 * 60 * 24 * 30 }, // 30-day TTL
+  createdAt: { type: Date, default: Date.now, expires: 60 * 60 * 24 * 7 }, // 7-day TTL
 });
 
 module.exports = mongoose.model("SecurityEvent", securityEventSchema);
