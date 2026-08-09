@@ -109,6 +109,14 @@
               Show my join badge (#<%= user.legacyNumber || '-' %>) on my showcase page
             </label>
 
+            <h3>💬 Messaging</h3>
+            <label class="rz-checkbox">
+              <input type="hidden" name="messagesEnabled" value="false" />
+              <input type="checkbox" name="messagesEnabled" <%= user.messagesEnabled !== false ? 'checked' : '' %> value="true" />
+              Allow direct messages on my showcase page
+            </label>
+            <small class="rz-muted">Uncheck this box to hide the message form from visitors and stop new direct messages.</small>
+
             <h3>🎵 Audio</h3>
             <label>Background track
               <div class="rz-audio-picker-row">

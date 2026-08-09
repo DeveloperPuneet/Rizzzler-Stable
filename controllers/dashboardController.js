@@ -154,6 +154,7 @@ exports.updateProfile = async (req, res) => {
       avatarEffect,
       titleEffect,
       showcaseEffect,
+      messagesEnabled,
     } = req.body;
 
     // ---- Server-side validation against the shared registry ----
@@ -202,6 +203,12 @@ exports.updateProfile = async (req, res) => {
       user.showLegacyBadge = showLegacyBadge === "on" || showLegacyBadge === "true";
     }
 
+    if (req.body.hasOwnProperty("messagesEnabled")) {
+      user.messagesEnabled = Array.isArray(messagesEnabled)
+        ? messagesEnabled.includes("on") || messagesEnabled.includes("true")
+        : messagesEnabled === "on" || messagesEnabled === "true";
+    }
+
     if (req.body.hasOwnProperty("audioKey") || req.body.hasOwnProperty("audioAutoplay") || req.body.hasOwnProperty("audioLoop")) {
       user.audio.key = audioKey || null;
       user.audio.autoplay = audioAutoplay === "on" || audioAutoplay === "true";
@@ -230,6 +237,8 @@ exports.updateProfile = async (req, res) => {
     }
 
     await user.save();
+    const { emitUserStateUpdate } = require("../config/socket");
+    emitUserStateUpdate(user._id, { type: "settings" });
     res.redirect("/dashboard/settings?saved=1");
   } catch (err) {
     console.error(err);
@@ -246,6 +255,8 @@ exports.updateMessageRate = async (req, res) => {
     rate = Math.min(rate, 100000); // sanity cap
     user.messageRate = rate;
     await user.save();
+    const { emitUserStateUpdate } = require("../config/socket");
+    emitUserStateUpdate(user._id, { type: "settings" });
     res.redirect("/dashboard/settings?saved=1");
   } catch (err) {
     console.error(err);
@@ -272,6 +283,8 @@ exports.updateEmailPreferences = async (req, res) => {
     user.emailPreferences.messageMail = req.body.emailMessageMail === "on" || req.body.emailMessageMail === "true";
 
     await user.save();
+    const { emitUserStateUpdate } = require("../config/socket");
+    emitUserStateUpdate(user._id, { type: "settings" });
     res.redirect("/dashboard/settings?saved=1");
   } catch (err) {
     console.error(err);
@@ -353,6 +366,8 @@ exports.toggleAccountStatus = async (req, res) => {
     const { isActive } = req.body;
     user.isActive = isActive === "on" || isActive === "true";
     await user.save();
+    const { emitUserStateUpdate } = require("../config/socket");
+    emitUserStateUpdate(user._id, { type: "settings" });
     res.redirect("/dashboard/settings?saved=1");
   } catch (err) {
     console.error(err);

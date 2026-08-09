@@ -73,6 +73,7 @@ const userSchema = new mongoose.Schema(
     // What it costs (in Rizz) for someone else to message this user.
     // Owner-configurable in dashboard settings; 20 by default.
     messageRate: { type: Number, default: 20, min: 0 },
+    messagesEnabled: { type: Boolean, default: true },
 
     // GridFS file references (fileId = ObjectId in uploads.files, filename kept for convenience)
     avatar: {

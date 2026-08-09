@@ -301,6 +301,14 @@
       }, { threshold: 0.4 });
       
       elements.forEach(el => observer.observe(el));
+
+      window.addEventListener('rizzzler:platform-stats', function(event){
+        const liveStats = event.detail || {};
+        elements.forEach(function(el){
+          const value = liveStats[el.getAttribute('data-stat-type')];
+          if (typeof value === 'number') el.textContent = value.toLocaleString();
+        });
+      });
     })
     .catch(err => {
       console.error('Failed to load stats:', err);

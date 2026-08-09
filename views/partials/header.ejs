@@ -56,7 +56,7 @@
           </script>
 </head>
 
-<body>
+<body class="<%= typeof chatPage !== 'undefined' && chatPage ? 'rz-chat-page' : '' %>">
   <div class="rz-page-loader" id="pageLoader" aria-hidden="true">
     <div class="rz-loader-card">
       <div class="rz-loader-logo-wrap">
@@ -71,7 +71,8 @@
       <img src="/images/logo.png" alt="Rizzzler logo" class="rz-nav-logo" />
       <span>Rizzzler</span>
     </a>
-    <div class="rz-nav-links">
+    <div class="rz-nav-links" id="rzNavLinks">
+      <a href="/community-chat">Community Chat</a>
       <a href="/explore">Explore</a>
       <a href="/about-developer">About</a>
       <a href="/privacy-policy">Privacy</a>
@@ -109,6 +110,24 @@
           <% } %>
     </div>
   </nav>
+  <script>
+    (function () {
+      const toggle = document.getElementById('rzNavToggle');
+      const links = document.getElementById('rzNavLinks');
+      if (!toggle || !links) return;
+      toggle.addEventListener('click', function () {
+        const open = links.classList.toggle('rz-nav-links--open');
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.querySelector('.material-symbols-rounded').textContent = open ? 'close' : 'menu';
+      });
+      links.addEventListener('click', function (event) {
+        if (!event.target.closest('a')) return;
+        links.classList.remove('rz-nav-links--open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.querySelector('.material-symbols-rounded').textContent = 'menu';
+      });
+    })();
+  </script>
   <% if (isLoggedIn) { %>
   <!-- Notification dropdown – closed by default, toggled with style.display -->
   <div class="rz-notif-dropdown" id="rzNotifDropdown" style="display:none;" aria-hidden="true">

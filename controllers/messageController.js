@@ -99,6 +99,9 @@ exports.send = async (req, res) => {
   if (String(recipient._id) === String(me._id)) {
     return res.redirect(backTo + "?msgError=" + encodeURIComponent("You can't message yourself."));
   }
+  if (recipient.messagesEnabled === false) {
+    return res.redirect(backTo + "?msgError=" + encodeURIComponent("This user has disabled messages."));
+  }
 
   const rate = Number.isFinite(recipient.messageRate) ? recipient.messageRate : DEFAULT_RATE;
 

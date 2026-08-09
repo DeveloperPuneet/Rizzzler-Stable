@@ -10,6 +10,7 @@ const { getSettings } = require("../models/Settings");
 const { sendMilestoneEmail } = require("../config/mailer");
 const { getClientIp } = require("../middlewares/visitorTracker");
 const { invalidateCache } = require("../middlewares/ipAccessControl");
+const { emitUserStateUpdate } = require("../config/socket");
 
 // One-way, same-day visitor fingerprint for the "unique visitors" stat on
 // the owner's dashboard — see models/ProfileView.js for why this is safe
@@ -139,6 +140,7 @@ exports.showProfile = async (req, res) => {
     );
     user.profileViews = updated ? updated.profileViews : (user.profileViews || 0) + 1;
     user.rizz = updated ? updated.rizz : (user.rizz || 0) + RIZZ_PER_VIEW;
+    emitUserStateUpdate(user._id, { type: "stats" });
 
     const milestone = milestoneForCount(user.profileViews);
     if (milestone) {
@@ -195,6 +197,7 @@ exports.showProfile = async (req, res) => {
     isOwnProfile: isSelfView,
     viewerRizz,
     msgError: req.query.msgError || null,
+    messagesDisabled: user.messagesEnabled === false,
     theme,
     avatarEffect: user.avatarEffect || "none",
     avatarDecoration: selectedDecoration?.file || null,
@@ -254,7 +257,12 @@ exports.trackViewDuration = async (req, res) => {
     // Clamp to a sane range — a stray tab left open overnight shouldn't
     // blow out the average.
     seconds = Math.max(1, Math.min(seconds, 60 * 30));
-    await ProfileView.updateOne({ _id: viewId }, { $set: { durationSeconds: seconds } });
+    const view = await ProfileView.findOneAndUpdate(
+      { _id: viewId },
+      { $set: { durationSeconds: seconds } },
+      { new: true }
+    ).select("user");
+    if (view) emitUserStateUpdate(view.user, { type: "stats" });
   } catch (err) {
     console.error("trackViewDuration failed:", err.message);
   }
@@ -283,6 +291,8 @@ exports.getStats = async (req, res) => {
       avgViewsPerUser: totalUsers > 0 ? Math.round((viewAgg[0]?.totalViews || 0) / totalUsers) : 0,
     };
 
+    const { emitPlatformStats } = require("../config/socket");
+    emitPlatformStats(stats);
     res.json({ success: true, stats });
   } catch (err) {
     console.error("Error fetching stats:", err);

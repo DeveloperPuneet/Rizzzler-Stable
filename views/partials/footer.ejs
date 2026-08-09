@@ -118,6 +118,7 @@
     <div class="rz-footer-links-col">
       <h4>Product</h4>
       <a href="/#features">Features</a>
+      <a href="/community-chat">Community Chat</a>
       <a href="/explore">Explore Profiles</a>
       <a href="/featured-creators">Featured Creators</a>
       <a href="/trending-developers">Trending Developers</a>
@@ -137,6 +138,23 @@
     <span>© <%= new Date().getFullYear() %> Rizzzler. Built for the internet.</span>
   </div>
 </footer>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+(function(){
+  if (!window.io) return;
+  const socket = window.io({ withCredentials: true });
+  window.rizzzlerSocket = socket;
+  socket.on('platformStats:update', function(stats){
+    window.dispatchEvent(new CustomEvent('rizzzler:platform-stats', { detail: stats }));
+  });
+  socket.on('userState:update', function(update){
+    window.dispatchEvent(new CustomEvent('rizzzler:user-state', { detail: update }));
+  });
+  socket.on('community:message', function(payload){
+    window.dispatchEvent(new CustomEvent('rizzzler:community-message', { detail: payload.message }));
+  });
+})();
+</script>
 <script>
 (function(){
   const loader = document.getElementById('pageLoader');

@@ -210,7 +210,9 @@
             <%= profile.displayName || profile.username %> can reply to you for free, once.
           </p>
 
-          <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+          <% if (messagesDisabled) { %>
+            <p class="rz-muted" style="margin-top:14px;">Messages are currently turned off for this profile.</p>
+          <% } else if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
             <% if (typeof msgError !== 'undefined' && msgError) { %>
               <p class="rz-error" style="margin-top:14px;"><%= msgError %></p>
             <% } %>
@@ -456,5 +458,17 @@
 })();
 </script>
 <% } %>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+(function(){
+  if (!window.io) return;
+  const socket = window.io({ withCredentials: true });
+  socket.on('userState:update', function(update){
+    if (String(update.userId) === '<%= profile._id %>' && update.payload && update.payload.type === 'settings') {
+      window.location.reload();
+    }
+  });
+})();
+</script>
 </body>
 </html>

@@ -127,6 +127,7 @@
 
 <script>
 (function () {
+  const currentUserId = '<%= user._id %>';
   const summaryEls = {
     weekly: document.getElementById('rzStatWeekly'),
     unique: document.getElementById('rzStatUnique'),
@@ -240,7 +241,8 @@
       .join('');
   }
 
-  fetch('/dashboard/api/stats')
+  function loadStats() {
+    return fetch('/dashboard/api/stats')
     .then((r) => r.json())
     .then((data) => {
       if (!data.success) throw new Error('failed');
@@ -258,6 +260,12 @@
       devicesEl.innerHTML = '';
       referrersEl.innerHTML = '';
     });
+  }
+
+  loadStats();
+  window.addEventListener('rizzzler:user-state', function(event){
+    if (event.detail && String(event.detail.userId) === currentUserId && event.detail.payload && event.detail.payload.type === 'stats') loadStats();
+  });
 })();
 </script>
 

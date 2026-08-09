@@ -1,0 +1,88 @@
+<%- include('partials/header', { pageTitle, metaDescription, metaKeywords, chatPage }) %>
+  <main class="rz-community-chat">
+    <section class="rz-chat-shell" aria-label="Community chat">
+      <header class="rz-chat-header">
+        <div class="rz-chat-avatar"><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
+        <div>
+          <h1>Rizzzler Community</h1>
+          <p>Messages disappear after six hours</p>
+        </div>
+        <span class="rz-chat-live"><i></i> Live</span>
+      </header>
+      <div id="communityMessages" class="rz-chat-thread" aria-live="polite">
+            <% messages.forEach(message => { %>
+              <article class="rz-chat-message <%= currentUser && String(message.user) === String(currentUser._id) ? 'rz-chat-message--mine' : '' %>" data-message-id="<%= message._id %>">
+                <div class="rz-chat-message-meta"><strong>@<%= message.username %></strong><time><%= new Date(message.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) %></time></div>
+                <p><%= message.body %></p>
+              </article>
+            <% }) %>
+            <% if (!messages.length) { %><p class="rz-chat-empty">No messages yet. Start the conversation.</p><% } %>
+      </div>
+      <div class="rz-chat-composer-wrap">
+        <% if (currentUser) { %>
+          <form id="communityForm" class="rz-chat-composer">
+            <textarea id="communityBody" name="body" maxlength="500" rows="1" placeholder="Write a message…" required></textarea>
+            <button type="submit" aria-label="Send message" title="Send message"><span class="material-symbols-rounded" aria-hidden="true">send</span></button>
+          </form>
+          <p id="communityError" class="rz-error" hidden></p>
+        <% } else { %>
+          <p class="rz-chat-login"><a href="/login">Log in</a> to join the conversation.</p>
+        <% } %>
+      </div>
+    </section>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+  (function(){
+    const loader = document.getElementById('pageLoader');
+    if (!loader) return;
+    const hide = () => {
+      loader.classList.add('rz-page-loader--hidden');
+      window.setTimeout(() => loader.remove(), 400);
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', hide, { once: true });
+    } else {
+      hide();
+    }
+    window.setTimeout(hide, 1800);
+  })();
+
+  (function(){
+    const list = document.getElementById('communityMessages');
+    const currentUserId = '<%= currentUser ? currentUser._id : '' %>';
+    const form = document.getElementById('communityForm');
+    const body = document.getElementById('communityBody');
+    const error = document.getElementById('communityError');
+    function appendMessage(message) {
+      if (!message || document.querySelector('[data-message-id="' + message._id + '"]')) return;
+      const article = document.createElement('article');
+      article.className = 'rz-chat-message' + (String(message.user) === currentUserId ? ' rz-chat-message--mine' : '');
+      article.dataset.messageId = message._id;
+      article.innerHTML = '<div class="rz-chat-message-meta"><strong></strong><time></time></div><p></p>';
+      article.querySelector('strong').textContent = '@' + message.username;
+      article.querySelector('time').textContent = new Date(message.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      const empty = list.querySelector('.rz-chat-empty');
+      if (empty) empty.remove();
+      article.querySelector('p').textContent = message.body;
+      list.appendChild(article);
+      list.scrollTop = list.scrollHeight;
+    }
+    window.addEventListener('rizzzler:community-message', event => appendMessage(event.detail));
+    const socket = window.io ? window.io({ withCredentials: true }) : null;
+    if (socket) {
+      socket.emit('join-community');
+      socket.on('community:message', payload => appendMessage(payload.message));
+    }
+    if (!form) return;
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      error.hidden = true;
+      const response = await fetch('/api/community-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body: body.value }) });
+      const result = await response.json();
+      if (!response.ok) { error.textContent = result.error || 'Could not send message.'; error.hidden = false; return; }
+      body.value = '';
+      appendMessage(result.message);
+    });
+  })();
+  </script>

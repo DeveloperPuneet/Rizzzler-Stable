@@ -1,4 +1,5 @@
 require("dotenv").config();
+const http = require("http");
 const express = require("express");
 const path = require("path");
 const compression = require("compression");
@@ -13,6 +14,8 @@ const startKeepAlive = require("./config/keepAlive");
 const { startAiMailScheduler } = require("./config/aiMailScheduler");
 const { startAccountCleanupScheduler } = require("./config/accountCleanup");
 const { startTrendingReset } = require("./config/trendingReset");
+const { startCommunityCleanupScheduler } = require("./config/communityCleanup");
+const { initSocket } = require("./config/socket");
 const User = require("./models/User");
 const Notification = require("./models/Notification");
 
@@ -38,6 +41,7 @@ startKeepAlive();
 startAiMailScheduler();
 startAccountCleanupScheduler(); // deletes accounts left unverified for 15+ days (config/accountCleanup.js)
 startTrendingReset(); // weekly reset of User.weeklyViews that powers /trending-developers (config/trendingReset.js)
+startCommunityCleanupScheduler();
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -241,4 +245,6 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Rizzzler running on port ${PORT}`));
+const server = http.createServer(app);
+initSocket(server);
+server.listen(PORT, () => console.log(`🚀 Rizzzler running on port ${PORT}`));
