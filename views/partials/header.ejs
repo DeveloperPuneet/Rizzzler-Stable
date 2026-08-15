@@ -247,47 +247,4 @@
     })();
   </script>
   <% } %>
-  <!-- Domain‑notice bar (closed on click, even if localStorage fails) -->
-  <div class="rz-domain-notice" id="rzDomainNotice">
-    <p>
-      <span class="material-symbols-rounded rz-inline-icon" aria-hidden="true">location_on</span> We've moved! Rizzzler now lives at
-      <a href="https://www.rizzzler.work.gd" target="_blank" rel="noopener noreferrer">www.rizzzler.work.gd</a>
-      — update your bookmarks.
-    </p>
-    <button type="button" id="rzDomainNoticeClose" aria-label="Dismiss">
-      <span class="material-symbols-rounded" aria-hidden="true">close</span>
-    </button>
-  </div>
-  <script>
-    (function () {
-      var el = document.getElementById('rzDomainNotice');
-      if (!el) return;
-
-      var DISMISS_KEY = 'rz_domain_notice_dismissed';
-
-      var dismissed = false;
-      try {
-        dismissed = localStorage.getItem(DISMISS_KEY) === '1';
-      } catch (e) { /* ignore */ }
-
-      if (dismissed) {
-        el.remove();
-        return;
-      }
-
-      var closeBtn = document.getElementById('rzDomainNoticeClose');
-      if (closeBtn) {
-        closeBtn.addEventListener('click', function () {
-          el.remove();  // always remove first
-          try {
-            localStorage.setItem(DISMISS_KEY, '1');
-          } catch (e) {
-            try {
-              document.cookie = DISMISS_KEY + '=1; path=/; max-age=0; SameSite=Lax';
-            } catch (e2) { /* ignore */ }
-          }
-        });
-      }
-    })();
-  </script>
   <main class="rz-main">

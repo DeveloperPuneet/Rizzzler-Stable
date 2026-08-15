@@ -19,7 +19,7 @@
   <meta name="theme-color" content="#06060e" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <meta name="description" content="<%= typeof metaDescription !== 'undefined' && metaDescription ? metaDescription : 'A stylish Rizzzler showcase page with links, media, and a custom theme.' %>" />
   <meta name="keywords" content="<%= typeof metaKeywords !== 'undefined' && metaKeywords ? metaKeywords : 'Rizzzler, showcase page, profile links' %>" />
   <meta property="og:type" content="profile" />
@@ -115,13 +115,13 @@
           </div>
         <% } %>
       </div>
-      <div class="rz-hero-badge"><span class="material-symbols-rounded" aria-hidden="true">auto_awesome</span> <%= theme.heroEyebrow || 'The Legend' %></div>
+      <div class="rz-hero-badge"><span aria-hidden="true">✦</span> <%= theme.heroEyebrow || 'The Legend' %></div>
       <h1 class="rz-hero-name rz-title-effect rz-title-effect--<%= titleEffectKey %>" data-typing-text="<%= (profile.displayName || profile.username).replace(/"/g, '&quot;') %>"><%= profile.displayName || profile.username %></h1>
       <% if (profile.showLegacyBadge && profile.legacyNumber) { %>
         <span class="rz-badge">#<%= profile.legacyNumber %></span>
       <% } %>
       <p class="rz-hero-username">@<%= profile.username %></p>
-      <p class="rz-hero-views"><span class="material-symbols-rounded" aria-hidden="true">visibility</span> <%= profile.profileViews || 0 %> views</p>
+      <p class="rz-hero-views"><span aria-hidden="true">👁️</span> <%= profile.profileViews || 0 %> views</p>
       <% if (profile.bio) { %>
         <p class="rz-story-card" style="margin-top:20px;"><%= profile.bio %></p>
       <% } %>
@@ -166,7 +166,7 @@
     </section>
   <% } %>
 
-  <% const detailItems = []; if (profile.phoneNumber) { detailItems.push({ icon:'call', value:profile.phoneNumber, href:'tel:'+profile.phoneNumber }); } if (profile.location) { detailItems.push({ icon:'location_on', value:profile.location }); } if (profile.profession) { detailItems.push({ icon:'work', value:profile.profession }); } %>
+  <% const detailItems = []; if (profile.phoneNumber) { detailItems.push({ icon:'📞', value:profile.phoneNumber, href:'tel:'+profile.phoneNumber }); } if (profile.location) { detailItems.push({ icon:'📍', value:profile.location }); } if (profile.profession) { detailItems.push({ icon:'💼', value:profile.profession }); } %>
   <% if (detailItems.length) { %>
     <section class="rz-section rz-details-section">
       <div class="rz-section-content">
@@ -175,7 +175,7 @@
           <div class="rz-details-row" style="margin-top:20px;">
             <% detailItems.forEach(item => { %>
               <div class="rz-detail-item">
-                <div class="rz-detail-icon" aria-hidden="true"><span class="material-symbols-rounded"><%= item.icon %></span></div>
+                <div class="rz-detail-icon" aria-hidden="true"><span><%= item.icon %></span></div>
                 <% if (item.href) { %><a href="<%= item.href %>"><%= item.value %></a><% } else { %><span><%= item.value %></span><% } %>
               </div>
             <% }) %>

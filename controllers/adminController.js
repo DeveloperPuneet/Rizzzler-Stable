@@ -10,7 +10,7 @@ const IpRule = require("../models/IpRule");
 const { invalidateCache } = require("../middlewares/ipAccessControl");
 const { sendNewsletterEmail, sendInviteEmail, sendBulk } = require("../config/mailer");
 const { maybeSendAIMail } = require("../config/aiMailScheduler");
-const { getSystemHealthSnapshot, runCleanupCycle, DATA_RETENTION_DAYS } = require("../config/accountCleanup");
+const { getSystemHealthSnapshot, runCleanupCycle, clearCleanupLog, DATA_RETENTION_DAYS } = require("../config/accountCleanup");
 
 // ---------- Login ----------
 exports.getLogin = (req, res) => {
@@ -589,6 +589,17 @@ exports.runCleanupNow = async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.redirect("/admin/security?error=" + encodeURIComponent("Cleanup could not finish. Check server logs."));
+  }
+};
+
+exports.clearCleanupLogs = async (req, res) => {
+  try {
+    const result = await clearCleanupLog();
+    const cleared = result.cleared || 0;
+    return res.redirect("/admin/security?info=" + encodeURIComponent(`Cleared ${cleared} cleanup log entr${cleared === 1 ? "y" : "ies"}.`));
+  } catch (err) {
+    console.error(err);
+    return res.redirect("/admin/security?error=" + encodeURIComponent("Could not clear the cleanup log."));
   }
 };
 

@@ -196,6 +196,18 @@ async function writeCleanupLog(summary = {}, { now = new Date() } = {}) {
   return entry;
 }
 
+async function clearCleanupLog({ getSettingsFn = getSettings, now = new Date() } = {}) {
+  const settings = await getSettingsFn();
+  const previousCount = Array.isArray(settings.cleanupLog) ? settings.cleanupLog.length : 0;
+
+  settings.cleanupLog = [];
+  settings.lastCleanupAt = now;
+  settings.lastCleanupSummary = "";
+  await settings.save();
+
+  return { cleared: previousCount, removedCount: previousCount };
+}
+
 async function runCleanupCycle({ now = new Date() } = {}) {
   const [retention, unverifiedAccounts, orphanedFiles] = await Promise.all([
     cleanupRetentionData(),
@@ -305,6 +317,7 @@ module.exports = {
   getSystemHealthSnapshot,
   runCleanupCycle,
   writeCleanupLog,
+  clearCleanupLog,
   UNVERIFIED_TTL_MS,
   DATA_RETENTION_DAYS,
   VISITOR_RETENTION_DAYS,

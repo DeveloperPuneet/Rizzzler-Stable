@@ -31,6 +31,7 @@ router.get("/analytics", asyncHandler(adminController.analytics));
 
 router.get("/security", asyncHandler(adminController.security));
 router.post("/security/run-cleanup", asyncHandler(adminController.runCleanupNow));
+router.post("/security/clear-cleanup-log", asyncHandler(adminController.clearCleanupLogs));
 router.post("/security/clear-notifications", asyncHandler(adminController.clearNotifications));
 router.post("/security/clear-visitors", asyncHandler(adminController.clearVisitors));
 router.post("/security/clear-security-events", asyncHandler(adminController.clearSecurityEvents));

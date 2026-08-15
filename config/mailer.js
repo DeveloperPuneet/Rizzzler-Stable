@@ -265,10 +265,31 @@ async function sendMailWithLogging(options) {
   }
 }
 
-function wrap(title, bodyHtml, { eyebrow = "Fresh from Rizzzler", badge = "✨", accent = "#c084fc", buttonUrl, buttonLabel } = {}) {
+function wrap(title, bodyHtml, { eyebrow = "Fresh from Rizzzler", badge = "✨", accent = "#c084fc", buttonUrl, buttonLabel, showMarketing = true } = {}) {
   const buttonMarkup = buttonUrl && buttonLabel
-    ? `<p style="margin:24px 0 0;"><a href="${escapeHtml(buttonUrl)}" style="display:inline-block;background:linear-gradient(90deg,#8b5cf6 0%,#c084fc 100%);color:#08070d;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:800;font-size:14px;box-shadow:0 10px 30px rgba(192,132,252,0.26);">${escapeHtml(buttonLabel)}</a></p>`
+    ? `<div style="margin:24px 0 0;padding:18px 18px 16px;border:1px solid rgba(192,132,252,0.32);border-radius:18px;background:linear-gradient(135deg,rgba(136,94,255,0.18),rgba(255,255,255,0.03));">
+         <div style="font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#d8c6ff;margin:0 0 8px;">Take action</div>
+         <p style="margin:0 0 14px;color:#f3ebff;line-height:1.6;">Your online presence should feel intentional — not forgotten. Build the version of you that people trust at first glance.</p>
+         <a href="${escapeHtml(buttonUrl)}" style="display:inline-block;background:linear-gradient(90deg,#8b5cf6 0%,#c084fc 100%);color:#08070d;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:900;font-size:14px;box-shadow:0 12px 35px rgba(192,132,252,0.35);">${escapeHtml(buttonLabel)}</a>
+       </div>`
     : "";
+
+  const marketingMarkup = showMarketing ? `
+    <div style="margin:24px 0 10px;padding:18px 18px 14px;border:1px solid rgba(192,132,252,0.26);border-radius:18px;background:linear-gradient(135deg,rgba(136,94,255,0.14),rgba(255,255,255,0.03));">
+      <div style="font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#d8c6ff;margin:0 0 10px;">Why now?</div>
+      <div style="color:#f3ebff;line-height:1.7;font-size:14px;">
+        <p style="margin:0 0 10px;">Your profile is your digital storefront. Rizzzler helps you look credible, memorable, and ready for opportunity before the internet moves on without you.</p>
+        <ul style="margin:0 0 8px;padding-left:18px;color:#e8defd;">
+          <li>Turn scattered links into one premium brand presence.</li>
+          <li>Showcase your work, vibe, and value in a way that feels intentional.</li>
+          <li>Stand out with elevated visuals, motion, and a polished first impression.</li>
+          <li>Stay visible while attention is still up for grabs.</li>
+        </ul>
+        <p style="margin:0;color:#d6bcff;">The market is already moving. A weak profile can quietly cost you attention, trust, and momentum.</p>
+      </div>
+    </div>` : "";
+
+  const logoUrl = `${process.env.BASE_URL || "https://www.rizzzler.work.gd"}/images/logo.png`;
 
   return `<!doctype html>
 <html lang="en">
@@ -277,24 +298,28 @@ function wrap(title, bodyHtml, { eyebrow = "Fresh from Rizzzler", badge = "✨",
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${escapeHtml(title)}</title>
   </head>
-  <body style="margin:0;padding:0;background:linear-gradient(135deg,#06050b 0%,#151026 55%,#090911 100%);font-family:Arial,Helvetica,sans-serif;color:#f6f2ff;">
+  <body style="margin:0;padding:0;background:linear-gradient(135deg,#07060d 0%,#120d1d 35%,#090911 100%);font-family:Arial,Helvetica,sans-serif;color:#f6f2ff;">
     <div style="padding:32px 12px;">
       <div style="max-width:620px;margin:0 auto;">
-        <div style="background:rgba(8,9,15,0.96);border:1px solid rgba(192,132,252,0.35);border-radius:24px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,0.35);">
-          <div style="background:linear-gradient(90deg,#21143e 0%,#6d28d9 45%,${accent} 100%);padding:24px 28px;">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <div style="width:46px;height:46px;border-radius:999px;background:rgba(255,255,255,0.16);display:inline-flex;align-items:center;justify-content:center;font-size:24px;border:1px solid rgba(255,255,255,0.28);box-shadow:0 0 0 1px rgba(255,255,255,0.08) inset;">${badge}</div>
-              <div>
-                <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#efe8ff;opacity:0.78;">${escapeHtml(eyebrow)}</div>
-                <div style="font-size:24px;font-weight:800;color:#ffffff;">Rizzzler</div>
+        <div style="background:rgba(8,9,15,0.96);border:1px solid rgba(192,132,252,0.35);border-radius:24px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,0.42);">
+          <div style="background:linear-gradient(90deg,#22163d 0%,#5f2ad8 36%,${accent} 100%);padding:24px 28px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <img src="${logoUrl}" alt="Rizzzler logo" style="width:46px;height:46px;border-radius:14px;display:block;object-fit:cover;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.08);" />
+                <div>
+                  <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#efe8ff;opacity:0.8;">${escapeHtml(eyebrow)}</div>
+                  <div style="font-size:24px;font-weight:800;color:#ffffff;">Rizzzler</div>
+                </div>
               </div>
+              <div style="width:42px;height:42px;border-radius:999px;background:rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid rgba(255,255,255,0.2);">${badge}</div>
             </div>
           </div>
           <div style="padding:28px 28px 20px;">
             <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#ffffff;">${escapeHtml(title)}</h1>
-            <div style="height:3px;width:92px;border-radius:999px;background:linear-gradient(90deg,#c084fc,#7c3aed);margin:0 0 22px;"></div>
+            <div style="height:3px;width:110px;border-radius:999px;background:linear-gradient(90deg,#f5d0fe,#8b5cf6,#c084fc);margin:0 0 22px;"></div>
             <div style="color:#e8defd;line-height:1.7;font-size:15px;">
               ${bodyHtml}
+              ${marketingMarkup}
             </div>
             ${buttonMarkup}
           </div>
@@ -364,6 +389,7 @@ async function sendNewsletterEmail(to, subject, bodyText) {
       badge: "📰",
       buttonUrl: process.env.BASE_URL || "https://www.rizzzler.work.gd",
       buttonLabel: "Open Rizzzler",
+      showMarketing: true,
     }),
   });
 }
@@ -441,18 +467,18 @@ async function sendInviteEmail(to, invitedByName, baseUrl) {
     html: wrap(
       "You're invited!",
       `<p style="margin:0 0 10px;">Hey there! 👋</p>
-       <p style="margin:0 0 12px;">${escapeHtml(invitedByName || "Someone")} is inviting you to check out <strong>Rizzzler</strong> — a personal link-in-bio and showcase platform for Gen Z.</p>
+       <p style="margin:0 0 12px;">${escapeHtml(invitedByName || "Someone")} is inviting you to check out <strong>Rizzzler</strong> — a premium personal brand page that gives creators and founders a sharper, more confident online presence.</p>
        <div style="margin:12px 0 16px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
-         <p style="margin:0 0 8px;font-weight:700;color:#ffffff;">Why people love Rizzzler</p>
+         <p style="margin:0 0 8px;font-weight:700;color:#ffffff;">Why people upgrade to Rizzzler</p>
          <ul style="margin:0;padding-left:18px;color:#e8defd;line-height:1.7;">
-           <li>Create your unique showcase page</li>
-           <li>Keep all your links in one place</li>
-           <li>Pick beautiful themes and customize your vibe</li>
-           <li>Celebrate profile milestones with fun updates</li>
+           <li>Turn clicks into attention with a polished digital storefront.</li>
+           <li>Keep your links, portfolio, socials, and content in one place.</li>
+           <li>Use premium visual themes and motion that make your page stand out.</li>
+           <li>Build momentum before the internet moves on without you.</li>
          </ul>
        </div>
-       <p style="margin:0 0 8px;">Start building your showcase in minutes. No credit card required.</p>`,
-      { eyebrow: "Join the fun", badge: "🎁", buttonUrl: joinUrl, buttonLabel: "Join Rizzzler free" }
+       <p style="margin:0 0 8px;">Your audience is already online. Don’t let a weak or scattered profile cost you the next opportunity.</p>`,
+      { eyebrow: "Join the fun", badge: "", buttonUrl: joinUrl, buttonLabel: "Join Rizzzler free", showMarketing: true }
     ),
   });
 }
