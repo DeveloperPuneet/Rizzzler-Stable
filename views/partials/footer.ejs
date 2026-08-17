@@ -101,6 +101,12 @@
 }
 </style>
 <footer class="rz-footer">
+  <div class="rz-footer-marquee-wrap" aria-label="Featured links">
+    <div class="rz-footer-marquee">
+      <div class="rz-footer-marquee-track" id="rzFooterMarqueeTrack"></div>
+    </div>
+  </div>
+
   <div class="rz-footer-grid">
     <div class="rz-footer-brand">
       <a href="/" class="rz-footer-logo">
@@ -116,7 +122,6 @@
           <span class="material-symbols-rounded" aria-hidden="true">code</span>
         </a>
       </div>
-      <a href="https://www.producthunt.com/products/rizzzler-show-yourself-off?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-rizzzler-show-yourself-off" target="_blank" rel="noopener noreferrer" class="rz-footer-badge"><img alt="Rizzzler — Show yourself off - Show yourself off | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1194097&amp;theme=dark&amp;t=1784603218786"></a>
     </div>
     <div class="rz-footer-links-col">
       <h4>Product</h4>
@@ -140,6 +145,9 @@
   <div class="rz-footer-bottom">
     <span>© <%= new Date().getFullYear() %> Rizzzler. Built for the internet.</span>
   </div>
+  <div style="display: none">
+    <a href="https://www.stork.ai/" rel="nofollow" title="Stork Verified — stork.ai AI tools directory"><img src="https://www.stork.ai/badge/verified-dark.svg" alt="Stork Verified — stork.ai AI tools directory" width="216" height="44" /></a>
+  </div>
 </footer>
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -155,6 +163,58 @@
   });
   socket.on('community:message', function(payload){
     window.dispatchEvent(new CustomEvent('rizzzler:community-message', { detail: payload.message }));
+  });
+})();
+</script>
+<script>
+(function(){
+  const tagLinks = [
+    {
+      label: 'Product Hunt',
+      href: 'https://www.producthunt.com/products/rizzzler-show-yourself-off?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-rizzzler-show-yourself-off',
+      image: 'https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1194097&theme=dark&t=1784603218786'
+    },
+    {
+      label: "There's A Tool For",
+      href: 'https://theresatoolfor.com/projects/rizzzler?utm_source=badge',
+      image: 'https://r2.direasy-multi-tenant.focusapps.app/uploads/616d0b1a-3979-4b8c-94d1-b4f1fedd3ead/1783951420330/7dzj96cw6vj/featured-on-dark.svg'
+    },
+    { label: 'LaunchPadly', href: 'https://launchpadly.co/startup/rizzzler?ref=badge', image:"https://launchpadly.co/embed/badges/startup/rizzzler.svg?variant=listed-on"},
+    {
+      label: "Startupfa",
+      href:"https://startupfa.me/s/rizzzler?utm_source=www.rizzzler.work.gd",
+      image: "https://startupfa.me/badges/featured-badge.webp"
+    },
+    {
+      label: 'Stork Verified',
+      href: 'https://www.stork.ai/',
+      image: 'https://www.stork.ai/badge/verified-dark.svg'
+    }
+  ];
+
+  const track = document.getElementById('rzFooterMarqueeTrack');
+  if (!track || !tagLinks.length) return;
+
+  const items = [...tagLinks, ...tagLinks];
+  items.forEach((tag) => {
+    const link = document.createElement('a');
+    link.href = tag.href || '#';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.className = 'rz-footer-marquee-item';
+    link.setAttribute('aria-label', tag.label || 'Featured link');
+
+    if (tag.image) {
+      const img = document.createElement('img');
+      img.src = tag.image;
+      img.alt = tag.label || 'Featured tag';
+      img.loading = 'lazy';
+      link.appendChild(img);
+    } else {
+      link.textContent = tag.label;
+    }
+
+    track.appendChild(link);
   });
 })();
 </script>
