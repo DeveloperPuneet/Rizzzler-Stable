@@ -45,7 +45,7 @@
   <div class="rz-admin-toggle-row">
     <div>
       <h3>3. AI fun mail</h3>
-      <p class="rz-muted">Gemini-generated playful mail sent to everyone at a random time on random days (like a food delivery app notification).</p>
+      <p class="rz-muted">Mistral-generated playful mail sent to everyone at a random time on random days (like a food delivery app notification).</p>
     </div>
     <label class="rz-switch">
       <input type="checkbox" name="aiMailEnabled" <%= settings.aiMailEnabled ? 'checked' : '' %> />
@@ -53,7 +53,7 @@
     </label>
   </div>
 
-  <label>AI mail prompt <small class="rz-muted">(sent to Gemini — customize the vibe)</small>
+  <label>AI mail prompt <small class="rz-muted">(sent to Mistral AI — customize the vibe)</small>
     <textarea name="aiMailPrompt" rows="4"><%= settings.aiMailPrompt %></textarea>
   </label>
 
@@ -136,7 +136,7 @@
   
   <p class="rz-muted" style="margin-top:8px;"><strong>Prerequisites:</strong></p>
   <ul style="margin:8px 0; padding-left:20px; font-size:13px; color:#8a8a9a;">
-    <li><code>GEMINI_API_KEY</code> must be set in .env</li>
+    <li><code>MISTRAL_API_KEY</code> must be set in .env</li>
     <li>Feature must be enabled above</li>
     <li>Users must opt-in to AI mail in their settings</li>
   </ul>

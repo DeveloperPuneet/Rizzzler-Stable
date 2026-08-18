@@ -69,7 +69,7 @@ If you don’t build your presence now, someone else with a sharper profile will
 - Mail tools including:
   1. newsletter broadcasts
   2. milestone celebration emails
-  3. AI-generated fun mail via Gemini
+  3. AI-generated fun mail via Mistral AI
 
 ### Automation and maintenance
 - Unverified accounts older than 15 days are cleaned up automatically
@@ -93,7 +93,7 @@ controllers/     adminController.js, authController.js, dashboardController.js, 
 middlewares/     authMiddleware.js, adminMiddleware.js, rateLimiter.js, upload.js, visitorTracker.js
 models/          User.js, Visitor.js, Settings.js, AdminAccess.js, SecurityEvent.js, IpRule.js
 Routes/          adminRoutes.js, authRoutes.js, dashboardRoutes.js, fileRoutes.js, showcaseRoutes.js, apiRoutes.js
-services/        geminiService.js
+services/        mistralService.js
 shared/          registry.js
 views/           landing, auth, dashboard, admin, discover pages, privacy/terms/showcase templates
 public/          css, audios, decor, images
@@ -120,7 +120,7 @@ Required values include:
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` — mail delivery for verification/reset emails
 - `BASE_URL` — live or local domain such as `https://www.rizzzler.work.gd`
 - `ADMIN_PASSWORD` — admin panel access
-- `GEMINI_API_KEY` — optional for AI-generated mail
+- `MISTRAL_API_KEY` — optional for AI-generated mail (get one free at https://console.mistral.ai)
 
 ### 3. Add audio presets (optional)
 Drop `.mp3`, `.wav`, `.ogg`, or other supported audio files into `public/audios/` and they will show up in the dashboard selector automatically.

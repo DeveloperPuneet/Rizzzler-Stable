@@ -2,7 +2,7 @@ const cron = require("node-cron");
 const User = require("../models/User");
 const { getSettings } = require("../models/Settings");
 const { sendAIMail, sendBulk } = require("./mailer");
-const { generateFunMail } = require("../services/geminiService");
+const { generateFunMail } = require("../services/mistralService");
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
@@ -87,7 +87,7 @@ async function maybeSendAIMail() {
     console.log(`   🎬 Time to send! Generating AI mail...`);
     const generated = await generateFunMail(settings.aiMailPrompt);
     if (!generated) {
-      console.log(`   ❌ Failed to generate AI mail content from Gemini API`);
+      console.log(`   ❌ Failed to generate AI mail content from Mistral API`);
       return;
     }
     

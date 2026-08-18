@@ -1,7 +1,9 @@
-// Minimal wrapper around the Gemini API (generateContent) using the global
-// fetch available in Node 18+. No SDK dependency needed.
+// Minimal wrapper around the Mistral AI chat completions API using the
+// global fetch available in Node 18+. No SDK dependency needed.
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+// "mistral-small-latest" is Mistral's small/cheap model — plenty for a
+// short "fun mail" subject+body, and keeps token usage (cost) low.
+const MISTRAL_MODEL = process.env.MISTRAL_MODEL || "mistral-small-latest";
 
 function extractJson(text) {
   if (!text) return null;
@@ -28,36 +30,46 @@ function extractJson(text) {
 }
 
 /**
- * Generates a short { subject, body } pair using Gemini.
+ * Generates a short { subject, body } pair using Mistral AI.
  * Returns null if the API key is missing or the call fails, so callers can
  * safely skip sending rather than crash a cron job.
  */
 async function generateFunMail(prompt) {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.MISTRAL_API_KEY;
   if (!apiKey) {
-    console.log("⏭️  GEMINI_API_KEY not set — skipping AI mail generation.");
+    console.log("⏭️  MISTRAL_API_KEY not set — skipping AI mail generation.");
     return null;
   }
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+    const url = "https://api.mistral.ai/v1/chat/completions";
     const res = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 1, maxOutputTokens: 300 },
+        model: MISTRAL_MODEL,
+        temperature: 1,
+        max_tokens: 300,
+        messages: [
+          {
+            role: "user",
+            content: `${prompt}\n\nRespond ONLY with raw JSON in the form {"subject": "...", "body": "..."} — no markdown fences, no extra commentary.`,
+          },
+        ],
       }),
     });
 
     if (!res.ok) {
       const errText = await res.text().catch(() => "");
-      console.error(`Gemini API error ${res.status}:`, errText.slice(0, 300));
+      console.error(`Mistral API error ${res.status}:`, errText.slice(0, 300));
       return null;
     }
 
     const data = await res.json();
-    const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("") || "";
+    const text = data?.choices?.[0]?.message?.content || "";
     const parsed = extractJson(text);
 
     if (parsed && parsed.subject && parsed.body) {
@@ -73,7 +85,7 @@ async function generateFunMail(prompt) {
     }
     return null;
   } catch (err) {
-    console.error("Gemini API request failed:", err.message);
+    console.error("Mistral API request failed:", err.message);
     return null;
   }
 }

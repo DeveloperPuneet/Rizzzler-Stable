@@ -350,7 +350,7 @@ exports.testAiMail = async (req, res) => {
     console.log(`\n🚀 [Admin Trigger] Sending AI mail immediately at ${new Date().toLocaleString()}`);
 
     // Generate AI mail
-    const { generateFunMail } = require("../services/geminiService");
+    const { generateFunMail } = require("../services/mistralService");
     const generated = await generateFunMail(settings.aiMailPrompt);
     
     if (!generated) {
@@ -358,7 +358,7 @@ exports.testAiMail = async (req, res) => {
         layout: false,
         settings,
         userCount: await User.countDocuments({ isVerified: true, isActive: { $ne: false } }),
-        error: "❌ Failed to generate AI mail. Check if GEMINI_API_KEY is valid in .env",
+        error: "❌ Failed to generate AI mail. Check if MISTRAL_API_KEY is valid in .env",
         info: null,
         newsletterResult: null,
         inviteResult: null,

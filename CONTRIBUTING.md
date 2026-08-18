@@ -82,7 +82,7 @@ Configure:
 - `SMTP_*`
 - `BASE_URL`
 - `ADMIN_PASSWORD`
-- `GEMINI_API_KEY` *(optional)*
+- `MISTRAL_API_KEY` *(optional)*
 
 Never commit your `.env` file.
 

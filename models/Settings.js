@@ -21,7 +21,7 @@ const settingsSchema = new mongoose.Schema(
     lastNewsletterSentAt: { type: Date, default: null },
     lastNewsletterRecipientCount: { type: Number, default: 0 },
 
-    // ---- AI mail (Gemini generated, random day/time) ----
+    // ---- AI mail (Mistral generated, random day/time) ----
     aiMailPrompt: { type: String, default: DEFAULT_AI_PROMPT },
     aiMailPlanDate: { type: String, default: null }, // YYYY-MM-DD the plan below was made for
     aiMailNextSendAt: { type: Date, default: null }, // null == no send planned today
