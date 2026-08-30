@@ -36,7 +36,7 @@ router.post(
 );
 router.post(
   "/upload/audio",
-  ...gridfsUpload("audio", { maxBytes: 1024 * 1024, fileFilter: require("../middlewares/upload").audioFileFilter || undefined }),
+  ...gridfsUpload("audio", { maxBytes: AUDIO_MAX_BYTES, fileFilter: audioFileFilter }),
   asyncHandler(dashboardController.uploadAudio)
 );
 router.post("/audio/delete", asyncHandler(dashboardController.deleteAudio));

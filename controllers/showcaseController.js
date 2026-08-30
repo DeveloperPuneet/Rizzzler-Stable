@@ -164,9 +164,12 @@ exports.showProfile = async (req, res) => {
   if (countView) {
     try {
       const ua = new UAParser(req.headers["user-agent"] || "").getResult();
+      const referrerUrl = req.headers["referer"] || req.headers["referrer"] || null;
       const view = await ProfileView.create({
         user: user._id,
         visitorHash: dailyVisitorHash(getClientIp(req)),
+        pagePath: req.originalUrl || `/${user.username}`,
+        referrerUrl,
         referrerHost: referrerHostFrom(req),
         deviceType: ua.device?.type || "desktop",
       });

@@ -6,6 +6,7 @@ const { getSettings } = require("../models/Settings");
 const { recordFailedAttempt, clearAttempts, MAX_ATTEMPTS } = require("../models/AdminAccess");
 const SecurityEvent = require("../models/SecurityEvent");
 const Visitor = require("../models/Visitor");
+const ProfileView = require("../models/ProfileView");
 const IpRule = require("../models/IpRule");
 const { invalidateCache } = require("../middlewares/ipAccessControl");
 const { sendNewsletterEmail, sendInviteEmail, sendBulk } = require("../config/mailer");
@@ -154,14 +155,96 @@ exports.listUsers = async (req, res) => {
 
 // ---------- Single user view/edit ----------
 exports.viewUser = async (req, res) => {
-  const user = await User.findById(req.params.id).lean();
-  if (!user) return res.status(404).send("User not found");
-  res.render("admin/user-detail", {
-    layout: false,
-    u: user,
-    error: null,
-    info: req.query.saved ? "Changes saved." : null,
-  });
+  try {
+    const user = await User.findById(req.params.id).lean();
+    if (!user) return res.status(404).send("User not found");
+
+    const windowStart = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+    const [summaryAgg, dailyAgg, sourceAgg, deviceAgg, recentViews] = await Promise.all([
+      ProfileView.aggregate([
+        { $match: { user: user._id, visitedAt: { $gte: windowStart } } },
+        {
+          $group: {
+            _id: null,
+            totalVisits: { $sum: 1 },
+            totalSeconds: { $sum: { $ifNull: ["$durationSeconds", 0] } },
+            avgSeconds: { $avg: "$durationSeconds" },
+          },
+        },
+      ]),
+      ProfileView.aggregate([
+        { $match: { user: user._id, visitedAt: { $gte: windowStart } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$visitedAt" } },
+            visits: { $sum: 1 },
+            totalSeconds: { $sum: { $ifNull: ["$durationSeconds", 0] } },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
+      ProfileView.aggregate([
+        { $match: { user: user._id, visitedAt: { $gte: windowStart } } },
+        {
+          $group: {
+            _id: { $ifNull: ["$referrerHost", "Direct"] },
+            visits: { $sum: 1 },
+            totalSeconds: { $sum: { $ifNull: ["$durationSeconds", 0] } },
+          },
+        },
+        { $sort: { visits: -1, _id: 1 } },
+      ]),
+      ProfileView.aggregate([
+        { $match: { user: user._id, visitedAt: { $gte: windowStart } } },
+        { $group: { _id: "$deviceType", visits: { $sum: 1 }, totalSeconds: { $sum: { $ifNull: ["$durationSeconds", 0] } } } },
+        { $sort: { visits: -1, _id: 1 } },
+      ]),
+      ProfileView.find({ user: user._id }).sort({ visitedAt: -1 }).limit(60).lean(),
+    ]);
+
+    const summary = summaryAgg[0] || { totalVisits: 0, totalSeconds: 0, avgSeconds: 0 };
+    const dailyMap = new Map((dailyAgg || []).map((day) => [day._id, day]));
+    const dailyTrend = [];
+    for (let i = 13; i >= 0; i--) {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() - i);
+      const key = date.toISOString().slice(0, 10);
+      const day = dailyMap.get(key) || { visits: 0, totalSeconds: 0 };
+      dailyTrend.push({
+        key,
+        label: date.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+        visits: day.visits || 0,
+        totalSeconds: Number(day.totalSeconds || 0),
+      });
+    }
+    const maxVisits = Math.max(1, ...dailyTrend.map((day) => day.visits));
+
+    res.render("admin/user-detail", {
+      layout: false,
+      u: user,
+      userAnalytics: {
+        summary,
+        dailyTrend: dailyTrend.map((day) => ({ ...day, percent: Math.max(8, (day.visits / maxVisits) * 100) })),
+        sources: sourceAgg,
+        devices: deviceAgg,
+        recentViews,
+      },
+      error: null,
+      info: req.query.saved ? "Changes saved." : null,
+    });
+  } catch (err) {
+    console.error("User detail analytics failed:", err);
+    const user = await User.findById(req.params.id).lean();
+    if (!user) return res.status(404).send("User not found");
+    res.render("admin/user-detail", {
+      layout: false,
+      u: user,
+      userAnalytics: { summary: { totalVisits: 0, totalSeconds: 0, avgSeconds: 0 }, dailyTrend: [], sources: [], devices: [], recentViews: [] },
+      error: "Could not load analytics for this user.",
+      info: null,
+    });
+  }
 };
 
 exports.updateUser = async (req, res) => {
@@ -171,10 +254,22 @@ exports.updateUser = async (req, res) => {
 
     const { displayName, email, username, bio, isVerified, isActive, showLegacyBadge, isFeatured, newPassword } = req.body;
 
-    if (displayName !== undefined) user.displayName = displayName.slice(0, 40);
-    if (bio !== undefined) user.bio = bio.slice(0, 300);
-    if (email) user.email = email.toLowerCase().trim();
-    if (username) user.username = username.toLowerCase().trim();
+    if (displayName !== undefined) user.displayName = String(displayName || "").slice(0, 40);
+    if (bio !== undefined) user.bio = String(bio || "").slice(0, 300);
+    if (email) {
+      const nextEmail = String(email).toLowerCase().trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail)) {
+        throw new Error("Invalid email format.");
+      }
+      user.email = nextEmail;
+    }
+    if (username) {
+      const nextUsername = String(username).toLowerCase().trim();
+      if (!/^[a-z0-9_]{3,20}$/.test(nextUsername)) {
+        throw new Error("Username must be 3-20 characters and use only letters, numbers, or underscores.");
+      }
+      user.username = nextUsername;
+    }
     user.isVerified = isVerified === "on" || isVerified === "true";
     user.isActive = isActive === "on" || isActive === "true";
     user.showLegacyBadge = showLegacyBadge === "on" || showLegacyBadge === "true";
@@ -203,7 +298,7 @@ exports.deleteUser = async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.redirect("/admin/users");
 
-    const fileIds = [user.avatar?.fileId, user.banner?.fileId, ...user.showcaseImages.map((i) => i.fileId)];
+    const fileIds = [user.avatar?.fileId, user.banner?.fileId, user.audio?.fileId, ...user.showcaseImages.map((i) => i.fileId)];
     await storageRouter.deleteFiles(fileIds);
     await User.deleteOne({ _id: user._id });
     res.redirect("/admin/users?deleted=1");

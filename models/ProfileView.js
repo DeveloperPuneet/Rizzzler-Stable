@@ -20,6 +20,8 @@ const profileViewSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
 
   visitorHash: { type: String, required: true },
+  pagePath: { type: String, default: null }, // e.g. "/username" or a profile subroute
+  referrerUrl: { type: String, default: null }, // full source URL if available
   referrerHost: { type: String, default: null }, // e.g. "instagram.com", or null for direct
   deviceType: { type: String, default: "desktop" }, // mobile | tablet | desktop
 

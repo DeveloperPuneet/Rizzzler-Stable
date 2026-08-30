@@ -24,7 +24,7 @@ function audioFileFilter(req, file, cb) {
   cb(new Error("Unsupported audio type. Allowed: mp3, wav, ogg, m4a, aac, mp4, weba, webm."));
 }
 
-module.exports.audioFileFilter = audioFileFilter;
+module.exports = { gridfsUpload, IMAGE_MAX_BYTES, AUDIO_MAX_BYTES, audioFileFilter, imageFileFilter };
 
 function createMemoryUpload({ maxBytes, fileFilter, errorKey = "filesize" }) {
   return multer({
@@ -84,4 +84,3 @@ function gridfsUpload(fieldName, options = {}) {
   ];
 }
 
-module.exports = { gridfsUpload, IMAGE_MAX_BYTES, AUDIO_MAX_BYTES };

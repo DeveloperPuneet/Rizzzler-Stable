@@ -52,6 +52,93 @@
   </div>
 
   <div class="rz-admin-panel">
+    <h2>Recent activity</h2>
+    <div class="rz-admin-detail-grid">
+      <div><span class="rz-muted">Last 14d visits</span><strong><%= ((userAnalytics && userAnalytics.summary) ? (userAnalytics.summary.totalVisits || 0) : 0).toLocaleString() %></strong></div>
+      <div><span class="rz-muted">Total time</span><strong><%= ((userAnalytics && userAnalytics.summary) ? (userAnalytics.summary.totalSeconds || 0) : 0).toLocaleString() %>s</strong></div>
+      <div><span class="rz-muted">Avg. duration</span><strong><%= ((userAnalytics && userAnalytics.summary) ? (userAnalytics.summary.avgSeconds || 0) : 0).toLocaleString() %>s</strong></div>
+      <div><span class="rz-muted">Top source</span><strong><%= ((userAnalytics && userAnalytics.sources && userAnalytics.sources.length) ? (userAnalytics.sources[0]._id || 'Direct') : 'Direct') %></strong></div>
+    </div>
+    <% if (userAnalytics && userAnalytics.dailyTrend && userAnalytics.dailyTrend.length) { %>
+      <div style="margin-top: 18px;">
+        <div class="rz-muted" style="margin-bottom: 8px;">14-day visit trend</div>
+        <div style="display: flex; align-items: flex-end; gap: 8px; height: 120px; border: 1px solid rgba(148,163,184,0.2); border-radius: 12px; padding: 12px 10px 6px; background: rgba(15,23,42,0.2);">
+          <% userAnalytics.dailyTrend.forEach((day) => { %>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+              <div style="width: 100%; max-width: 18px; height: <%= day.percent || 8 %>%; border-radius: 999px 999px 0 0; background: linear-gradient(180deg, rgba(96,165,250,0.95), rgba(168,85,247,0.8)); box-shadow: 0 0 12px rgba(96,165,250,0.35);"></div>
+              <span class="rz-muted" style="font-size: 10px; text-align: center;"><%= day.label.split(' ')[0] %></span>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<div class="rz-admin-panel" style="margin-top: 24px;">
+  <h2>Visit sources & devices</h2>
+  <div class="rz-admin-two-col" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 12px;">
+    <div>
+      <h3 class="rz-muted" style="margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em;">Top sources</h3>
+      <% if (userAnalytics && userAnalytics.sources && userAnalytics.sources.length) { %>
+        <ul style="margin: 0; padding-left: 18px; color: #dfe7f5; line-height: 1.9;">
+          <% userAnalytics.sources.slice(0, 8).forEach((src) => { %>
+            <li><strong><%= src._id || 'Direct' %></strong> <span class="rz-muted">· <%= src.visits %> visits</span></li>
+          <% }) %>
+        </ul>
+      <% } else { %>
+        <p class="rz-muted">No referrals recorded yet.</p>
+      <% } %>
+    </div>
+    <div>
+      <h3 class="rz-muted" style="margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em;">Devices</h3>
+      <% if (userAnalytics && userAnalytics.devices && userAnalytics.devices.length) { %>
+        <ul style="margin: 0; padding-left: 18px; color: #dfe7f5; line-height: 1.9;">
+          <% userAnalytics.devices.forEach((device) => { %>
+            <li><strong><%= device._id || 'desktop' %></strong> <span class="rz-muted">· <%= device.visits %> visits</span></li>
+          <% }) %>
+        </ul>
+      <% } else { %>
+        <p class="rz-muted">No device data recorded yet.</p>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<div class="rz-admin-panel" style="margin-top: 24px;">
+  <h2>Recent visits</h2>
+  <% const recentViews = (userAnalytics && userAnalytics.recentViews) ? userAnalytics.recentViews : []; %>
+  <% if (!recentViews.length) { %>
+    <p class="rz-muted">No showcase visits have been recorded for this user yet.</p>
+  <% } else { %>
+    <div class="rz-admin-panel-scroll">
+      <table class="rz-admin-table">
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Source</th>
+            <th>Device</th>
+            <th>Path</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% recentViews.forEach((view) => { %>
+            <tr>
+              <td class="rz-admin-cell-muted"><%= new Date(view.visitedAt).toLocaleString() %></td>
+              <td class="rz-admin-cell-muted"><%= view.referrerHost || 'Direct' %></td>
+              <td><span class="rz-admin-tag rz-admin-tag-muted"><%= view.deviceType || 'desktop' %></span></td>
+              <td class="rz-admin-cell-muted"><%= view.pagePath || '/' %></td>
+              <td class="rz-admin-cell-muted"><%= view.durationSeconds ? (view.durationSeconds + 's') : '—' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+  <div class="rz-admin-panel">
     <h2>At a glance</h2>
     <div class="rz-admin-detail-grid">
       <div><span class="rz-muted">Profile views</span><strong><%= (u.profileViews || 0).toLocaleString() %></strong></div>
