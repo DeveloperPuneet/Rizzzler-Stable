@@ -12,6 +12,9 @@ router.post("/api/community-chat", asyncHandler(communityController.create));
 router.get("/privacy-policy", showcaseController.privacyPolicy);
 router.get("/terms", showcaseController.terms);
 router.get("/about-developer", showcaseController.aboutDeveloper);
+router.get("/docs", showcaseController.documentation);
+router.get("/documentation", showcaseController.documentation);
+router.get("/faq", showcaseController.documentation);
 router.get("/api/stats", asyncHandler(showcaseController.getStats));
 
 // Discovery pages — MUST stay above the "/:username" catch-all below, or

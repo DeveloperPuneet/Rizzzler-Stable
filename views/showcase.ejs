@@ -115,7 +115,7 @@
           </div>
         <% } %>
       </div>
-      <div class="rz-hero-badge"><span aria-hidden="true">✦</span> <%= theme.heroEyebrow || 'The Legend' %></div>
+      <div class="rz-hero-badge"><span aria-hidden="true">✦</span> <%= (profile.showcaseText && profile.showcaseText.heroEyebrow) ? profile.showcaseText.heroEyebrow : (theme.heroEyebrow || 'The Legend') %></div>
       <h1 class="rz-hero-name rz-title-effect rz-title-effect--<%= titleEffectKey %>" data-typing-text="<%= (profile.displayName || profile.username).replace(/"/g, '&quot;') %>"><%= profile.displayName || profile.username %></h1>
       <% if (profile.showLegacyBadge && profile.legacyNumber) { %>
         <span class="rz-badge">#<%= profile.legacyNumber %></span>
@@ -132,13 +132,16 @@
   <% if (profile.showcaseImages && profile.showcaseImages.length) { %>
     <% const grandWords = (theme.grandWords && theme.grandWords.length) ? theme.grandWords : ['Fearless', 'Unstoppable', 'Radiant', 'Iconic']; %>
     <% const storyBlurbs = (theme.storyBlurbs && theme.storyBlurbs.length) ? theme.storyBlurbs : ['A little snapshot of the energy, style, and story behind this showcase.']; %>
+    <% const customMomentTitles = (profile.showcaseText && Array.isArray(profile.showcaseText.momentTitles)) ? profile.showcaseText.momentTitles : []; %>
+    <% const customMomentBlurbs = (profile.showcaseText && Array.isArray(profile.showcaseText.momentBlurbs)) ? profile.showcaseText.momentBlurbs : []; %>
+    <% const heroEyebrow = (profile.showcaseText && profile.showcaseText.heroEyebrow) ? profile.showcaseText.heroEyebrow : (theme.heroEyebrow || 'The Legend'); %>
     <% profile.showcaseImages.forEach((img, i) => { %>
       <section class="rz-section rz-image-section">
         <div class="rz-section-content rz-story-grid <%= i % 2 === 1 ? 'rz-story-grid--reverse' : '' %>">
           <div class="rz-story-card">
             <p class="rz-section-eyebrow">Moment <%= i + 1 %></p>
-            <h2 class="rz-grand-text"><%= grandWords[i % grandWords.length] %></h2>
-            <p class="rz-story-copy"><%= storyBlurbs[i % storyBlurbs.length] %></p>
+            <h2 class="rz-grand-text"><%= customMomentTitles[i] || grandWords[i % grandWords.length] %></h2>
+            <p class="rz-story-copy"><%= customMomentBlurbs[i] || storyBlurbs[i % storyBlurbs.length] %></p>
           </div>
           <div class="rz-story-card" style="padding:0; overflow:hidden;">
             <div class="rz-image-wrapper" data-parallax="0.3">
@@ -245,8 +248,9 @@
 
 <div class="rz-showcase-footer">Rizzzler</div>
 
-<% if (profile.audio && profile.audio.key) { %>
-  <% const audioExt = (profile.audio.key.split('.').pop() || '').toLowerCase(); %>
+<% const audioUrl = (profile.audio && profile.audio.fileId) ? '/file/' + profile.audio.fileId : (profile.audio && profile.audio.key ? '/audios/' + profile.audio.key : null); %>
+<% if (audioUrl) { %>
+  <% const audioExt = (profile.audio && profile.audio.key) ? (profile.audio.key.split('.').pop() || '').toLowerCase() : 'mp3'; %>
   <% const audioMimeMap = { mp3:'audio/mpeg', wav:'audio/wav', ogg:'audio/ogg', m4a:'audio/mp4', aac:'audio/aac', weba:'audio/webm', webm:'audio/webm' }; %>
   <audio
     id="rz-bg-audio"
@@ -256,7 +260,7 @@
     class="rz-showcase-audio"
     aria-hidden="true"
   >
-    <source src="/audios/<%= profile.audio.key %>" type="<%= audioMimeMap[audioExt] || 'audio/mpeg' %>" />
+    <source src="<%= audioUrl %>" type="<%= audioMimeMap[audioExt] || 'audio/mpeg' %>" />
   </audio>
   <button type="button" class="rz-sound-toggle" id="rzSoundToggle" aria-label="Toggle sound" title="Toggle sound"><span class="material-symbols-rounded" aria-hidden="true">volume_up</span></button>
 <% } %>

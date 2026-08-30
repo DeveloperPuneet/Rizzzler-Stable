@@ -1,7 +1,7 @@
 {
   "name": "rizzzler",
   "version": "1.0.0",
-  "description": "Rizzzler - social media showcase platform (cards.lol style)",
+  "description": "Rizzzler - creator showcase and personal-brand platform with customizable themes, docs, and profile publishing",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

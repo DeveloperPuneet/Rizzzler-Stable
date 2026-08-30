@@ -242,6 +242,99 @@ exports.aboutDeveloper = (req, res) => {
   });
 };
 
+exports.documentation = (req, res) => {
+  const faqItems = [
+    {
+      q: "How do I create a Rizzzler profile?",
+      a: "Click Sign up, choose a username, verify your email, then log in and complete your profile details, links, photos, theme, and showcase settings in the dashboard.",
+    },
+    {
+      q: "What is the difference between a username and a public profile url?",
+      a: "Your username becomes your public profile slug, like /yourname. Visitors can open that page directly and see your content without needing to create an account.",
+    },
+    {
+      q: "Do I need to verify my account before my page works?",
+      a: "Yes. Verification activates your account and ensures your profile can be used fully. Without it, some dashboard features and email-based actions may remain limited.",
+    },
+    {
+      q: "Can I change my theme after I sign up?",
+      a: "Yes. Open the dashboard, go to Settings or Customize, and pick any built-in style. You can switch themes at any time without losing your content.",
+    },
+    {
+      q: "What can I add to my showcase page?",
+      a: "You can add your display name, bio, professional role, social links, contact links, avatar, banner, gallery images, audio presets, and personal branding details.",
+    },
+    {
+      q: "Do I need a paid plan?",
+      a: "No. Rizzzler is designed for core profile usage without a payment wall. You can use the main showcase features and customization tools freely.",
+    },
+    {
+      q: "How do I make my profile public or private?",
+      a: "Once your account is verified and active, your page is public by default. From the dashboard, you can hide or pause it temporarily if you want to private it for a while.",
+    },
+    {
+      q: "Can I upload my own images and audio?",
+      a: "Yes. The dashboard supports avatar, banner, gallery, and audio uploads so your page can feel more personal and visually branded.",
+    },
+    {
+      q: "Why is my new theme not appearing in Customize?",
+      a: "Usually this happens when the server has not restarted after a theme was added, or the theme key was not added to the shared registry. Restart the app and refresh the page.",
+    },
+    {
+      q: "Why am I not receiving the verification email?",
+      a: "It usually means the mail setup is not complete or the email was filtered into spam. Check the SMTP configuration and your spam folder before retrying.",
+    },
+    {
+      q: "What should I put in my bio?",
+      a: "Write a short but clear description of who you are, what you do, and what kind of visitors you want to attract. Keep it direct and easy to scan.",
+    },
+    {
+      q: "What makes a good showcase page?",
+      a: "A good showcase page has a clear identity, a professional or memorable visual theme, a polished profile image, a clean bio, and a few important links.",
+    },
+    {
+      q: "Can I update my profile later?",
+      a: "Yes. Rizzzler is meant to be editable. You can update your content, links, theme, and media any time from your dashboard.",
+    },
+    {
+      q: "What if my file upload fails?",
+      a: "Check the file type, size, and format. Large or unsupported files are often rejected by the server, so keep media sizes reasonable and use supported formats.",
+    },
+    {
+      q: "Can I delete my account or hide my page?",
+      a: "Yes. If needed, you can hide or deactivate the public showcase while keeping your account data available. You can also remove or edit content from the dashboard.",
+    },
+    {
+      q: "Does Rizzzler support custom branding?",
+      a: "Yes. You can set a custom theme, choose background styling, apply visual effects, upload branding assets, and tailor the look to your personal identity.",
+    },
+    {
+      q: "Why is my page not showing up correctly?",
+      a: "This is often caused by an incomplete profile setup, a stale browser cache, or a missing or broken media asset. Review the settings and refresh the page.",
+    },
+  ];
+
+  res.render("docs", {
+    pageTitle: "Rizzzler Docs & FAQ — Setup, Login, and Customization Guide",
+    metaDescription: "Learn how to use Rizzzler from signup to advanced profile customization, dashboard tools, FAQs, and best practices for building a standout showcase.",
+    metaKeywords: "Rizzzler docs, Rizzzler FAQ, how to use Rizzzler, login guide, profile customization, dashboard walkthrough",
+    canonicalUrl: `${req.protocol}://${req.get("host")}/docs`,
+    faqItems,
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqItems.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.a,
+        },
+      })),
+    },
+  });
+};
+
 // ---------- Public API: record time-on-page for a showcase view ----------
 // Called via navigator.sendBeacon() when a visitor leaves a showcase page.
 // Best-effort only: if it never fires (closed tab on some browsers, ad

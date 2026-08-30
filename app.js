@@ -183,6 +183,8 @@ app.get("/sitemap.xml", async (req, res) => {
       { path: "/featured-creators", priority: "0.8", changefreq: "weekly" },
       { path: "/trending-developers", priority: "0.8", changefreq: "daily" },
       { path: "/about-developer", priority: "0.6", changefreq: "monthly" },
+      { path: "/docs", priority: "0.8", changefreq: "weekly" },
+      { path: "/faq", priority: "0.7", changefreq: "monthly" },
       { path: "/privacy-policy", priority: "0.5", changefreq: "monthly" },
       { path: "/terms", priority: "0.5", changefreq: "monthly" },
       { path: "/register", priority: "0.9", changefreq: "weekly" },

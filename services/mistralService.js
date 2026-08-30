@@ -56,7 +56,7 @@ async function generateFunMail(prompt) {
         messages: [
           {
             role: "user",
-            content: `${prompt}\n\nRespond ONLY with raw JSON in the form {"subject": "...", "body": "..."} — no markdown fences, no extra commentary.`,
+            content: `${prompt}\n\nWrite the body as polished email copy: use 2-4 short paragraphs separated by blank lines, and use a short heading or a bullet list when it improves scanning. You may use **bold** for one or two key phrases. Respond ONLY with raw JSON in the form {"subject": "...", "body": "..."} — no markdown fences, no extra commentary.`,
           },
         ],
       }),

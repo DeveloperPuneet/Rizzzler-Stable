@@ -1,27 +1,25 @@
 # Rizzzler 🌙
 
-Rizzzler is a modern creator showcase platform built for people who want to look premium online without building a whole website from scratch. Every user gets a custom public profile at `/username` with themes, visuals, links, gallery media, and a digital identity that feels more like a personal brand platform than a basic link-in-bio.
+Rizzzler is a creator showcase and personal-brand platform built for people who want a premium public identity without building a custom website from scratch. Every user gets a public profile at `/username` with a customizable theme, social links, media, stories, bio, and brand styling that feels closer to a real digital portfolio than a basic link-in-bio.
 
-Sample profile: https://www.rizzzler.work.gd/puneet2010
+Profile demo: https://www.rizzzler.work.gd/puneet2010
 
-The internet rewards visibility. People click, discover, DM, book, hire, and follow the creators who look established and memorable. Rizzzler helps people build that momentum before the market moves on without them.
+The product is designed for creators, freelancers, founders, communities, and anyone who wants stronger visibility, better trust, and a cleaner online presence. Rizzzler helps people turn attention into follows, bookings, and opportunities.
 
-Built with Express, EJS, MongoDB/Mongoose, and GridFS, with uploaded assets stored in MongoDB instead of local disk.
+Built with Express, EJS, MongoDB/Mongoose, GridFS, and a centralized theme registry so themes and visual options stay consistent across the app.
 
 ---
 
 ## Why Rizzzler?
 
-Most people are still stuck with messy, disconnected link collections. A good profile should do more than just hold links — it should create trust, show personality, and make people want to know more.
+Most creator profiles are still just a mess of links and scattered content. A strong profile should do much more than store URLs — it should communicate personality, trust, and momentum.
 
 Rizzzler gives people:
-- a polished personal brand presence
-- a premium showcase for work, portfolio, and identity
-- a single place to collect links, visuals, and content
-- a stronger digital footprint that builds credibility
-- an edge in a world where attention is already being divided
-
-If you don’t build your presence now, someone else with a sharper profile will capture the attention, opportunities, and momentum.
+- a premium public identity
+- a custom showcase page with branding and style
+- a simple way to collect links, content, and social proof
+- a digital presence that feels established and memorable
+- a cleaner way to build visibility before the attention market moves on
 
 ---
 
@@ -29,58 +27,68 @@ If you don’t build your presence now, someone else with a sharper profile will
 
 ### Public profile experience
 - Public showcase pages for every verified user
-- Custom bio, display name, socials, links, and gallery visuals
+- Custom bio, display name, socials, links, gallery media, and cover content
 - Optional music/audio with autoplay and loop controls
+- Custom showcase audio uploads stored in MongoDB GridFS (under 1MB cap)
+- Editable hero eyebrow and moment text for each showcase page
 - Quick profile pause toggle for temporary hide/show workflows
-- Shareable, branded landing pages that feel premium
+- Branded, shareable profile pages that feel premium and polished
 
-### Discovery experience
+### Discovery and marketing experience
 - `/explore` — browse public profiles with search and sorting
-- `/featured-creators` — curated showcase spots
-- `/trending-developers` — weekly view-based ranking
-- `/about-developer` — founder story and project details
-- `/privacy-policy` and `/terms` — clear public docs
+- `/featured-creators` — curated creator highlights
+- `/trending-developers` — weekly ranking based on profile views
+- `/about-developer` — founder story and project information
+- `/docs` — complete onboarding and product manual
+- `/privacy-policy` and `/terms` — public policy pages
 
 ### Customization system
-- 8 built-in themes:
-  - Moonlight
-  - Scary Sky
-  - Dark Nights
-  - Cute Foxy
-  - Diva
-  - Scifi
-  - Rocky
-  - Frostbyte
-- Multiple avatar effects: neon, burn, discord pulse, hologram, and more
-- Multiple title effects: typewriter, glitch, shimmer, and static
-- Multiple showcase motion effects: aurora, constellation, plasma, hologram, and subtle motion modes
-- Shared visual registry makes theme and effect expansion easy
+The platform includes a growing theme library with a centralized registry so every option stays consistent between the backend and frontend:
 
-### Auth and account tools
+- Moonlight
+- Scary Sky
+- Dark Nights
+- Cute Foxy
+- Diva
+- Scifi
+- Rocky
+- Frostbyte
+- Bubble Pop
+- Sticker Storm
+- Sticker Chaos
+- Neon Pulse
+
+Additional visual settings include:
+- avatar effects: neon, burn, discord pulse, hologram, and decor-based effects
+- title effects: static, typewriter, glitch, shimmer
+- showcase motion effects: aurora, constellation, and page-level motion presets
+- easy registry-driven expansion for future skins and visual styles
+
+### Auth, verification, and account tools
 - Email verification with 6-digit secure codes
-- Unverified login guard with automatic resend
+- Unverified login guard with resend support
 - Forgot password and reset flow
-- Legacy badge system for early verified users
+- OAuth login support for Google and GitHub
+- Legacy badge system for early users and creators
 
-### Admin panel
+### Admin panel and moderation tools
 - Secure admin area at `/admin`
 - User management and analytics
 - Security controls and IP/device lockout protections
-- Mail tools including:
-  1. newsletter broadcasts
-  2. milestone celebration emails
-  3. AI-generated fun mail via Mistral AI
+- Mail tools for newsletters, milestone announcements, and AI-assisted messaging
+- Operational cleanup for stale users, visitors, and orphaned uploads
 
 ### Automation and maintenance
 - Unverified accounts older than 15 days are cleaned up automatically
 - Visitor data and stale operational records are pruned to keep the app lean
-- Orphaned uploaded files are detected and removed as part of background cleanup
+- Orphaned uploaded files are detected and removed through cleanup routines
+- Broken or abandoned custom audio uploads are included in the orphan-file sweep and deleted alongside their stale references
 
 ---
 
 ## 🧱 Tech stack
 
-Node.js · Express · EJS · MongoDB + Mongoose · GridFS · express-session · bcryptjs · Nodemailer · Multer · node-cron · UA parser / GeoIP helpers
+Node.js · Express · EJS · MongoDB + Mongoose · GridFS · express-session · passport · bcryptjs · Nodemailer · Multer · node-cron · socket.io · UA parser / GeoIP helpers
 
 ---
 
@@ -88,15 +96,17 @@ Node.js · Express · EJS · MongoDB + Mongoose · GridFS · express-session · 
 
 ```text
 app.js
-config/          accountCleanup.js, aiMailScheduler.js, mailer.js, themes.js, visuals.js, storageRouter.js
-controllers/     adminController.js, authController.js, dashboardController.js, exploreController.js, fileController.js, showcaseController.js
-middlewares/     authMiddleware.js, adminMiddleware.js, rateLimiter.js, upload.js, visitorTracker.js
-models/          User.js, Visitor.js, Settings.js, AdminAccess.js, SecurityEvent.js, IpRule.js
-Routes/          adminRoutes.js, authRoutes.js, dashboardRoutes.js, fileRoutes.js, showcaseRoutes.js, apiRoutes.js
+config/          accountCleanup.js, aiMailScheduler.js, db.js, mailer.js, passport.js, socket.js, storageRouter.js, themes.js, visuals.js
+controllers/     adminController.js, authController.js, communityController.js, dashboardController.js, exploreController.js, fileController.js, messageController.js, notificationController.js, showcaseController.js
+middlewares/     adminMiddleware.js, asyncHandler.js, authMiddleware.js, ipAccessControl.js, rateLimiter.js, upload.js, visitorTracker.js
+models/          User.js, Visitor.js, Settings.js, AdminAccess.js, SecurityEvent.js, IpRule.js, Message.js, Notification.js, CommunityMessage.js, FileLocation.js, Counter.js, ProfileView.js
+Routes/          adminRoutes.js, apiRoutes.js, authRoutes.js, dashboardRoutes.js, fileRoutes.js, showcaseRoutes.js
 services/        mistralService.js
 shared/          registry.js
-views/           landing, auth, dashboard, admin, discover pages, privacy/terms/showcase templates
+views/           landing, auth, dashboard, admin, docs, showcase, privacy/terms pages
 public/          css, audios, decor, images
+scripts/         backfillFileLocations.js
+tests/           app-level validation and cleanup checks
 ```
 
 ---
@@ -117,13 +127,16 @@ cp .env.example .env
 Required values include:
 - `MONGO_URI` — MongoDB connection string
 - `SESSION_SECRET` — long random string
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` — mail delivery for verification/reset emails
 - `BASE_URL` — live or local domain such as `https://www.rizzzler.work.gd`
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` — mail delivery for verification and reset emails
 - `ADMIN_PASSWORD` — admin panel access
-- `MISTRAL_API_KEY` — optional for AI-generated mail (get one free at https://console.mistral.ai)
+- `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` — optional social login setup
+- `MISTRAL_API_KEY` — optional for AI-generated mail
 
 ### 3. Add audio presets (optional)
-Drop `.mp3`, `.wav`, `.ogg`, or other supported audio files into `public/audios/` and they will show up in the dashboard selector automatically.
+Drop `.mp3`, `.wav`, `.ogg`, or other supported audio files under `public/audios/` and they will appear in the dashboard selector automatically.
+
+You can also upload your own custom audio directly from the dashboard. This user-uploaded audio is stored in MongoDB GridFS and is limited to files under 1MB for performance and storage stability.
 
 ### 4. Run the app
 ```bash
@@ -136,23 +149,37 @@ Then open `http://localhost:3000`.
 
 ---
 
-## 🎨 Adding a new theme
+## 🎨 Adding a new theme or visual effect
 
-1. Create a CSS file in `public/css/themes/yourtheme.css`
-2. Add the theme definition in `shared/registry.js`
-3. Restart the app — it becomes available in the dashboard and public showcase
+1. Add the CSS file in `public/css/themes/`
+2. Register the new theme in `shared/registry.js`
+3. Restart the app so the new theme appears in the dashboard and showcase chooser
 
-You can extend the same registry to add more avatar, title, and motion effects as well.
+The registry is the main source of truth for themes, title effects, avatar effects, and showcase motion effects.
+
+---
+
+## 🧠 Docs and onboarding
+
+Rizzzler includes a dedicated docs page at `/docs` that explains:
+- login and sign-up flow
+- dashboard usage
+- customization and theme selection
+- profile editing and public showcase behavior
+- troubleshooting and common error fixes
+- FAQ and setup guidance
+
+This is meant to act as a real product guide rather than a minimal help page.
 
 ---
 
 ## 🔐 Security and auth notes
 
 - Passwords are hashed before storage
-- Verification and reset codes expire in 15 minutes and are single-use
-- Sessions are stored in MongoDB via `connect-mongo`
-- `/forgot-password` does not reveal whether an email exists
-- Repeated incorrect admin attempts can permanently block the device/IP
+- Verification and reset codes are single-use and expire quickly
+- Sessions are tracked securely and stored in MongoDB
+- `/forgot-password` avoids revealing whether an email exists
+- Repeated admin mistakes can trigger lockout logic for the device or IP
 
 ---
 
@@ -160,9 +187,9 @@ You can extend the same registry to add more avatar, title, and motion effects a
 
 - Install command: `npm install`
 - Start command: `npm start`
-- Add the same env variables from `.env.example` in your host dashboard
-- Point `BASE_URL` to your live domain so public share links resolve correctly
+- Add the same environment variables from `.env.example` to your hosting platform
+- Point `BASE_URL` to your live domain so share links and callback URLs resolve correctly
 
 ---
 
-The world is already moving fast. Rizzzler helps people show up online with confidence, clarity, and style. ✨
+The world is already moving fast. Rizzzler helps creators show up online with confidence, clarity, and style. ✨

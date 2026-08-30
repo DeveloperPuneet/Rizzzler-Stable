@@ -124,6 +124,7 @@ exports.getSettings = (req, res) => {
   if (req.query.saved) info = "Saved! Your changes are live.";
   if (req.query.error === "nofile") error = "Please choose a file first.";
   else if (req.query.error === "filesize") error = "That file is too large. Max upload size is 2MB.";
+  else if (req.query.error === "audiofilesize") error = "That audio file is too large. Max upload size is under 1MB.";
   else if (req.query.error) error = String(req.query.error).slice(0, 200);
 
   res.render("dashboard/settings", {
@@ -155,6 +156,11 @@ exports.updateProfile = async (req, res) => {
       titleEffect,
       showcaseEffect,
       messagesEnabled,
+      heroEyebrow,
+      momentTitle1,
+      momentTitle2,
+      momentBlurb1,
+      momentBlurb2,
     } = req.body;
 
     // ---- Server-side validation against the shared registry ----
@@ -210,9 +216,36 @@ exports.updateProfile = async (req, res) => {
     }
 
     if (req.body.hasOwnProperty("audioKey") || req.body.hasOwnProperty("audioAutoplay") || req.body.hasOwnProperty("audioLoop")) {
-      user.audio.key = audioKey || null;
+      const oldUploadedAudioId = user.audio?.fileId;
+      if (req.body.hasOwnProperty("audioKey")) {
+        if (oldUploadedAudioId && (!audioKey || audioKey !== user.audio.key)) {
+          await storageRouter.deleteFile(oldUploadedAudioId);
+          user.audio.fileId = null;
+          user.audio.filename = null;
+        }
+        user.audio.key = audioKey || null;
+      }
       user.audio.autoplay = audioAutoplay === "on" || audioAutoplay === "true";
       user.audio.loop = audioLoop === "on" || audioLoop === "true";
+    }
+
+    if (
+      req.body.hasOwnProperty("heroEyebrow") ||
+      req.body.hasOwnProperty("momentTitle1") ||
+      req.body.hasOwnProperty("momentTitle2") ||
+      req.body.hasOwnProperty("momentBlurb1") ||
+      req.body.hasOwnProperty("momentBlurb2")
+    ) {
+      user.showcaseText = user.showcaseText || {};
+      user.showcaseText.heroEyebrow = (heroEyebrow || "").trim().slice(0, 60);
+      user.showcaseText.momentTitles = [
+        (momentTitle1 || "").trim().slice(0, 60),
+        (momentTitle2 || "").trim().slice(0, 60),
+      ].filter(Boolean);
+      user.showcaseText.momentBlurbs = [
+        (momentBlurb1 || "").trim().slice(0, 180),
+        (momentBlurb2 || "").trim().slice(0, 180),
+      ].filter(Boolean);
     }
 
     // Links come in as parallel arrays: linkLabel[], linkUrl[], linkIcon[]
@@ -344,6 +377,43 @@ exports.uploadShowcaseImage = async (req, res) => {
   }
 };
 
+exports.uploadAudio = async (req, res) => {
+  const user = req.user;
+  if (!req.file) return res.redirect("/dashboard/settings?error=nofile");
+
+  try {
+    if (user.audio?.fileId) {
+      await storageRouter.deleteFile(user.audio.fileId);
+    }
+    user.audio.key = null;
+    user.audio.fileId = req.file.id;
+    user.audio.filename = req.file.filename;
+    await user.save();
+    res.redirect("/dashboard/settings?saved=1");
+  } catch (err) {
+    console.error("Custom audio upload failed:", err);
+    res.redirect("/dashboard/settings?error=" + encodeURIComponent("Upload failed. Please try again."));
+  }
+};
+
+exports.deleteAudio = async (req, res) => {
+  const user = req.user;
+
+  try {
+    if (user.audio?.fileId) {
+      await storageRouter.deleteFile(user.audio.fileId);
+    }
+    user.audio.key = null;
+    user.audio.fileId = null;
+    user.audio.filename = null;
+    await user.save();
+    res.redirect("/dashboard/settings?saved=1");
+  } catch (err) {
+    console.error("Custom audio delete failed:", err);
+    res.redirect("/dashboard/settings?error=" + encodeURIComponent("Couldn't remove that audio. Please try again."));
+  }
+};
+
 exports.deleteShowcaseImage = async (req, res) => {
   const user = req.user;
   const { fileId } = req.params;
@@ -378,7 +448,7 @@ exports.toggleAccountStatus = async (req, res) => {
 exports.deleteAccount = async (req, res) => {
   try {
     const user = req.user;
-    const fileIds = [user.avatar?.fileId, user.banner?.fileId, ...user.showcaseImages.map((i) => i.fileId)];
+    const fileIds = [user.avatar?.fileId, user.banner?.fileId, user.audio?.fileId, ...user.showcaseImages.map((i) => i.fileId)];
     await storageRouter.deleteFiles(fileIds);
     await User.deleteOne({ _id: user._id });
     req.session.destroy(() => res.redirect("/"));

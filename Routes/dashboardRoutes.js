@@ -4,7 +4,7 @@ const dashboardController = require("../controllers/dashboardController");
 const messageController = require("../controllers/messageController");
 const notificationController = require("../controllers/notificationController");
 const { requireAuth } = require("../middlewares/authMiddleware");
-const { gridfsUpload } = require("../middlewares/upload");
+const { gridfsUpload, AUDIO_MAX_BYTES, audioFileFilter } = require("../middlewares/upload");
 const asyncHandler = require("../middlewares/asyncHandler");
 
 router.use(requireAuth);
@@ -34,6 +34,12 @@ router.post(
   ...gridfsUpload("showcaseImage"),
   asyncHandler(dashboardController.uploadShowcaseImage)
 );
+router.post(
+  "/upload/audio",
+  ...gridfsUpload("audio", { maxBytes: 1024 * 1024, fileFilter: require("../middlewares/upload").audioFileFilter || undefined }),
+  asyncHandler(dashboardController.uploadAudio)
+);
+router.post("/audio/delete", asyncHandler(dashboardController.deleteAudio));
 router.post("/showcase/:fileId/delete", asyncHandler(dashboardController.deleteShowcaseImage));
 router.post("/settings/status", asyncHandler(dashboardController.toggleAccountStatus));
 router.post("/settings/delete", asyncHandler(dashboardController.deleteAccount));

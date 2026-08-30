@@ -1,6 +1,7 @@
 const cron = require("node-cron");
 const User = require("../models/User");
 const Visitor = require("../models/Visitor");
+const ProfileView = require("../models/ProfileView");
 const Notification = require("../models/Notification");
 const SecurityEvent = require("../models/SecurityEvent");
 const { AdminAccess } = require("../models/AdminAccess");
@@ -22,12 +23,19 @@ const DATA_RETENTION_MS = DATA_RETENTION_DAYS * 24 * 60 * 60 * 1000;
 const VISITOR_RETENTION_DAYS = DATA_RETENTION_DAYS;
 const VISITOR_RETENTION_MS = VISITOR_RETENTION_DAYS * 24 * 60 * 60 * 1000;
 
+const PROFILE_VIEW_RETENTION_DAYS = 15;
+const PROFILE_VIEW_RETENTION_MS = PROFILE_VIEW_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
 function getVisitorCleanupCutoff(now = new Date()) {
   return new Date(now.getTime() - VISITOR_RETENTION_MS);
 }
 
 function getRetentionCutoff(now = new Date()) {
   return new Date(now.getTime() - DATA_RETENTION_MS);
+}
+
+function getProfileViewCleanupCutoff(now = new Date()) {
+  return new Date(now.getTime() - PROFILE_VIEW_RETENTION_MS);
 }
 
 /**
@@ -44,7 +52,7 @@ async function cleanupUnverifiedAccounts() {
   const cutoff = new Date(Date.now() - UNVERIFIED_TTL_MS);
 
   const staleUsers = await User.find({ isVerified: false, createdAt: { $lt: cutoff } })
-    .select("_id email avatar banner showcaseImages")
+    .select("_id email avatar banner audio showcaseImages")
     .lean();
 
   if (!staleUsers.length) return { scanned: 0, deleted: 0 };
@@ -55,6 +63,7 @@ async function cleanupUnverifiedAccounts() {
       const fileIds = [
         user.avatar && user.avatar.fileId,
         user.banner && user.banner.fileId,
+        user.audio && user.audio.fileId,
         ...(user.showcaseImages || []).map((img) => img.fileId),
       ];
       await storageRouter.deleteFiles(fileIds);
@@ -81,6 +90,17 @@ async function cleanupOldVisitors({ VisitorModel = Visitor, now = new Date() } =
 
   if (result.deletedCount) {
     console.log(`🧹 Visitor cleanup: removed ${result.deletedCount} old visitor record(s) older than ${VISITOR_RETENTION_DAYS} day(s).`);
+  }
+
+  return result;
+}
+
+async function cleanupOldProfileViews({ ProfileViewModel = ProfileView, now = new Date() } = {}) {
+  const cutoff = getProfileViewCleanupCutoff(now);
+  const result = await ProfileViewModel.deleteMany({ visitedAt: { $lt: cutoff } });
+
+  if (result.deletedCount) {
+    console.log(`🧹 Profile view cleanup: removed ${result.deletedCount} old profile view record(s) older than ${PROFILE_VIEW_RETENTION_DAYS} day(s).`);
   }
 
   return result;
@@ -120,14 +140,15 @@ async function cleanupOldAdminAccess({ AdminAccessModel = AdminAccess, now = new
 }
 
 async function cleanupRetentionData() {
-  const [notifications, visitors, securityEvents, adminAccess] = await Promise.all([
+  const [notifications, visitors, profileViews, securityEvents, adminAccess] = await Promise.all([
     cleanupOldNotifications(),
     cleanupOldVisitors(),
+    cleanupOldProfileViews(),
     cleanupOldSecurityEvents(),
     cleanupOldAdminAccess(),
   ]);
 
-  return { notifications, visitors, securityEvents, adminAccess };
+  return { notifications, visitors, profileViews, securityEvents, adminAccess };
 }
 
 async function getSystemHealthSnapshot({ now = new Date() } = {}) {
@@ -138,13 +159,14 @@ async function getSystemHealthSnapshot({ now = new Date() } = {}) {
     AdminAccess.countDocuments({}),
     User.countDocuments({ isVerified: false, createdAt: { $lt: new Date(now.getTime() - UNVERIFIED_TTL_MS) } }),
     FileLocation.find({}).select("_id").lean(),
-    User.find({}).select("avatar banner showcaseImages").lean(),
+    User.find({}).select("avatar banner audio showcaseImages").lean(),
   ]);
 
   const referencedIds = new Set();
   for (const user of users) {
     if (user.avatar?.fileId) referencedIds.add(String(user.avatar.fileId));
     if (user.banner?.fileId) referencedIds.add(String(user.banner.fileId));
+    if (user.audio?.fileId) referencedIds.add(String(user.audio.fileId));
     for (const image of user.showcaseImages || []) {
       if (image.fileId) referencedIds.add(String(image.fileId));
     }
@@ -186,6 +208,7 @@ async function writeCleanupLog(summary = {}, { now = new Date() } = {}) {
     totalDeleted: entry.summary.totalDeleted,
     notifications: entry.summary.notifications?.deletedCount || 0,
     visitors: entry.summary.visitors?.deletedCount || 0,
+    profileViews: entry.summary.profileViews?.deletedCount || 0,
     securityEvents: entry.summary.securityEvents?.deletedCount || 0,
     adminAccess: entry.summary.adminAccess?.deletedCount || 0,
     unverifiedAccounts: entry.summary.unverifiedAccounts?.deleted || 0,
@@ -218,6 +241,7 @@ async function runCleanupCycle({ now = new Date() } = {}) {
   const totalDeleted = [
     retention.notifications?.deletedCount || 0,
     retention.visitors?.deletedCount || 0,
+    retention.profileViews?.deletedCount || 0,
     retention.securityEvents?.deletedCount || 0,
     retention.adminAccess?.deletedCount || 0,
     unverifiedAccounts?.deleted || 0,
@@ -228,6 +252,7 @@ async function runCleanupCycle({ now = new Date() } = {}) {
     totalDeleted,
     notifications: retention.notifications,
     visitors: retention.visitors,
+    profileViews: retention.profileViews,
     securityEvents: retention.securityEvents,
     adminAccess: retention.adminAccess,
     unverifiedAccounts,
@@ -256,7 +281,7 @@ async function cleanupOrphanedFiles() {
 
   const [fileLocations, users] = await Promise.all([
     FileLocation.find({ createdAt: { $lt: cutoff } }).select("_id").lean(),
-    User.find({}).select("avatar banner showcaseImages").lean(),
+    User.find({}).select("avatar banner audio showcaseImages").lean(),
   ]);
 
   if (!fileLocations.length) return { scanned: 0, deleted: 0 };
@@ -265,6 +290,7 @@ async function cleanupOrphanedFiles() {
   for (const u of users) {
     if (u.avatar?.fileId) referenced.add(String(u.avatar.fileId));
     if (u.banner?.fileId) referenced.add(String(u.banner.fileId));
+    if (u.audio?.fileId) referenced.add(String(u.audio.fileId));
     for (const img of u.showcaseImages || []) {
       if (img.fileId) referenced.add(String(img.fileId));
     }
@@ -309,6 +335,7 @@ module.exports = {
   startAccountCleanupScheduler,
   cleanupUnverifiedAccounts,
   cleanupOldVisitors,
+  cleanupOldProfileViews,
   cleanupOldNotifications,
   cleanupOldSecurityEvents,
   cleanupOldAdminAccess,
@@ -322,6 +349,9 @@ module.exports = {
   DATA_RETENTION_DAYS,
   VISITOR_RETENTION_DAYS,
   VISITOR_RETENTION_MS,
+  PROFILE_VIEW_RETENTION_DAYS,
+  PROFILE_VIEW_RETENTION_MS,
   getVisitorCleanupCutoff,
+  getProfileViewCleanupCutoff,
   getRetentionCutoff,
 };

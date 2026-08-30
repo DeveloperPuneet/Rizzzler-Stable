@@ -138,7 +138,6 @@ const THEMES = [
     creditsTagline: "carved in stone",
   },
   {
-    // NEW THEME
     key: "frostbyte",
     label: "Frostbyte",
     desc: "Icy cyan circuitry, crystalline frost drift, frozen-glass terminal panels",
@@ -151,6 +150,62 @@ const THEMES = [
       "Every edge sharp as ice, every detail crystal clear.",
     ],
     creditsTagline: "frozen in high definition",
+  },
+  {
+    key: "bubblepop",
+    label: "Bubble Pop",
+    desc: "Playful cartoon styling, candy colors, bouncy backgrounds and goofy kid-energy vibes",
+    css: "/css/themes/bubblepop.css",
+    accent: "#ff7ad9",
+    heroEyebrow: "Big Mood Energy",
+    grandWords: ["Bouncy", "Sunny", "Sparkly", "Goofy"],
+    storyBlurbs: [
+      "Everything is brighter when the page feels like a fun little adventure.",
+      "Big smiles, soft colors, and enough personality to light up the room.",
+    ],
+    creditsTagline: "all giggles, all heart",
+  },
+  {
+    key: "stickerstorm",
+    label: "Sticker Storm",
+    desc: "A sticker-packed chaos theme with floating emoji bursts, confetti motion, playful gradients, and animated bouncy energy",
+    css: "/css/themes/stickerstorm.css",
+    accent: "#ff4fd8",
+    heroEyebrow: "Sticker Mode ON",
+    grandWords: ["Wild", "Sparkly", "Goofy", "Turbo"],
+    storyBlurbs: [
+      "The whole page feels like a giant mood board exploded into happy motion.",
+      "It is bright, loud, playful, and impossible to ignore.",
+    ],
+    creditsTagline: "bouncing into full chaos",
+  },
+  {
+    key: "stickerchaos",
+    label: "Sticker Chaos",
+    desc: "A louder, hyper-animated sticker variant with even more emoji, sticker clusters, zoom bursts, and maximal playful motion",
+    css: "/css/themes/stickerchaos.css",
+    accent: "#ffb703",
+    heroEyebrow: "MAX CHAOS",
+    grandWords: ["Chaotic", "Turbo", "Explosive", "Loud"],
+    storyBlurbs: [
+      "This one launches color, stickers, and motion everywhere at once.",
+      "Everything feels bigger, louder, brighter, and full of personality.",
+    ],
+    creditsTagline: "chaos is the vibe",
+  },
+  {
+    key: "neonpulse",
+    label: "Neon Pulse",
+    desc: "Dark cyber glow, electric cyan-magenta gradients, dramatic contrast and nightlife energy",
+    css: "/css/themes/neonpulse.css",
+    accent: "#00f5ff",
+    heroEyebrow: "Glow Mode",
+    grandWords: ["Neon", "Voltage", "Current", "Afterglow"],
+    storyBlurbs: [
+      "Low light, high energy. The whole page feels alive and tuned to the beat.",
+      "Electric color, deep contrast, and just enough chaos to feel unforgettable.",
+    ],
+    creditsTagline: "powered by neon rhythm",
   },
 ];
 

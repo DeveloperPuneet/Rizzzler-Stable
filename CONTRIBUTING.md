@@ -1,94 +1,81 @@
 # Contributing to Rizzzler 🌙
 
-First off, thank you for considering contributing to Rizzzler! ❤️
+Thanks for contributing to Rizzzler. Whether you're fixing a bug, improving performance, adding a new theme, editing docs, or tightening security, every contribution helps make the platform better.
 
-Whether you're fixing a bug, improving the UI, adding a new feature, or enhancing documentation, your contributions are greatly appreciated.
-
----
-
-# Code of Conduct
-
-Please be respectful and welcoming to everyone.
-
-Constructive feedback, thoughtful discussions, and collaborative development help make Rizzzler better for everyone.
+This project is built around an Express + EJS app with MongoDB storage, a centralized registry for theme and visual options, and public profile pages that users can customize heavily.
 
 ---
 
-# Before You Start
+## Code of Conduct
 
-Please take a few minutes to:
+Please be respectful, constructive, and collaborative.
 
-- Search existing Issues before opening a new one.
-- Read the README and project documentation.
-- Keep Pull Requests focused on **one feature or bug fix**.
-- Follow the existing project structure and coding style.
+We welcome thoughtful feedback and code review discussions. Keep comments professional and focused on improving the project.
 
 ---
 
-# Ways You Can Contribute
+## Before You Start
+
+Please check the following first:
+
+- search existing issues before creating a new one
+- read the current README and docs flow
+- keep pull requests focused on one feature or bugfix
+- stay consistent with the existing MVC structure and app conventions
+
+---
+
+## Ways to Contribute
 
 You can help by:
 
-- 🐛 Fixing bugs
-- ✨ Adding new features
-- 🎨 Creating new showcase themes
-- 📖 Improving documentation
-- ⚡ Optimizing performance
-- 🔒 Improving security
-- 🌍 Improving accessibility
-- 🧪 Writing tests
-- 💡 Suggesting ideas
+- fixing bugs and edge cases
+- improving the dashboard or profile flow
+- adding or refining themes and visual effects
+- improving documentation and onboarding
+- enhancing security and validation
+- improving accessibility and mobile UX
+- writing or updating tests
+- suggesting product ideas and setup improvements
 
 ---
 
-# Development Setup
+## Development Setup
 
-## 1. Fork the repository
-
-Click **Fork** on GitHub.
-
----
-
-## 2. Clone your fork
+### 1. Fork and clone
 
 ```bash
-git clone https://github.com/<your-username>/Rizzzler-Stable.git
-
-cd Rizzzler-Stable
+git clone https://github.com/<your-username>/Rizzzler.git
+cd Rizzzler
 ```
 
----
-
-## 3. Install dependencies
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
----
+### 3. Configure environment variables
 
-## 4. Configure Environment Variables
-
-Copy the example environment file.
+Copy the example file:
 
 ```bash
 cp .env.example .env
 ```
 
-Configure:
+Set the required values before running the app, especially:
 
 - `MONGO_URI`
 - `SESSION_SECRET`
-- `SMTP_*`
 - `BASE_URL`
 - `ADMIN_PASSWORD`
-- `MISTRAL_API_KEY` *(optional)*
+- `SMTP_*` for mail delivery
+- `GOOGLE_OAUTH_*` and `GITHUB_*` for social auth if used
+- `MISTRAL_API_KEY` if you want AI mail features
 
-Never commit your `.env` file.
+Do not commit your `.env` file.
 
----
-
-## 5. Start Development
+### 4. Start development
 
 ```bash
 npm run dev
@@ -100,163 +87,169 @@ or
 npm start
 ```
 
-Open:
+Then open:
 
-```
+```text
 http://localhost:3000
 ```
 
 ---
 
-# Project Structure
+## Project Structure
 
-```
+```text
+app.js
 config/
 controllers/
 middlewares/
 models/
-services/
-Routes/
-views/
 public/
-app.js
+Routes/
+services/
+shared/
+views/
+tests/
 ```
 
-Please keep new code consistent with the existing MVC architecture.
+Key files and folders to know:
+
+- `shared/registry.js` — main source of truth for themes, avatar effects, title effects, and showcase motion effects
+- `controllers/` — route handlers and business logic
+- `views/` — EJS templates for auth, dashboard, docs, showcase, admin, and public pages
+- `public/css/themes/` — theme CSS files
+- `tests/` — regression and cleanup checks
 
 ---
 
-# Coding Guidelines
+## Coding Guidelines
 
-Please follow these guidelines:
+Please keep code consistent with the current project patterns:
 
-- Keep functions small and readable.
-- Use meaningful variable names.
-- Reuse existing controllers and middleware whenever possible.
-- Avoid unnecessary dependencies.
-- Keep UI consistent with existing pages.
-- Write comments only where the logic isn't immediately obvious.
+- prefer small, readable functions
+- reuse existing middleware and controllers where possible
+- keep route logic and view logic appropriately separated
+- avoid unnecessary dependencies
+- preserve the app’s existing naming and layout conventions
+- add comments only where the logic is not obvious
 
 ---
 
-# Adding a New Theme
+## Theme Contributions
 
-One of the easiest ways to contribute is by creating a new showcase theme.
+If you're adding a theme, follow the registry-driven pattern used by the project.
 
-1. Create:
+### Required steps
 
-```
-public/css/themes/yourtheme.css
-```
+1. Create a CSS file in `public/css/themes/`
+2. Style the theme classes using the app's existing showcase patterns
+3. Add the theme metadata to `shared/registry.js`
+4. Include a unique key, label, description, CSS path, and accent color
 
-2. Style the
-
-```
-.rz-theme-yourtheme
-```
-
-classes.
-
-3. Register the theme inside:
-
-```
-config/themes.js
-```
-
-Example:
+Example structure:
 
 ```js
 {
   key: "yourtheme",
   label: "Your Theme",
-  desc: "Theme description",
+  desc: "A short description of the style",
   css: "/css/themes/yourtheme.css",
-  accent: "#abcdef"
+  accent: "#abcdef",
+  heroEyebrow: "Your Theme",
+  grandWords: ["Bold", "Bright", "Fresh"],
+  storyBlurbs: ["A short supporting line."],
+  creditsTagline: "made with personality"
 }
 ```
 
-Your theme will automatically appear in the Settings page.
+This keeps theme support consistent across backend validation and the dashboard UI.
 
 ---
 
-# Reporting Bugs
+## Docs and Content Contributions
+
+Documentation is a major part of this project. If you improve docs or onboarding flow, make sure they are practical and specific.
+
+Good docs contributions include:
+
+- setup and troubleshooting steps
+- real-world examples for login, profile editing, and publishing
+- FAQ-style answers for common errors
+- theme and feature explanations with enough detail to help users succeed
+
+---
+
+## Bug Reports
 
 Please include:
 
-- Expected behavior
-- Actual behavior
-- Steps to reproduce
-- Browser
-- Operating System
-- Screenshots (if applicable)
+- expected behavior
+- actual behavior
+- steps to reproduce
+- browser and OS
+- screenshots or logs if relevant
+- the route or page affected
 
 ---
 
-# Feature Requests
+## Feature Requests
 
-Feature requests are always welcome.
+Feature requests are welcome when they solve a real user problem.
 
 Please explain:
 
-- The problem you're solving
-- Your proposed solution
-- Why it would benefit users
+- the problem you are trying to solve
+- why it matters
+- how your idea fits the current app
+- any relevant examples or references
 
 ---
 
-# Pull Requests
+## Pull Requests
 
-Before submitting a Pull Request, please ensure:
+Before opening a PR, please check that:
 
-- The project builds successfully.
-- Your changes have been tested.
-- Documentation is updated if needed.
-- Your PR focuses on a single feature or fix.
-- No sensitive information or secrets are included.
+- your changes are scoped and focused
+- tests or validation checks pass when relevant
+- documentation is updated if the behavior or setup changed
+- no secrets, debug logs, or personal credentials are included
+- the code matches the current repository patterns
 
 ---
 
-# Commit Message Style
+## Commit Style
 
-Please use descriptive commit messages.
+Use clear, descriptive commit messages.
 
 Examples:
 
 ```text
-feat: add profile analytics
-
-feat: add cyberpunk theme
-
-fix: resolve GridFS upload issue
-
-fix: improve email verification flow
-
-docs: update setup guide
-
-refactor: simplify showcase controller
-
-style: improve mobile responsiveness
+feat: add sticker chaos theme
+fix: resolve profile validation bug
+docs: expand onboarding and FAQ content
+style: improve mobile showcase layout
+refactor: centralize theme registry usage
+security: tighten admin route validation
 ```
 
 ---
 
-# Security
+## Security
 
-If you discover a security vulnerability, **please do not create a public Issue.**
+If you discover a security issue, do not create a public issue. Follow the process in `SECURITY.md` and report it privately.
 
-Instead, follow the instructions in **SECURITY.md**.
-
-Responsible disclosure helps protect all Rizzzler users.
+Responsible disclosure is required to protect users and the project.
 
 ---
 
-# Questions
+## Questions
 
-If you're unsure about an implementation or feature, feel free to open a GitHub Discussion or Issue before starting work.
+If you're unsure about a change, route, or implementation pattern, open an issue first and ask before doing large work.
+
+That helps avoid duplicate effort and keeps the project architecture consistent.
 
 ---
 
-# Thank You ❤️
+Thank you for helping improve Rizzzler. ❤️
 
 Every contribution—whether it's fixing a typo, improving documentation, reporting a bug, or building a major feature—helps make Rizzzler better.
 

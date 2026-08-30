@@ -139,6 +139,41 @@
               Loop
             </label>
 
+            <h3>📝 Showcase text</h3>
+            <label>Hero eyebrow
+              <input type="text" name="heroEyebrow" value="<%= user.showcaseText && user.showcaseText.heroEyebrow ? user.showcaseText.heroEyebrow : '' %>" maxlength="60" placeholder="Under the Moonlight" />
+            </label>
+            <div class="rz-two-col-inputs">
+              <label>Moment 1 title
+                <input type="text" name="momentTitle1" value="<%= user.showcaseText && Array.isArray(user.showcaseText.momentTitles) && user.showcaseText.momentTitles[0] ? user.showcaseText.momentTitles[0] : '' %>" maxlength="60" placeholder="Sticker Mode ON" />
+              </label>
+              <label>Moment 2 title
+                <input type="text" name="momentTitle2" value="<%= user.showcaseText && Array.isArray(user.showcaseText.momentTitles) && user.showcaseText.momentTitles[1] ? user.showcaseText.momentTitles[1] : '' %>" maxlength="60" placeholder="Wild" />
+              </label>
+            </div>
+            <div class="rz-two-col-inputs">
+              <label>Moment 1 blurb
+                <textarea name="momentBlurb1" rows="2" maxlength="180" placeholder="The whole page feels like a giant mood board exploded into happy motion."><%= user.showcaseText && Array.isArray(user.showcaseText.momentBlurbs) && user.showcaseText.momentBlurbs[0] ? user.showcaseText.momentBlurbs[0] : '' %></textarea>
+              </label>
+              <label>Moment 2 blurb
+                <textarea name="momentBlurb2" rows="2" maxlength="180" placeholder="A little snapshot of the energy behind the page."><%= user.showcaseText && Array.isArray(user.showcaseText.momentBlurbs) && user.showcaseText.momentBlurbs[1] ? user.showcaseText.momentBlurbs[1] : '' %></textarea>
+              </label>
+            </div>
+
+            <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.12);">
+              <% if (user.audio && user.audio.fileId) { %>
+                <p class="rz-muted" style="margin-bottom:10px;">Custom audio loaded: <strong><%= user.audio.filename || 'uploaded-audio' %></strong></p>
+                <audio controls preload="none" src="/file/<%= user.audio.fileId %>" style="width:100%; margin-bottom:10px;"></audio>
+                <form action="/dashboard/audio/delete" method="POST" class="rz-inline-form">
+                  <button type="submit" class="rz-link-btn rz-danger">Remove custom audio</button>
+                </form>
+              <% } %>
+              <form action="/dashboard/upload/audio" method="POST" enctype="multipart/form-data" class="rz-inline-form" style="margin-top: 12px;">
+                <input type="file" name="audio" accept=".mp3,.wav,.ogg,.m4a,.aac,.mp4,.weba,.webm,audio/*" required />
+                <button type="submit" class="rz-btn rz-btn-ghost">Upload custom audio (under 1MB)</button>
+              </form>
+            </div>
+
             <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" style="margin-top:16px;">Save all changes</button>
           </form>
         </div>

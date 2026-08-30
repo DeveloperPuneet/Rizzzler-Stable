@@ -78,10 +78,11 @@
     <div class="rz-nav-links" id="rzNavLinks">
       <a href="/community-chat">Community Chat</a>
       <a href="/explore">Explore</a>
+      <a href="/docs">Docs</a>
       <a href="/about-developer">About</a>
       <a href="/privacy-policy">Privacy</a>
       <a href="/terms">Terms</a>
-      <% if (isLoggedIn) { %>
+      <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
         <a href="/dashboard">Dashboard</a>
         <a href="/dashboard/settings">Customize</a>
         <a href="/dashboard/messages" class="" title="Your inbox">
@@ -132,7 +133,7 @@
       });
     })();
   </script>
-  <% if (isLoggedIn) { %>
+  <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
   <!-- Notification dropdown – closed by default, toggled with style.display -->
   <div class="rz-notif-dropdown" id="rzNotifDropdown" style="display:none;" aria-hidden="true">
     <div class="rz-notif-dropdown-header">

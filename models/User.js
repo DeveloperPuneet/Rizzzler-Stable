@@ -91,11 +91,20 @@ const userSchema = new mongoose.Schema(
       },
     ], // max 2, enforced in controller
 
-    // Preset audio (chosen from /public/audios, NOT user-uploaded)
+    // Custom user audio can come from either a MongoDB upload or a preset file
+    // in /public/audios. If `fileId` is set, it wins over the preset `key`.
     audio: {
       key: { type: String, default: null }, // filename inside public/audios
+      fileId: { type: mongoose.Schema.Types.ObjectId, default: null },
+      filename: { type: String, default: null },
       autoplay: { type: Boolean, default: true },
       loop: { type: Boolean, default: true },
+    },
+
+    showcaseText: {
+      heroEyebrow: { type: String, default: "", maxlength: 60 },
+      momentTitles: { type: [String], default: [] },
+      momentBlurbs: { type: [String], default: [] },
     },
 
     // Theme and immersive effects

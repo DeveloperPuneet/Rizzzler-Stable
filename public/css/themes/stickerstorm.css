@@ -1,0 +1,196 @@
+/* =====================================================================
+   STICKER STORM — max chaos, lots of stickers, floating motion, bright color bursts
+   ===================================================================== */
+.rz-theme-stickerstorm {
+  --accent: #ff4fd8;
+  --accent2: #7c3aed;
+  --accent3: #ffd166;
+  --accent4: #4ade80;
+  color: #2e1231;
+  background: linear-gradient(180deg, #fff8ff 0%, #fef3ff 28%, #eef2ff 100%);
+  font-family: "Trebuchet MS", "Comic Sans MS", "Segoe UI", sans-serif;
+}
+
+.rz-theme-stickerstorm .rz-showcase-bg {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 79, 216, 0.25), transparent 16%),
+    radial-gradient(circle at 80% 12%, rgba(124, 58, 237, 0.22), transparent 20%),
+    radial-gradient(circle at 28% 84%, rgba(74, 222, 128, 0.18), transparent 16%),
+    radial-gradient(circle at 72% 72%, rgba(255, 209, 102, 0.24), transparent 18%),
+    linear-gradient(180deg, #fffafe 0%, #ffeef6 34%, #eef6ff 100%);
+}
+
+.rz-theme-stickerstorm .rz-showcase-bg::before,
+.rz-theme-stickerstorm .rz-showcase-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.rz-theme-stickerstorm .rz-showcase-bg::before {
+  background-image:
+    radial-gradient(circle, rgba(255,79,216,0.35) 0 4px, transparent 5px),
+    radial-gradient(circle, rgba(124,58,237,0.3) 0 4px, transparent 5px),
+    radial-gradient(circle, rgba(255,209,102,0.34) 0 4px, transparent 5px),
+    radial-gradient(circle, rgba(74,222,128,0.3) 0 4px, transparent 5px);
+  background-size: 120px 120px;
+  animation: stickerDrift 18s linear infinite;
+}
+
+.rz-theme-stickerstorm .rz-showcase-bg::after {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cg fill='none' stroke='%23ff9ae6' stroke-width='3' stroke-linecap='round' opacity='0.7'%3E%3Cpath d='M20 30c18-18 44-18 62 0-18 0-32 14-32 32 0-18-14-32-30-32z'/%3E%3Cpath d='M160 80c0-22 18-40 40-40-22 0-40 18-40 40 0-22-18-40-40-40 22 0 40 18 40 40z'/%3E%3Cpath d='M100 150c0-18 14-32 32-32-18 0-32 14-32 32 0-18-14-32-32-32 18 0 32 14 32 32z'/%3E%3C/g%3E%3C/svg%3E") center/cover no-repeat;
+  opacity: 0.5;
+  animation: stickerGlow 12s ease-in-out infinite alternate;
+}
+
+@keyframes stickerDrift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(12px, -18px, 0) scale(1.06); }
+  100% { transform: translate3d(-8px, 10px, 0) scale(1); }
+}
+
+@keyframes stickerGlow {
+  0% { transform: scale(1) rotate(0deg); opacity: 0.38; }
+  100% { transform: scale(1.1) rotate(7deg); opacity: 0.7; }
+}
+
+.rz-theme-stickerstorm .rz-floating-particles {
+  background-image:
+    radial-gradient(circle, rgba(255,79,216,0.85) 0 2.5px, transparent 2.8px),
+    radial-gradient(circle, rgba(124,58,237,0.8) 0 2.5px, transparent 2.8px),
+    radial-gradient(circle, rgba(255,209,102,0.9) 0 2.5px, transparent 2.8px),
+    radial-gradient(circle, rgba(74,222,128,0.8) 0 2.5px, transparent 2.8px),
+    radial-gradient(circle, rgba(96,165,250,0.75) 0 2.5px, transparent 2.8px);
+  background-size: 90px 90px;
+  opacity: 0.85;
+  animation: stickerFloat 16s linear infinite;
+}
+
+@keyframes stickerFloat {
+  0% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-16px) scale(1.06); }
+  100% { transform: translateY(0px) scale(1); }
+}
+
+.rz-theme-stickerstorm .rz-hero-overlay {
+  background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.75) 70%, rgba(255,250,255,0.94) 100%);
+}
+
+.rz-theme-stickerstorm .rz-hero-avatar {
+  border-radius: 28px;
+  border: 8px solid rgba(255,255,255,0.85);
+  box-shadow: 0 18px 36px rgba(89, 38, 104, 0.18), 0 0 0 8px rgba(255,79,216,0.08);
+  transform: rotate(-7deg);
+  animation: stickerBounce 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes stickerBounce {
+  0% { transform: rotate(-7deg) translateY(0px); }
+  100% { transform: rotate(-2deg) translateY(-8px); }
+}
+
+.rz-theme-stickerstorm .rz-hero-badge {
+  color: #9f2c83;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  background: rgba(255,255,255,0.92);
+  border: 2px solid rgba(255,79,216,0.3);
+  box-shadow: 0 10px 22px rgba(89,38,104,0.08);
+}
+
+.rz-theme-stickerstorm .rz-hero-name {
+  color: #5d176b;
+  text-shadow: 3px 3px 0 rgba(255,255,255,0.85), 6px 6px 0 rgba(255,79,216,0.18);
+  animation: stickerWiggle 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes stickerWiggle {
+  0% { transform: rotate(-1deg); }
+  100% { transform: rotate(1deg); }
+}
+
+.rz-theme-stickerstorm .rz-hero-username,
+.rz-theme-stickerstorm .rz-hero-views {
+  color: #664367;
+}
+
+.rz-theme-stickerstorm .rz-story-card {
+  background: rgba(255,255,255,0.92);
+  border: 3px solid rgba(255,79,216,0.18);
+  border-radius: 30px;
+  box-shadow: 0 14px 30px rgba(89,38,104,0.09), 0 0 18px rgba(255,79,216,0.08);
+}
+
+.rz-theme-stickerstorm .rz-story-grid { grid-template-columns: 1fr 1fr; }
+.rz-theme-stickerstorm .rz-story-card[style*="padding:0"] {
+  padding: 16px 16px 42px !important;
+  transform: rotate(-3deg);
+  animation: stickerCardSwing 3s ease-in-out infinite alternate;
+}
+.rz-theme-stickerstorm .rz-story-grid--reverse .rz-story-card[style*="padding:0"] {
+  transform: rotate(3deg);
+}
+
+@keyframes stickerCardSwing {
+  0% { transform: rotate(-3deg) translateY(0px); }
+  100% { transform: rotate(2deg) translateY(-4px); }
+}
+
+.rz-theme-stickerstorm .rz-grand-text {
+  color: #701f76;
+  text-shadow: 2px 2px 0 rgba(255,255,255,0.9), 6px 6px 0 rgba(255,79,216,0.18);
+}
+
+.rz-theme-stickerstorm .rz-section-eyebrow {
+  color: #8d2d82;
+  background: rgba(255,79,216,0.1);
+  border: 1px solid rgba(255,79,216,0.22);
+}
+
+.rz-theme-stickerstorm .rz-story-copy { color: #4d2d52; }
+.rz-theme-stickerstorm .rz-links-grid { grid-template-columns: repeat(2, minmax(170px, 1fr)); }
+
+.rz-theme-stickerstorm .rz-link-item {
+  border-radius: 24px;
+  background: linear-gradient(135deg, #ffffff, #ffeefb);
+  border: 3px solid rgba(255,79,216,0.28);
+  color: #5d176b;
+  box-shadow: 0 10px 20px rgba(89,38,104,0.08);
+  font-weight: 900;
+  animation: stickerLinkPulse 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes stickerLinkPulse {
+  0% { transform: translateY(0px) scale(1); }
+  100% { transform: translateY(-2px) scale(1.02); }
+}
+
+.rz-theme-stickerstorm .rz-link-item:hover {
+  background: linear-gradient(135deg, #ff7ad9, #a78bfa);
+  color: #fff;
+  transform: translateY(-2px) scale(1.02);
+}
+
+.rz-theme-stickerstorm .rz-detail-item {
+  background: rgba(255,255,255,0.85);
+  border: 2px solid rgba(124,58,237,0.2);
+  color: #4d2d52;
+  box-shadow: 0 8px 18px rgba(89,38,104,0.06);
+}
+
+.rz-theme-stickerstorm .rz-detail-item a { color: #9f2c83; font-weight: 800; }
+.rz-theme-stickerstorm .rz-credits-logo {
+  color: #8d2d82;
+  text-shadow: 3px 3px 0 rgba(255,255,255,0.9), 5px 5px 0 rgba(255,79,216,0.18);
+}
+.rz-theme-stickerstorm .rz-sound-toggle {
+  background: rgba(255,255,255,0.9);
+  color: #5d176b;
+  border-color: rgba(255,79,216,0.3);
+}
+.rz-theme-stickerstorm .rz-showcase-footer {
+  background: rgba(255,255,255,0.7);
+  color: #5d176b;
+}

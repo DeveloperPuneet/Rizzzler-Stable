@@ -333,15 +333,42 @@ function wrap(title, bodyHtml, { eyebrow = "Fresh from Rizzzler", badge = "✨",
 </html>`;
 }
 
-function renderParagraphs(text, fallback = "A fresh update from Rizzzler.") {
-  const paragraphs = String(text || "")
-    .split(/\n{2,}/)
-    .map((para) => para.trim())
-    .filter(Boolean)
-    .map((para) => `<p style="margin:0 0 12px;line-height:1.7;">${escapeHtml(para).replace(/\n/g, "<br/>")}</p>`)
-    .join("");
+function renderInlineMarkdown(text) {
+  return escapeHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/__(.+?)__/g, "<strong>$1</strong>")
+    .replace(/`(.+?)`/g, '<code style="font-family:monospace;color:#ffffff;">$1</code>');
+}
 
-  return paragraphs || `<p style="margin:0 0 12px;line-height:1.7;">${escapeHtml(fallback)}</p>`;
+function renderParagraphs(text, fallback = "A fresh update from Rizzzler.") {
+  const blocks = String(text || "")
+    .replace(/\r\n?/g, "\n")
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+
+  const rendered = [];
+  for (const block of blocks) {
+    const lines = block.split("\n").map((line) => line.trim()).filter(Boolean);
+    const listItems = lines.filter((line) => /^[-*•]\s+/.test(line) || /^\d+[.)]\s+/.test(line));
+
+    if (listItems.length === lines.length && listItems.length) {
+      rendered.push(`<ul style="margin:0 0 16px;padding-left:22px;line-height:1.7;">${listItems
+        .map((line) => `<li style="margin:0 0 6px;">${renderInlineMarkdown(line.replace(/^(?:[-*•]|\d+[.)])\s+/, ""))}</li>`)
+        .join("")}</ul>`);
+      continue;
+    }
+
+    const headingMatch = block.match(/^#{1,3}\s+(.+)$/);
+    if (headingMatch) {
+      rendered.push(`<h2 style="margin:4px 0 10px;font-size:17px;line-height:1.35;color:#ffffff;">${renderInlineMarkdown(headingMatch[1])}</h2>`);
+      continue;
+    }
+
+    rendered.push(`<p style="margin:0 0 16px;line-height:1.75;">${lines.map(renderInlineMarkdown).join("<br/>\n")}</p>`);
+  }
+
+  return rendered.join("") || `<p style="margin:0 0 16px;line-height:1.75;">${renderInlineMarkdown(fallback)}</p>`;
 }
 
 function renderCodeBlock(label, code, note) {
@@ -536,4 +563,5 @@ module.exports = {
   sendInviteEmail,
   sendBulk,
   sendTestEmail,
+  renderParagraphs,
 };

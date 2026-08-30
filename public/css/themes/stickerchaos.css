@@ -1,0 +1,281 @@
+/* =====================================================================
+   STICKER CHAOS — extra loud sticker variant with giant motion + emoji energy
+   ===================================================================== */
+.rz-theme-stickerchaos {
+  --accent: #ffb703;
+  --accent2: #ff4fd8;
+  --accent3: #5eead4;
+  --accent4: #a78bfa;
+  color: #2d0e34;
+  background: linear-gradient(180deg, #fffaf0 0%, #fff0f7 35%, #eef8ff 100%);
+  font-family: "Trebuchet MS", "Comic Sans MS", "Segoe UI", sans-serif;
+}
+
+.rz-theme-stickerchaos .rz-showcase-bg {
+  background:
+    radial-gradient(circle at 10% 18%, rgba(255, 183, 3, 0.34), transparent 15%),
+    radial-gradient(circle at 80% 15%, rgba(255, 79, 216, 0.28), transparent 18%),
+    radial-gradient(circle at 25% 80%, rgba(94, 234, 212, 0.2), transparent 16%),
+    radial-gradient(circle at 72% 75%, rgba(167, 139, 250, 0.26), transparent 18%),
+    linear-gradient(180deg, #fffef7 0%, #fff0ff 38%, #effaff 100%);
+}
+
+.rz-theme-stickerchaos .rz-showcase-bg::before,
+.rz-theme-stickerchaos .rz-showcase-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.rz-theme-stickerchaos .rz-showcase-shell,
+.rz-theme-stickerchaos .rz-showcase-page,
+.rz-theme-stickerchaos .rz-showcase-main,
+.rz-theme-stickerchaos .rz-showcase-content {
+  position: relative;
+  overflow: hidden;
+}
+
+.rz-theme-stickerchaos .rz-showcase-shell::before,
+.rz-theme-stickerchaos .rz-showcase-shell::after,
+.rz-theme-stickerchaos .rz-showcase-page::before,
+.rz-theme-stickerchaos .rz-showcase-page::after {
+  content: "✨🎉🌈💥🤩🎊🪄🍓🍋⚡✨🎉🌈💥🤩🎊🪄🍓🍋⚡";
+  position: absolute;
+  inset: -20% -10% auto -5%;
+  white-space: nowrap;
+  font-size: clamp(1.5rem, 2vw, 3rem);
+  letter-spacing: 0.5rem;
+  opacity: 0.42;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 12px rgba(255, 79, 216, 0.2));
+  animation: stickerChaosMegaFloat 18s linear infinite;
+  z-index: 0;
+}
+
+.rz-theme-stickerchaos .rz-showcase-shell::after,
+.rz-theme-stickerchaos .rz-showcase-page::after {
+  top: auto;
+  bottom: -12%;
+  left: -8%;
+  right: -6%;
+  animation-delay: -9s;
+  animation-duration: 22s;
+}
+
+.rz-theme-stickerchaos .rz-showcase-bg::before {
+  background-image:
+    radial-gradient(circle, rgba(255,183,3,0.9) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(255,79,216,0.9) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(94,234,212,0.8) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(167,139,250,0.8) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(59,130,246,0.8) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(251,146,60,0.8) 0 3px, transparent 4px);
+  background-size: 60px 60px;
+  animation: stickerChaosDrift 12s linear infinite;
+}
+
+.rz-theme-stickerchaos .rz-showcase-bg::after {
+  background:
+    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.9) 0 18%, transparent 19%),
+    radial-gradient(circle at 70% 45%, rgba(255,255,255,0.85) 0 16%, transparent 17%),
+    radial-gradient(circle at 48% 75%, rgba(255,255,255,0.75) 0 12%, transparent 13%),
+    radial-gradient(circle at 12% 62%, rgba(255,79,216,0.22) 0 22%, transparent 23%),
+    radial-gradient(circle at 90% 26%, rgba(94,234,212,0.14) 0 20%, transparent 21%);
+  opacity: 0.75;
+  animation: stickerChaosPulse 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes stickerChaosMegaFloat {
+  0% { transform: translate3d(-12px, 8px, 0) rotate(-8deg); }
+  25% { transform: translate3d(26px, -12px, 0) rotate(7deg); }
+  50% { transform: translate3d(-16px, 18px, 0) rotate(-12deg); }
+  75% { transform: translate3d(18px, -20px, 0) rotate(9deg); }
+  100% { transform: translate3d(-12px, 8px, 0) rotate(-8deg); }
+}
+
+@keyframes stickerChaosDrift {
+  0% { transform: translate3d(0,0,0) scale(1); }
+  25% { transform: translate3d(20px,-25px,0) scale(1.08); }
+  50% { transform: translate3d(-18px,16px,0) scale(1.14); }
+  75% { transform: translate3d(12px,22px,0) scale(1.08); }
+  100% { transform: translate3d(0,0,0) scale(1); }
+}
+
+@keyframes stickerChaosPulse {
+  0% { transform: scale(1) rotate(0deg); opacity: 0.4; }
+  100% { transform: scale(1.18) rotate(10deg); opacity: 0.9; }
+}
+
+.rz-theme-stickerchaos .rz-floating-particles {
+  background-image:
+    radial-gradient(circle, rgba(255,183,3,0.95) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(255,79,216,0.95) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(94,234,212,0.95) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(167,139,250,0.95) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(59,130,246,0.9) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(234,179,8,0.95) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(251,146,60,0.8) 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(255,255,255,0.9) 0 2px, transparent 3px);
+  background-size: 58px 58px;
+  opacity: 1;
+  animation: stickerChaosFloat 9s linear infinite;
+  filter: saturate(1.5) brightness(1.08);
+}
+
+@keyframes stickerChaosFloat {
+  0% { transform: translateY(0px) scale(1) rotate(0deg); }
+  15% { transform: translateY(-18px) scale(1.12) rotate(12deg); }
+  35% { transform: translateY(10px) scale(1.18) rotate(-16deg); }
+  60% { transform: translateY(-24px) scale(1.16) rotate(18deg); }
+  80% { transform: translateY(14px) scale(1.2) rotate(-12deg); }
+  100% { transform: translateY(0px) scale(1) rotate(0deg); }
+}
+
+.rz-theme-stickerchaos .rz-hero-overlay {
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.82) 68%, rgba(255,249,255,0.96) 100%);
+}
+
+.rz-theme-stickerchaos .rz-hero-avatar {
+  border-radius: 32px;
+  border: 10px solid rgba(255,255,255,0.9);
+  box-shadow: 0 20px 42px rgba(80,36,88,0.15), 0 0 0 10px rgba(255,183,3,0.12);
+  transform: rotate(-10deg);
+  animation: stickerChaosAvatar 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes stickerChaosAvatar {
+  0% { transform: rotate(-10deg) translateY(0px) scale(1); }
+  50% { transform: rotate(3deg) translateY(-8px) scale(1.02); }
+  100% { transform: rotate(-5deg) translateY(4px) scale(1.04); }
+}
+
+.rz-theme-stickerchaos .rz-hero-badge {
+  color: #7a1d68;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  background: linear-gradient(135deg, #fff, #fff7cc);
+  border: 3px solid rgba(255,183,3,0.42);
+  box-shadow: 0 10px 22px rgba(93, 30, 82, 0.12);
+}
+
+.rz-theme-stickerchaos .rz-hero-name {
+  color: #5b176d;
+  text-shadow: 4px 4px 0 rgba(255,255,255,0.9), 8px 8px 0 rgba(255,79,216,0.16);
+  animation: stickerChaosName 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes stickerChaosName {
+  0% { transform: rotate(-2deg) scale(1); }
+  100% { transform: rotate(2deg) scale(1.03); }
+}
+
+.rz-theme-stickerchaos .rz-hero-username,
+.rz-theme-stickerchaos .rz-hero-views {
+  color: #5f4065;
+}
+
+.rz-theme-stickerchaos .rz-story-card {
+  background: rgba(255,255,255,0.93);
+  border: 4px solid rgba(255, 79, 216, 0.2);
+  border-radius: 32px;
+  box-shadow: 0 18px 36px rgba(92,45,94,0.1), 0 0 28px rgba(255,183,3,0.08);
+  animation: stickerChaosCard 1.8s ease-in-out infinite alternate;
+}
+
+.rz-theme-stickerchaos .rz-story-grid { grid-template-columns: 1fr 1fr; }
+.rz-theme-stickerchaos .rz-story-card[style*="padding:0"] {
+  padding: 18px 18px 46px !important;
+  transform: rotate(-6deg);
+  animation: stickerChaosCard 1.5s ease-in-out infinite alternate;
+}
+.rz-theme-stickerchaos .rz-story-grid--reverse .rz-story-card[style*="padding:0"] {
+  transform: rotate(6deg);
+}
+
+@keyframes stickerChaosCard {
+  0% { transform: rotate(-9deg) translateY(0px) scale(1); }
+  50% { transform: rotate(5deg) translateY(-10px) scale(1.02); }
+  100% { transform: rotate(-4deg) translateY(6px) scale(1.03); }
+}
+
+.rz-theme-stickerchaos .rz-grand-text {
+  color: #7a1d68;
+  text-shadow: 3px 3px 0 rgba(255,255,255,0.94), 7px 7px 0 rgba(255,183,3,0.2);
+}
+
+.rz-theme-stickerchaos .rz-section-eyebrow {
+  color: #892c85;
+  background: rgba(255,183,3,0.13);
+  border: 1px solid rgba(255,183,3,0.24);
+}
+
+.rz-theme-stickerchaos .rz-story-copy { color: #472646; }
+.rz-theme-stickerchaos .rz-links-grid { grid-template-columns: repeat(2, minmax(170px, 1fr)); }
+
+.rz-theme-stickerchaos .rz-link-item {
+  border-radius: 28px;
+  background: linear-gradient(135deg, #ffffff, #fdf4ff);
+  border: 4px solid rgba(255,79,216,0.25);
+  color: #5a1768;
+  font-weight: 900;
+  box-shadow: 0 12px 25px rgba(89,38,104,0.08);
+  animation: stickerChaosLink 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes stickerChaosLink {
+  0% { transform: translateY(0px) scale(1) rotate(0deg); }
+  50% { transform: translateY(-8px) scale(1.08) rotate(5deg); }
+  100% { transform: translateY(-12px) scale(1.12) rotate(-5deg); }
+}
+
+.rz-theme-stickerchaos .rz-link-item:hover {
+  background: linear-gradient(135deg, #ffb703, #ff4fd8, #a78bfa);
+  color: #fff;
+  transform: translateY(-6px) scale(1.08) rotate(1deg);
+}
+
+.rz-theme-stickerchaos .rz-detail-item {
+  background: rgba(255,255,255,0.9);
+  border: 2px solid rgba(94,234,212,0.25);
+  color: #492c46;
+  box-shadow: 0 10px 20px rgba(92,45,94,0.06);
+  animation: stickerChaosDetail 2s ease-in-out infinite alternate;
+}
+
+@keyframes stickerChaosDetail {
+  0% { transform: translateY(0px) rotate(-1deg); }
+  100% { transform: translateY(-5px) rotate(2deg); }
+}
+
+.rz-theme-stickerchaos .rz-detail-item a { color: #a61d80; font-weight: 800; }
+.rz-theme-stickerchaos .rz-credits-logo {
+  color: #7a1d68;
+  text-shadow: 3px 3px 0 rgba(255,255,255,0.9), 8px 8px 0 rgba(255,183,3,0.18);
+}
+.rz-theme-stickerchaos .rz-sound-toggle {
+  background: rgba(255,255,255,0.9);
+  color: #5a1768;
+  border-color: rgba(255,79,216,0.32);
+  animation: stickerChaosPing 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes stickerChaosPing {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08); }
+}
+
+.rz-theme-stickerchaos .rz-showcase-footer {
+  background: rgba(255,255,255,0.72);
+  color: #5a1768;
+}
+
+.rz-theme-stickerchaos .rz-story-card,
+.rz-theme-stickerchaos .rz-link-item,
+.rz-theme-stickerchaos .rz-detail-item,
+.rz-theme-stickerchaos .rz-hero-avatar,
+.rz-theme-stickerchaos .rz-hero-badge,
+.rz-theme-stickerchaos .rz-showcase-footer,
+.rz-theme-stickerchaos .rz-sound-toggle {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+}

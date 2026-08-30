@@ -1,0 +1,48 @@
+/* =====================================================================
+   NEON PULSE — dark nightlife, electric gradients, dramatic contrast
+   ===================================================================== */
+.rz-theme-neonpulse { --accent: #00f5ff; --accent2: #ff4fd8; color: #eafcff; background: #050812; font-family: "Segoe UI", sans-serif; }
+
+.rz-theme-neonpulse .rz-showcase-bg {
+  background:
+    radial-gradient(circle at 20% 15%, rgba(0, 245, 255, 0.28), transparent 20%),
+    radial-gradient(circle at 80% 20%, rgba(255, 79, 216, 0.22), transparent 22%),
+    linear-gradient(180deg, #050812 0%, #0b1021 42%, #050812 100%);
+}
+
+.rz-theme-neonpulse .rz-showcase-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 0%, rgba(0,245,255,0.08) 40%, transparent 100%);
+  background-size: 100% 360px;
+  background-position: 0 0;
+  animation: neonSweep 10s linear infinite;
+}
+@keyframes neonSweep { from { background-position: 0 0; } to { background-position: 0 260px; } }
+
+.rz-theme-neonpulse .rz-floating-particles {
+  background-image: radial-gradient(circle, rgba(0,245,255,0.9) 1px, transparent 2px), radial-gradient(circle, rgba(255,79,216,0.8) 1px, transparent 2px);
+  background-size: 80px 80px;
+  opacity: 0.8;
+  filter: blur(0.5px);
+}
+
+.rz-theme-neonpulse .rz-hero-overlay { background: linear-gradient(180deg, rgba(5,8,18,0.12), rgba(5,8,18,0.7) 60%, #050812 100%); }
+.rz-theme-neonpulse .rz-hero-avatar { border-radius: 18px; border: 2px solid rgba(0,245,255,0.9); box-shadow: 0 0 0 6px rgba(5,8,18,0.85), 0 0 38px rgba(0,245,255,0.5); }
+.rz-theme-neonpulse .rz-hero-badge { color: var(--accent); border: 1px solid rgba(0,245,255,0.45); background: rgba(0,245,255,0.05); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 800; }
+.rz-theme-neonpulse .rz-hero-name { color: white; text-shadow: 0 0 24px rgba(0,245,255,0.55), 0 0 30px rgba(255,79,216,0.35); letter-spacing: 0.06em; }
+.rz-theme-neonpulse .rz-hero-username, .rz-theme-neonpulse .rz-hero-views { color: #cfeeff; }
+.rz-theme-neonpulse .rz-story-card { background: rgba(8, 14, 26, 0.8); border: 1px solid rgba(0,245,255,0.2); box-shadow: 0 0 28px rgba(0,245,255,0.12), 0 0 8px rgba(255,79,216,0.1); border-radius: 22px; backdrop-filter: blur(10px); }
+.rz-theme-neonpulse .rz-story-grid { grid-template-columns: 1fr 1fr; }
+.rz-theme-neonpulse .rz-grand-text { color: white; text-shadow: 0 0 18px rgba(0,245,255,0.8), 0 0 30px rgba(255,79,216,0.35); }
+.rz-theme-neonpulse .rz-section-eyebrow { color: #d5f9ff; background: rgba(0,245,255,0.08); border: 1px solid rgba(0,245,255,0.2); }
+.rz-theme-neonpulse .rz-story-copy { color: #d1e6f7; }
+.rz-theme-neonpulse .rz-links-grid { grid-template-columns: repeat(2, minmax(170px, 1fr)); }
+.rz-theme-neonpulse .rz-link-item { background: linear-gradient(135deg, rgba(0,245,255,0.08), rgba(255,79,216,0.08)); border: 1px solid rgba(0,245,255,0.32); color: #f0fdff; box-shadow: inset 0 0 18px rgba(0,245,255,0.05); }
+.rz-theme-neonpulse .rz-link-item:hover { transform: translateY(-2px); box-shadow: 0 0 24px rgba(0,245,255,0.3), 0 0 24px rgba(255,79,216,0.18); }
+.rz-theme-neonpulse .rz-detail-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(0,245,255,0.22); color: #dffaff; }
+.rz-theme-neonpulse .rz-detail-item a { color: var(--accent); }
+.rz-theme-neonpulse .rz-credits-logo { color: white; text-shadow: 0 0 18px rgba(0,245,255,0.8), 0 0 28px rgba(255,79,216,0.45); }
+.rz-theme-neonpulse .rz-sound-toggle { background: rgba(8, 14, 26, 0.7); border-color: rgba(0,245,255,0.4); color: #dffaff; }
+.rz-theme-neonpulse .rz-showcase-footer { background: rgba(5,8,18,0.6); color: #dffaff; border: 1px solid rgba(0,245,255,0.18); }
