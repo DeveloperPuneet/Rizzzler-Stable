@@ -87,6 +87,13 @@
     <label>Message
       <textarea name="body" rows="6" required placeholder="Type your update here…"></textarea>
     </label>
+    <div style="margin-top:10px; padding:12px 14px; border-radius:12px; background:rgba(192,132,252,0.08); border:1px solid rgba(192,132,252,0.2); color:#dfe7ff; line-height:1.7; font-size:13px;">
+      <strong>Formatting rules:</strong><br>
+      • Use <code>#</code> for a large heading, <code>##</code> for h2, and so on down to <code>######</code> for h6.<br>
+      • Use <code>&lt;color="#ff6b6b"&gt;text&lt;/color&gt;</code> to color text in email content.<br>
+      • Use <code>&lt;b&gt;text&lt;/b&gt;</code>, <code>&lt;strong&gt;text&lt;/strong&gt;</code>, <code>&lt;i&gt;text&lt;/i&gt;</code>, and <code>&lt;em&gt;text&lt;/em&gt;</code> for emphasis.<br>
+      • Plain <code>**bold**</code> and <code>*italic*</code> also work inside paragraphs.
+    </div>
     <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" <%= !settings.newsletterEnabled ? 'disabled title="Enable newsletter above first"' : '' %>>Send to all users</button>
   </form>
   <% if (settings.lastNewsletterSentAt) { %>

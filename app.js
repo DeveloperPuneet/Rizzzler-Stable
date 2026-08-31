@@ -29,6 +29,7 @@ const apiRoutes = require("./Routes/apiRoutes");
 const { visitorTracker } = require("./middlewares/visitorTracker");
 const { ipAccessControl } = require("./middlewares/ipAccessControl");
 const { globalLimiter, authLimiter } = require("./middlewares/rateLimiter");
+const { renderProfileText } = require("./config/mailer");
 
 const app = express();
 
@@ -123,6 +124,7 @@ app.use((req, res, next) => {
   res.locals.siteTagline = "Create a beautiful one-link showcase page";
   res.locals.defaultDescription = "Create a gorgeous one-link showcase page with themes, music, photos, and links on Rizzzler.";
   res.locals.defaultKeywords = "Rizzzler, one link, showcase page, link in bio, creator profile";
+  res.locals.renderProfileText = renderProfileText;
   res.locals.baseUrl = baseUrl;
   res.locals.currentUrl = `${baseUrl}${req.originalUrl}`;
   res.locals.canonicalUrl = res.locals.currentUrl;

@@ -333,11 +333,47 @@ function wrap(title, bodyHtml, { eyebrow = "Fresh from Rizzzler", badge = "✨",
 </html>`;
 }
 
+function normalizeColorValue(value = "#c084fc") {
+  const candidate = String(value || "").trim();
+  if (!candidate) return "#c084fc";
+  if (/^#[0-9a-fA-F]{3,8}$/.test(candidate)) return candidate;
+  return "#c084fc";
+}
+
 function renderInlineMarkdown(text) {
-  return escapeHtml(text)
+  const source = String(text ?? "");
+  if (!source) return "";
+
+  const tokenMap = new Map();
+  let tokenIndex = 0;
+  const addToken = (html) => {
+    const key = `\uE000RZFMT${tokenIndex++}\uE001`;
+    tokenMap.set(key, html);
+    return key;
+  };
+
+  let working = source
+    .replace(/<color\s*=\s*(?:"|')?(#[0-9a-fA-F]{3,8}|[A-Za-z]+)(?:"|')?\s*>([\s\S]*?)<\/color>/gi, (_, color, inner) => addToken(`<span style="color:${normalizeColorValue(color)};">${renderInlineMarkdown(inner)}</span>`))
+    .replace(/<(?:b|strong)>([\s\S]*?)<\/(?:b|strong)>/gi, (_, inner) => addToken(`<strong>${renderInlineMarkdown(inner)}</strong>`))
+    .replace(/<(?:i|em|italic)>([\s\S]*?)<\/(?:i|em|italic)>/gi, (_, inner) => addToken(`<em>${renderInlineMarkdown(inner)}</em>`));
+
+  let processed = escapeHtml(working);
+  for (const [key, value] of tokenMap) {
+    processed = processed.replaceAll(key, value);
+  }
+
+  processed = processed
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/__(.+?)__/g, "<strong>$1</strong>")
+    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, "<em>$1</em>")
+    .replace(/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/g, "<em>$1</em>")
     .replace(/`(.+?)`/g, '<code style="font-family:monospace;color:#ffffff;">$1</code>');
+
+  return processed;
+}
+
+function renderProfileText(text, fallback = "") {
+  return renderInlineMarkdown(String(text || "") || fallback);
 }
 
 function renderParagraphs(text, fallback = "A fresh update from Rizzzler.") {
@@ -359,9 +395,12 @@ function renderParagraphs(text, fallback = "A fresh update from Rizzzler.") {
       continue;
     }
 
-    const headingMatch = block.match(/^#{1,3}\s+(.+)$/);
+    const headingMatch = block.match(/^(#{1,6})\s+(.+)$/);
     if (headingMatch) {
-      rendered.push(`<h2 style="margin:4px 0 10px;font-size:17px;line-height:1.35;color:#ffffff;">${renderInlineMarkdown(headingMatch[1])}</h2>`);
+      const level = Math.min(Math.max(headingMatch[1].length, 1), 6);
+      const sizeMap = { 1: "32px", 2: "26px", 3: "22px", 4: "18px", 5: "16px", 6: "14px" };
+      const marginMap = { 1: "10px 0 12px", 2: "8px 0 10px", 3: "8px 0 10px", 4: "6px 0 8px", 5: "5px 0 7px", 6: "4px 0 6px" };
+      rendered.push(`<h${level} style="margin:${marginMap[level]};font-size:${sizeMap[level]};line-height:1.25;color:#ffffff;">${renderInlineMarkdown(headingMatch[2])}</h${level}>`);
       continue;
     }
 
@@ -564,4 +603,6 @@ module.exports = {
   sendBulk,
   sendTestEmail,
   renderParagraphs,
+  renderInlineMarkdown,
+  renderProfileText,
 };

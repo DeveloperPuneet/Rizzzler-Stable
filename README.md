@@ -171,6 +171,59 @@ Rizzzler includes a dedicated docs page at `/docs` that explains:
 
 This is meant to act as a real product guide rather than a minimal help page.
 
+### Profile + newsletter formatting rules
+Rizzzler supports a lightweight rich-text syntax across profile content and admin newsletters so creators can format their stories without writing raw HTML.
+
+Supported formatting:
+
+- Headings: `#` for h1, `##` for h2, all the way down to `######` for h6.
+- Colors: `<color="#ff6b6b">highlighted text</color>` applies a custom accent color.
+- Bold: `**bold**`, `__bold__`, or `<strong>`, `<b>`.
+- Italic: `*italic*`, `_italic_`, or `<em>`, `<i>`, `<italic>`.
+- Inline code: `` `code` `` is rendered in a mono-spaced style.
+- Lists: standard bullet items (`- item`) and numbered items (`1. item`).
+- Paragraphs: separate blocks with blank lines for readable multi-paragraph content.
+
+These rules are used in:
+
+- newsletter email bodies
+- profile bio
+- hero eyebrow
+- moment titles and blurbs
+- other showcase text fields that are intentionally rich text
+
+### Public email and character limits
+The public contact field is now `Public Email` instead of a phone number. It appears on the public showcase as a clickable mail link and is stored in the user profile as `publicEmail`.
+
+The app enforces the following limits for user-entered text:
+
+- `bio`: max 250 characters
+- `publicEmail`: max 120 characters
+- `location`: max 80 characters
+- `profession`: max 80 characters
+- `showcaseText.heroEyebrow`: max 60 characters
+- `showcaseText.momentTitles`: max 60 characters each
+- `showcaseText.momentBlurbs`: max 180 characters each
+- `displayName`: max 40 characters
+
+These limits are enforced both in the dashboard form and in the server-side controller logic so oversized content is trimmed safely before it is saved.
+
+Example:
+
+```text
+# Friday update
+
+## New launch
+
+<color="#c084fc">We shipped a faster dashboard</color> with a cleaner editing flow.
+
+- Better profile controls
+- Faster publishing
+- More polish for creators
+```
+
+This makes it easy to write structured newsletters and profile text without dropping into raw HTML.
+
 ---
 
 ## 🔐 Security and auth notes

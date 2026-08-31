@@ -24,7 +24,10 @@
         <input type="email" name="email" value="<%= u.email %>" />
       </label>
       <label>Bio
-        <textarea name="bio" rows="3" maxlength="300"><%= u.bio || '' %></textarea>
+        <textarea name="bio" rows="3" maxlength="250"><%= u.bio || '' %></textarea>
+      </label>
+      <label>Public Email
+        <input type="email" name="publicEmail" value="<%= u.publicEmail || '' %>" maxlength="120" />
       </label>
       <label>Set new password <small class="rz-muted">(leave blank to keep current)</small>
         <input type="text" name="newPassword" placeholder="min. 6 characters" />
@@ -146,7 +149,7 @@
       <div><span class="rz-muted">Legacy #</span><strong><%= u.legacyNumber || '—' %></strong></div>
       <div><span class="rz-muted">Links</span><strong><%= (u.links || []).length %></strong></div>
       <div><span class="rz-muted">Showcase photos</span><strong><%= (u.showcaseImages || []).length %> / 2</strong></div>
-      <div><span class="rz-muted">Phone</span><strong><%= u.phoneNumber || '—' %></strong></div>
+      <div><span class="rz-muted">Public Email</span><strong><%= u.publicEmail || '—' %></strong></div>
       <div><span class="rz-muted">Location</span><strong><%= u.location || '—' %></strong></div>
       <div><span class="rz-muted">Profession</span><strong><%= u.profession || '—' %></strong></div>
     </div>

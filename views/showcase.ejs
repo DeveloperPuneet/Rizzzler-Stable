@@ -115,7 +115,7 @@
           </div>
         <% } %>
       </div>
-      <div class="rz-hero-badge"><span aria-hidden="true">✦</span> <%= (profile.showcaseText && profile.showcaseText.heroEyebrow) ? profile.showcaseText.heroEyebrow : (theme.heroEyebrow || 'The Legend') %></div>
+      <div class="rz-hero-badge"><span aria-hidden="true">✦</span> <%- renderProfileText((profile.showcaseText && profile.showcaseText.heroEyebrow) ? profile.showcaseText.heroEyebrow : (theme.heroEyebrow || 'The Legend')) %></div>
       <h1 class="rz-hero-name rz-title-effect rz-title-effect--<%= titleEffectKey %>" data-typing-text="<%= (profile.displayName || profile.username).replace(/"/g, '&quot;') %>"><%= profile.displayName || profile.username %></h1>
       <% if (profile.showLegacyBadge && profile.legacyNumber) { %>
         <span class="rz-badge">#<%= profile.legacyNumber %></span>
@@ -123,7 +123,7 @@
       <p class="rz-hero-username">@<%= profile.username %></p>
       <p class="rz-hero-views"><span aria-hidden="true">👁️</span> <%= profile.profileViews || 0 %> views</p>
       <% if (profile.bio) { %>
-        <p class="rz-story-card" style="margin-top:20px;"><%= profile.bio %></p>
+        <div class="rz-story-card" style="margin-top:20px;"> <%- renderProfileText(profile.bio) %> </div>
       <% } %>
     </div>
     <div class="rz-scroll-indicator">▼ Scroll ▼</div>
@@ -140,8 +140,8 @@
         <div class="rz-section-content rz-story-grid <%= i % 2 === 1 ? 'rz-story-grid--reverse' : '' %>">
           <div class="rz-story-card">
             <p class="rz-section-eyebrow">Moment <%= i + 1 %></p>
-            <h2 class="rz-grand-text"><%= customMomentTitles[i] || grandWords[i % grandWords.length] %></h2>
-            <p class="rz-story-copy"><%= customMomentBlurbs[i] || storyBlurbs[i % storyBlurbs.length] %></p>
+            <h2 class="rz-grand-text"><%- renderProfileText(customMomentTitles[i] || grandWords[i % grandWords.length]) %></h2>
+            <div class="rz-story-copy"><%- renderProfileText(customMomentBlurbs[i] || storyBlurbs[i % storyBlurbs.length]) %></div>
           </div>
           <div class="rz-story-card" style="padding:0; overflow:hidden;">
             <div class="rz-image-wrapper" data-parallax="0.3">
@@ -169,7 +169,7 @@
     </section>
   <% } %>
 
-  <% const detailItems = []; if (profile.phoneNumber) { detailItems.push({ icon:'📞', value:profile.phoneNumber, href:'tel:'+profile.phoneNumber }); } if (profile.location) { detailItems.push({ icon:'📍', value:profile.location }); } if (profile.profession) { detailItems.push({ icon:'💼', value:profile.profession }); } %>
+  <% const detailItems = []; if (profile.publicEmail) { detailItems.push({ icon:'✉️', value:profile.publicEmail, href:'mailto:'+profile.publicEmail }); } if (profile.location) { detailItems.push({ icon:'📍', value:profile.location }); } if (profile.profession) { detailItems.push({ icon:'💼', value:profile.profession }); } %>
   <% if (detailItems.length) { %>
     <section class="rz-section rz-details-section">
       <div class="rz-section-content">

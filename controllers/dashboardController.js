@@ -145,6 +145,7 @@ exports.updateProfile = async (req, res) => {
       displayName,
       bio,
       phoneNumber,
+      publicEmail,
       location,
       profession,
       theme,
@@ -199,11 +200,17 @@ exports.updateProfile = async (req, res) => {
       user.showcaseEffect = value;
     }
 
-    if (displayName !== undefined) user.displayName = displayName.slice(0, 40);
-    if (bio !== undefined) user.bio = bio.slice(0, 300);
-    if (phoneNumber !== undefined) user.phoneNumber = phoneNumber.slice(0, 20).trim();
-    if (location !== undefined) user.location = location.slice(0, 80).trim();
-    if (profession !== undefined) user.profession = profession.slice(0, 80).trim();
+    const clampText = (value, max) => String(value ?? "").replace(/\r\n?/g, "\n").trim().slice(0, max);
+
+    if (displayName !== undefined) user.displayName = clampText(displayName, 40);
+    if (bio !== undefined) user.bio = clampText(bio, 250);
+    if (publicEmail !== undefined) {
+      user.publicEmail = clampText(publicEmail, 120).toLowerCase();
+    } else if (phoneNumber !== undefined) {
+      user.publicEmail = clampText(phoneNumber, 120);
+    }
+    if (location !== undefined) user.location = clampText(location, 80);
+    if (profession !== undefined) user.profession = clampText(profession, 80);
 
     if (req.body.hasOwnProperty("showLegacyBadge")) {
       user.showLegacyBadge = showLegacyBadge === "on" || showLegacyBadge === "true";
@@ -237,14 +244,14 @@ exports.updateProfile = async (req, res) => {
       req.body.hasOwnProperty("momentBlurb2")
     ) {
       user.showcaseText = user.showcaseText || {};
-      user.showcaseText.heroEyebrow = (heroEyebrow || "").trim().slice(0, 60);
+      user.showcaseText.heroEyebrow = clampText(heroEyebrow, 60);
       user.showcaseText.momentTitles = [
-        (momentTitle1 || "").trim().slice(0, 60),
-        (momentTitle2 || "").trim().slice(0, 60),
+        clampText(momentTitle1, 60),
+        clampText(momentTitle2, 60),
       ].filter(Boolean);
       user.showcaseText.momentBlurbs = [
-        (momentBlurb1 || "").trim().slice(0, 180),
-        (momentBlurb2 || "").trim().slice(0, 180),
+        clampText(momentBlurb1, 180),
+        clampText(momentBlurb2, 180),
       ].filter(Boolean);
     }
 

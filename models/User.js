@@ -49,7 +49,8 @@ const userSchema = new mongoose.Schema(
     showLegacyBadge: { type: Boolean, default: true },
 
     // ---- Profile / showcase content ----
-    bio: { type: String, maxlength: 300, default: "" },
+    bio: { type: String, maxlength: 250, default: "" },
+    publicEmail: { type: String, maxlength: 120, default: "" },
     phoneNumber: { type: String, maxlength: 20, default: "" },
     location: { type: String, maxlength: 80, default: "" },
     profession: { type: String, maxlength: 80, default: "" },

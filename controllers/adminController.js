@@ -252,10 +252,11 @@ exports.updateUser = async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).send("User not found");
 
-    const { displayName, email, username, bio, isVerified, isActive, showLegacyBadge, isFeatured, newPassword } = req.body;
+    const { displayName, email, username, bio, publicEmail, isVerified, isActive, showLegacyBadge, isFeatured, newPassword } = req.body;
 
     if (displayName !== undefined) user.displayName = String(displayName || "").slice(0, 40);
-    if (bio !== undefined) user.bio = String(bio || "").slice(0, 300);
+    if (bio !== undefined) user.bio = String(bio || "").slice(0, 250);
+    if (publicEmail !== undefined) user.publicEmail = String(publicEmail || "").trim().slice(0, 120).toLowerCase();
     if (email) {
       const nextEmail = String(email).toLowerCase().trim();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail)) {

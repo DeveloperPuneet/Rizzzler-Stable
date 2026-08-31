@@ -51,10 +51,11 @@
               <input type="text" name="displayName" value="<%= user.displayName %>" maxlength="40" />
             </label>
             <label>Bio
-              <textarea name="bio" maxlength="300" rows="3"><%= user.bio %></textarea>
+              <textarea name="bio" maxlength="250" rows="3"><%= user.bio %></textarea>
             </label>
-            <label>Phone number
-              <input type="text" name="phoneNumber" value="<%= user.phoneNumber || '' %>" maxlength="20" placeholder="Optional" />
+            <small class="rz-muted">Use rich text like <code>&lt;color="#ff6b6b"&gt;highlighted text&lt;/color&gt;</code>, <code>**bold**</code>, and <code>*italic*</code>.</small>
+            <label>Public Email
+              <input type="email" name="publicEmail" value="<%= user.publicEmail || '' %>" maxlength="120" placeholder="hello@example.com" />
             </label>
             <label>Location
               <input type="text" name="location" value="<%= user.location || '' %>" maxlength="80" placeholder="Optional" />
