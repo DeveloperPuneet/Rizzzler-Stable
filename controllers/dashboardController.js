@@ -3,6 +3,9 @@ const ProfileView = require("../models/ProfileView");
 const storageRouter = require("../config/storageRouter");
 const registry = require("../shared/registry");
 const themes = registry.themes;
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY || process.env.SEC_KEY || null;
+const stripePublicKey = process.env.STRIPE_PUBLISHABLE_KEY || process.env.PUB_KEY || null;
+const stripe = stripeSecretKey ? require("stripe")(stripeSecretKey) : null;
 const visuals = {
   avatarEffects: registry.avatarEffects,
   titleEffects: registry.titleEffects,
@@ -17,6 +20,22 @@ function greeting() {
   if (h < 18) return "Good afternoon";
   return "Good evening";
 }
+
+function isPremiumAccessActive(user) {
+  if (!user || !user.isPremium) return false;
+  if (!user.premiumUntil) return true;
+  return new Date(user.premiumUntil).getTime() > Date.now();
+}
+
+function shouldRemoveUploadedAudioForSelection(currentAudio, selectedAudioKey) {
+  if (!currentAudio || !currentAudio.fileId) return false;
+  if (selectedAudioKey === undefined || selectedAudioKey === null) return false;
+  const nextKey = String(selectedAudioKey).trim();
+  if (!nextKey) return false;
+  return nextKey !== (currentAudio.key || null);
+}
+
+exports.shouldRemoveUploadedAudioForSelection = shouldRemoveUploadedAudioForSelection;
 
 exports.index = (req, res) => {
   const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
@@ -122,6 +141,7 @@ exports.getSettings = (req, res) => {
   let info = null;
   let error = null;
   if (req.query.saved) info = "Saved! Your changes are live.";
+  else if (req.query.info) info = String(req.query.info).slice(0, 300);
   if (req.query.error === "nofile") error = "Please choose a file first.";
   else if (req.query.error === "filesize") error = "That file is too large. Max upload size is 2MB.";
   else if (req.query.error === "audiofilesize") error = "That audio file is too large. Max upload size is under 1MB.";
@@ -134,7 +154,104 @@ exports.getSettings = (req, res) => {
     audios,
     error,
     info,
+    isPremiumAccessActive: isPremiumAccessActive(req.user),
   });
+};
+
+exports.createPremiumCheckout = async (req, res) => {
+  try {
+    if (!stripe) {
+      return res.status(400).json({ success: false, error: "Stripe is not configured. Add STRIPE_SECRET_KEY to your environment." });
+    }
+
+    const { plan } = req.body || {};
+    const selectedPlan = registry.getPremiumPlan(plan);
+    if (!selectedPlan) {
+      return res.status(400).json({ success: false, error: "Invalid premium plan selected." });
+    }
+
+    const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
+    const user = req.user;
+
+    let customerId = user.stripeCustomerId;
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email,
+        name: user.displayName || user.username,
+        metadata: { userId: String(user._id) },
+      });
+      customerId = customer.id;
+      user.stripeCustomerId = customerId;
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      customer: customerId,
+      line_items: [
+        {
+          price_data: {
+            currency: "inr",
+            unit_amount: selectedPlan.amount * 100,
+            product_data: {
+              name: `Rizzzler Premium - ${selectedPlan.label}`,
+              description: selectedPlan.description,
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `${baseUrl}/dashboard/premium/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/dashboard/premium/cancel`,
+      metadata: {
+        userId: String(user._id),
+        planKey: selectedPlan.key,
+      },
+    });
+
+    await user.save();
+    res.json({ success: true, url: session.url });
+  } catch (err) {
+    console.error("Premium checkout failed:", err);
+    res.status(500).json({ success: false, error: "Unable to create checkout session." });
+  }
+};
+
+exports.handlePremiumSuccess = async (req, res) => {
+  try {
+    if (!stripe) {
+      return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Stripe is not configured on this server."));
+    }
+
+    const sessionId = req.query.session_id;
+    if (!sessionId) {
+      return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Payment verification failed."));
+    }
+
+    const stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
+    if (stripeSession.payment_status !== "paid") {
+      return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Your payment was not completed yet."));
+    }
+
+    const planKey = stripeSession.metadata && stripeSession.metadata.planKey;
+    const selectedPlan = registry.getPremiumPlan(planKey);
+    if (!selectedPlan) {
+      return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Unknown premium plan."));
+    }
+
+    const user = req.user;
+    user.isPremium = true;
+    user.premiumPlan = selectedPlan.key;
+    user.premiumUntil = new Date(Date.now() + selectedPlan.durationDays * 24 * 60 * 60 * 1000);
+    await user.save();
+    res.redirect("/dashboard/settings?info=" + encodeURIComponent(`Premium activated! Your Royal Glow access is active until ${new Date(user.premiumUntil).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}.`));
+  } catch (err) {
+    console.error("Premium success handling failed:", err);
+    res.redirect("/dashboard/settings?error=" + encodeURIComponent("Something went wrong while confirming your premium access."));
+  }
+};
+
+exports.handlePremiumCancel = (req, res) => {
+  res.redirect("/dashboard/settings?error=" + encodeURIComponent("Premium checkout was cancelled. No charge was made."));
 };
 
 // Update text/profile fields (bio, display name, links, theme, audio choice, badge)
@@ -174,6 +291,10 @@ exports.updateProfile = async (req, res) => {
     if (theme !== undefined) {
       if (!registry.isValidTheme(theme)) {
         return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Invalid theme selected."));
+      }
+      const selectedTheme = registry.getTheme(theme);
+      if (selectedTheme && selectedTheme.premium && !isPremiumAccessActive(user)) {
+        return res.redirect("/dashboard/settings?error=" + encodeURIComponent("This premium theme requires an active premium plan."));
       }
       user.theme = theme;
     }
@@ -225,12 +346,13 @@ exports.updateProfile = async (req, res) => {
     if (req.body.hasOwnProperty("audioKey") || req.body.hasOwnProperty("audioAutoplay") || req.body.hasOwnProperty("audioLoop")) {
       const oldUploadedAudioId = user.audio?.fileId;
       if (req.body.hasOwnProperty("audioKey")) {
-        if (oldUploadedAudioId && (!audioKey || audioKey !== user.audio.key)) {
+        const nextAudioKey = typeof audioKey === "string" ? audioKey.trim() : audioKey;
+        if (shouldRemoveUploadedAudioForSelection(user.audio, nextAudioKey)) {
           await storageRouter.deleteFile(oldUploadedAudioId);
           user.audio.fileId = null;
           user.audio.filename = null;
         }
-        user.audio.key = audioKey || null;
+        user.audio.key = nextAudioKey || null;
       }
       user.audio.autoplay = audioAutoplay === "on" || audioAutoplay === "true";
       user.audio.loop = audioLoop === "on" || audioLoop === "true";
@@ -462,5 +584,387 @@ exports.deleteAccount = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.redirect("/dashboard/settings?error=1");
+  }
+};
+
+// ========== OAuth App Management ==========
+
+exports.getOAuthApps = async (req, res) => {
+  try {
+    const OAuthToken = require("../models/OAuthToken");
+    const OAuthApp = require("../models/OAuthApp");
+
+    // Get all tokens for the current user (authorized apps)
+    const tokens = await OAuthToken.find({ user: req.user._id })
+      .populate("app", "name logoUrl websiteUrl")
+      .sort({ createdAt: -1 });
+
+    res.render("dashboard/oauth-apps", {
+      tokens,
+      error: req.query.error || null,
+      success: req.query.success || null,
+    });
+  } catch (err) {
+    console.error("Get OAuth apps error:", err);
+    res.redirect("/dashboard/settings?error=1");
+  }
+};
+
+exports.revokeOAuthApp = async (req, res) => {
+  try {
+    const OAuthToken = require("../models/OAuthToken");
+    const { tokenId } = req.params;
+
+    // Verify the token belongs to the current user before deleting
+    const token = await OAuthToken.findOne({
+      _id: tokenId,
+      user: req.user._id,
+    });
+
+    if (!token) {
+      return res.status(404).json({ error: "Token not found" });
+    }
+
+    await OAuthToken.deleteOne({ _id: tokenId });
+    res.redirect("/dashboard/oauth-apps?success=1");
+  } catch (err) {
+    console.error("Revoke OAuth app error:", err);
+    res.redirect("/dashboard/oauth-apps?error=1");
+  }
+};
+
+// ========== Security & Privacy Dashboard ==========
+exports.getSecurity = async (req, res) => {
+  try {
+    const OAuthToken = require("../models/OAuthToken");
+    const OAuthApp = require("../models/OAuthApp");
+
+    // Get all authorized apps for this user
+    const tokens = await OAuthToken.find({ user: req.user._id })
+      .populate("app", "name description")
+      .sort({ createdAt: -1 });
+
+    const connectedAppsCount = tokens.length;
+    const sharedApps = tokens.map(t => ({
+      name: t.app.name,
+      description: t.app.description,
+      authorizedAt: t.createdAt,
+    }));
+
+    // Mock recent logins - in production, you'd track these
+    // For now, show current session
+    const recentLogins = [
+      {
+        device: "Chrome on Windows",
+        os: "Windows 10",
+        ipAddress: req.ip,
+        timestamp: new Date(),
+        isCurrent: true,
+      },
+    ];
+
+    const activeSessionsCount = 1; // Current session
+
+    res.render("dashboard/security", {
+      connectedAppsCount,
+      sharedApps,
+      recentLogins,
+      activeSessionsCount,
+    });
+  } catch (err) {
+    console.error("Get security dashboard error:", err);
+    res.status(500).render("dashboard/security", {
+      connectedAppsCount: 0,
+      sharedApps: [],
+      recentLogins: [],
+      activeSessionsCount: 1,
+      error: "Failed to load security information",
+    });
+  }
+};
+
+// ========== OAuth Developer App Management ==========
+// User can create their own OAuth apps for third-party integration
+
+exports.getMyOAuthApps = async (req, res) => {
+  try {
+    const OAuthApp = require("../models/OAuthApp");
+    const OAuthToken = require("../models/OAuthToken");
+
+    // Get all apps owned by the current user
+    const apps = await OAuthApp.find({ owner: req.user._id }).sort({ createdAt: -1 });
+
+    // Get authorization stats for each app
+    const appsWithStats = await Promise.all(
+      apps.map(async (app) => {
+        const tokenCount = await OAuthToken.countDocuments({ app: app._id });
+        return {
+          ...app.toObject(),
+          tokenCount,
+        };
+      })
+    );
+
+    res.render("dashboard/my-oauth-apps", {
+      apps: appsWithStats,
+      error: req.query.error || null,
+      success: req.query.success || null,
+    });
+  } catch (err) {
+    console.error("Get my OAuth apps error:", err);
+    res.status(500).render("dashboard/my-oauth-apps", {
+      apps: [],
+      error: "Failed to load your OAuth apps",
+      success: null,
+    });
+  }
+};
+
+exports.getCreateOAuthApp = async (req, res) => {
+  try {
+    res.render("dashboard/create-oauth-app", { error: null });
+  } catch (err) {
+    console.error("Get create OAuth app error:", err);
+    res.status(500).render("dashboard/create-oauth-app", {
+      error: "Failed to load form",
+    });
+  }
+};
+
+exports.postCreateOAuthApp = async (req, res) => {
+  try {
+    const OAuthApp = require("../models/OAuthApp");
+    const { name, description, websiteUrl, redirectUris } = req.body;
+
+    // Validate inputs
+    if (!name || name.trim().length === 0) {
+      return res.status(400).render("dashboard/create-oauth-app", {
+        error: "App name is required",
+      });
+    }
+
+    if (!redirectUris || redirectUris.trim().length === 0) {
+      return res.status(400).render("dashboard/create-oauth-app", {
+        error: "At least one redirect URI is required",
+      });
+    }
+
+    // Parse redirect URIs (comma or newline separated)
+    const uriArray = redirectUris
+      .split(/[,\n]+/)
+      .map(uri => uri.trim())
+      .filter(uri => uri.length > 0)
+      .map(uri => {
+        try {
+          new URL(uri); // Validate it's a valid URL
+          return uri;
+        } catch {
+          throw new Error(`Invalid URL: ${uri}`);
+        }
+      });
+
+    if (uriArray.length === 0) {
+      return res.status(400).render("dashboard/create-oauth-app", {
+        error: "No valid redirect URIs provided",
+      });
+    }
+
+    // Create the app
+    const app = await OAuthApp.create({
+      name: name.trim(),
+      description: description ? description.trim() : "",
+      websiteUrl: websiteUrl ? websiteUrl.trim() : "",
+      redirectUris: uriArray,
+      owner: req.user._id,
+      isApproved: false, // Requires admin approval
+      isActive: false,
+    });
+
+    res.redirect(`/dashboard/oauth-app/${app._id}`);
+  } catch (err) {
+    console.error("Create OAuth app error:", err);
+    res.status(500).render("dashboard/create-oauth-app", {
+      error: err.message || "Failed to create app",
+    });
+  }
+};
+
+exports.getOAuthAppDetail = async (req, res) => {
+  try {
+    const OAuthApp = require("../models/OAuthApp");
+    const { appId } = req.params;
+
+    const app = await OAuthApp.findById(appId);
+
+    if (!app) {
+      return res.status(404).render("dashboard/oauth-app-detail", {
+        app: null,
+        error: "App not found",
+        success: null,
+      });
+    }
+
+    // Verify ownership
+    if (app.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).render("dashboard/oauth-app-detail", {
+        app: null,
+        error: "You don't have permission to view this app",
+        success: null,
+      });
+    }
+
+    // Include clientSecret only for the owner
+    const appData = app.toObject();
+    appData.clientSecret = app.clientSecret; // Override the toJSON filter for owner
+
+    res.render("dashboard/oauth-app-detail", {
+      app: appData,
+      error: req.query.error || null,
+      success: req.query.success || null,
+    });
+  } catch (err) {
+    console.error("Get OAuth app detail error:", err);
+    res.status(500).render("dashboard/oauth-app-detail", {
+      app: null,
+      error: "Failed to load app details",
+      success: null,
+    });
+  }
+};
+
+exports.postUpdateOAuthApp = async (req, res) => {
+  try {
+    const OAuthApp = require("../models/OAuthApp");
+    const { appId } = req.params;
+    const { name, description, websiteUrl, redirectUris, logoUrl } = req.body;
+
+    const app = await OAuthApp.findById(appId);
+
+    if (!app) {
+      return res.status(404).json({ error: "App not found" });
+    }
+
+    // Verify ownership
+    if (app.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    // Update fields
+    if (name && name.trim().length > 0) app.name = name.trim();
+    if (description !== undefined) app.description = description.trim();
+    if (websiteUrl) {
+      try {
+        new URL(websiteUrl);
+        app.websiteUrl = websiteUrl;
+      } catch {
+        return res.status(400).json({ error: "Invalid website URL" });
+      }
+    }
+
+    if (redirectUris && redirectUris.trim().length > 0) {
+      const uriArray = redirectUris
+        .split(/[,\n]+/)
+        .map(uri => uri.trim())
+        .filter(uri => uri.length > 0)
+        .map(uri => {
+          try {
+            new URL(uri);
+            return uri;
+          } catch {
+            throw new Error(`Invalid URL: ${uri}`);
+          }
+        });
+
+      if (uriArray.length === 0) {
+        return res.status(400).json({ error: "No valid redirect URIs" });
+      }
+
+      app.redirectUris = uriArray;
+    }
+
+    if (logoUrl && logoUrl.trim().length > 0) {
+      try {
+        new URL(logoUrl);
+        app.logoUrl = logoUrl;
+      } catch {
+        return res.status(400).json({ error: "Invalid logo URL" });
+      }
+    }
+
+    await app.save();
+
+    res.json({
+      success: true,
+      message: "App updated successfully",
+      app: app.toJSON(),
+    });
+  } catch (err) {
+    console.error("Update OAuth app error:", err);
+    res.status(500).json({ error: err.message || "Failed to update app" });
+  }
+};
+
+exports.postRegenerateOAuthSecret = async (req, res) => {
+  try {
+    const OAuthApp = require("../models/OAuthApp");
+    const crypto = require("crypto");
+    const { appId } = req.params;
+
+    const app = await OAuthApp.findById(appId);
+
+    if (!app) {
+      return res.status(404).json({ error: "App not found" });
+    }
+
+    // Verify ownership
+    if (app.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    // Generate new secret
+    app.clientSecret = crypto.randomBytes(32).toString("hex");
+    await app.save();
+
+    res.json({
+      success: true,
+      message: "New secret generated. The old one is now invalid.",
+      clientSecret: app.clientSecret,
+    });
+  } catch (err) {
+    console.error("Regenerate OAuth secret error:", err);
+    res.status(500).json({ error: "Failed to regenerate secret" });
+  }
+};
+
+exports.postDeleteOAuthApp = async (req, res) => {
+  try {
+    const OAuthApp = require("../models/OAuthApp");
+    const OAuthToken = require("../models/OAuthToken");
+    const { appId } = req.params;
+
+    const app = await OAuthApp.findById(appId);
+
+    if (!app) {
+      return res.status(404).json({ error: "App not found" });
+    }
+
+    // Verify ownership
+    if (app.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    // Delete all tokens for this app (revoke all authorizations)
+    await OAuthToken.deleteMany({ app: appId });
+
+    // Delete the app
+    await OAuthApp.deleteOne({ _id: appId });
+
+    res.json({
+      success: true,
+      message: "App deleted and all authorizations revoked",
+    });
+  } catch (err) {
+    console.error("Delete OAuth app error:", err);
+    res.status(500).json({ error: "Failed to delete app" });
   }
 };

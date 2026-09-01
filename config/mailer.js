@@ -1,5 +1,7 @@
 require("dotenv").config();
 const nodemailer = require("nodemailer");
+const path = require("path");
+const ejs = require("ejs");
 
 const smtpConfig = {
   host: process.env.SMTP_HOST?.trim(),
@@ -445,6 +447,83 @@ async function sendPasswordResetEmail(to, code) {
   });
 }
 
+// ---------- Security Alerts ----------
+
+async function sendRegistrationAlertEmail(user, deviceInfo, osInfo, ipAddress) {
+  try {
+    const html = await ejs.renderFile(path.join(__dirname, "../views/emails/registration-alert.ejs"), {
+      displayName: user.displayName,
+      email: user.email,
+      username: user.username,
+      deviceInfo: deviceInfo || "Unknown",
+      osInfo: osInfo || "Unknown",
+      ipAddress: ipAddress || "Unknown",
+      contactUrl: process.env.BASE_URL || "https://rizzzler.work.gd",
+      dashboardUrl: (process.env.BASE_URL || "https://rizzzler.work.gd") + "/dashboard",
+      securityUrl: (process.env.BASE_URL || "https://rizzzler.work.gd") + "/dashboard/security",
+    });
+
+    await sendMailWithLogging({
+      to: user.email,
+      subject: "🎉 Welcome to Rizzzler — Your Account Created",
+      html,
+    });
+  } catch (err) {
+    console.error("Registration alert email failed:", err?.message || err);
+  }
+}
+
+async function sendLoginAlertEmail(user, deviceInfo, osInfo, ipAddress, isNewDevice = false) {
+  try {
+    const html = await ejs.renderFile(path.join(__dirname, "../views/emails/login-alert.ejs"), {
+      displayName: user.displayName,
+      deviceInfo: deviceInfo || "Unknown",
+      osInfo: osInfo || "Unknown",
+      ipAddress: ipAddress || "Unknown",
+      isNewDevice,
+      dashboardUrl: (process.env.BASE_URL || "https://rizzzler.work.gd") + "/dashboard",
+      securityUrl: (process.env.BASE_URL || "https://rizzzler.work.gd") + "/dashboard/security",
+      contactUrl: (process.env.BASE_URL || "https://rizzzler.work.gd") + "/contact",
+    });
+
+    await sendMailWithLogging({
+      to: user.email,
+      subject: isNewDevice ? "🔔 New Login Alert — Unrecognized Device" : "🔔 Login Alert — Recognized Device",
+      html,
+    });
+  } catch (err) {
+    console.error("Login alert email failed:", err?.message || err);
+  }
+}
+
+async function sendOAuthAuthorizationAlertEmail(user, app, scopes, tokenId) {
+  try {
+    const baseUrl = process.env.BASE_URL || "https://rizzzler.work.gd";
+    const connectedAppsUrl = baseUrl + "/dashboard/oauth-apps";
+    const revokeUrl = baseUrl + `/oauth/revoke/${tokenId}`;
+
+    const html = await ejs.renderFile(path.join(__dirname, "../views/emails/oauth-auth-alert.ejs"), {
+      displayName: user.displayName,
+      appName: app.name,
+      appDescription: app.description,
+      appLogoUrl: app.logoUrl || null,
+      scopes: scopes || ["profile", "email", "avatar"],
+      dashboardUrl: baseUrl + "/dashboard",
+      connectedAppsUrl,
+      revokeUrl,
+      contactUrl: baseUrl + "/contact",
+    });
+
+    await sendMailWithLogging({
+      to: user.email,
+      subject: `🔗 New App Authorization — "${app.name}" Can Now Access Your Data`,
+      html,
+    });
+  } catch (err) {
+    console.error("OAuth authorization alert email failed:", err?.message || err);
+  }
+}
+
 // ---------- Newsletter ("new updates and things") ----------
 async function sendNewsletterEmail(to, subject, bodyText) {
   await sendMailWithLogging({
@@ -595,6 +674,9 @@ async function sendTestEmail(to) {
 module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail,
+  sendRegistrationAlertEmail,
+  sendLoginAlertEmail,
+  sendOAuthAuthorizationAlertEmail,
   sendNewsletterEmail,
   sendMilestoneEmail,
   sendNewMessageEmail,

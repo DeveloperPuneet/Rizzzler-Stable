@@ -1,0 +1,152 @@
+<% pageTitle = "Connected Apps — Rizzzler" %>
+<%- include('../partials/header') %>
+
+<div class="rz-container">
+  <section class="rz-section">
+    <h1>🔗 Connected Apps & Data Sharing</h1>
+    <p class="rz-muted">Manage which apps can access your Rizzzler data. You control what they see.</p>
+
+    <% if (success) { %>
+      <div class="rz-alert rz-alert-success" style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; color: #155724;">
+        ✓ Access revoked successfully. The app can no longer access your account.
+      </div>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="rz-alert rz-alert-error" style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; color: #721c24;">
+        ✗ Something went wrong. Please try again.
+      </div>
+    <% } %>
+
+    <% if (tokens.length === 0) { %>
+      <div style="text-align: center; padding: 3rem 1rem; background: #f9f9f9; border-radius: 8px; border: 2px dashed #ddd;">
+        <p style="font-size: 1.1rem; font-weight: 500; color: #333;">No apps connected yet</p>
+        <p style="font-size: 0.9rem; color: #999; margin: 0.5rem 0;">
+          When you use "Login with Rizzzler" on other websites, they'll appear here.
+        </p>
+        <p style="font-size: 0.85rem; color: #bbb; margin-top: 1rem;">
+          💡 Connected apps won't access your password — they only get the data you approve.
+        </p>
+      </div>
+    <% } else { %>
+      <div style="display: grid; gap: 1.5rem; margin-bottom: 2rem;">
+        <% tokens.forEach(token => { 
+          const scopeDescriptions = {
+            profile: '👤 Username & display name',
+            email: '📧 Email address',
+            avatar: '🖼️ Profile picture'
+          };
+        %>
+          <div style="border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; background: #fafafa; overflow: hidden;">
+            <!-- App Header -->
+            <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem;">
+              <% if (token.app.logoUrl) { %>
+                <img src="<%= token.app.logoUrl %>" alt="<%= token.app.name %>" style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" />
+              <% } else { %>
+                <div style="width: 64px; height: 64px; border-radius: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; flex-shrink: 0;">
+                  📱
+                </div>
+              <% } %>
+              <div style="flex: 1;">
+                <h3 style="margin: 0 0 0.25rem 0; font-size: 1.1rem; color: #333;"><%= token.app.name %></h3>
+                <% if (token.app.description) { %>
+                  <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;"><%= token.app.description %></p>
+                <% } %>
+                <p style="margin: 0; font-size: 0.85rem; color: #999;">
+                  Authorized on <%= new Date(token.createdAt).toLocaleDateString() %>
+                  <% if (token.lastUsedAt) { %>
+                    · Last accessed <%= new Date(token.lastUsedAt).toLocaleString() %>
+                  <% } else { %>
+                    · Never accessed yet
+                  <% } %>
+                </p>
+              </div>
+            </div>
+
+            <!-- Data Permissions -->
+            <div style="background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem;">
+              <h4 style="margin: 0 0 0.75rem 0; font-size: 0.95rem; color: #333; display: flex; align-items: center; gap: 0.5rem;">
+                <span>🔐</span> Data This App Can Access:
+              </h4>
+              <ul style="margin: 0; padding-left: 1.5rem; list-style: none;">
+                <% token.scopes.forEach(scope => { %>
+                  <li style="padding: 0.4rem 0; color: #555; font-size: 0.9rem;">
+                    <span style="color: #28a745; font-weight: bold;">✓</span> <%= scopeDescriptions[scope] || scope %>
+                  </li>
+                <% }); %>
+              </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 0.5rem; justify-content: space-between; align-items: center;">
+              <p style="margin: 0; font-size: 0.85rem; color: #999;">
+                Click "Revoke" to remove this app's access
+              </p>
+              <form action="/dashboard/oauth-apps/<%= token._id %>/revoke" method="POST" onsubmit="return confirm('Are you sure? This app will no longer be able to access your Rizzzler account.');" style="margin: 0;">
+                <button type="submit" style="background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.9rem;">
+                  🔒 Revoke Access
+                </button>
+              </form>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+
+    <hr style="margin: 2rem 0; border: none; border-top: 1px solid #eee;" />
+
+    <!-- Information Section -->
+    <div style="background: #e8f4f8; border-left: 4px solid #17a2b8; padding: 1.5rem; border-radius: 6px; margin-top: 2rem;">
+      <h2 style="margin-top: 0; color: #17a2b8; display: flex; align-items: center; gap: 0.5rem;">
+        <span>ℹ️</span> How "Login with Rizzzler" Works
+      </h2>
+      
+      <div style="display: grid; gap: 1rem; margin-top: 1rem;">
+        <div>
+          <h4 style="margin: 0 0 0.5rem 0; color: #333;">🔐 Your Password Stays Safe</h4>
+          <p style="margin: 0; color: #555; font-size: 0.9rem;">
+            Apps never see your password. They only get the specific data you approve during login.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="margin: 0 0 0.5rem 0; color: #333;">📋 Limited Data Access</h4>
+          <p style="margin: 0; color: #555; font-size: 0.9rem;">
+            Each app can only access the scopes listed above. They can't perform actions on your behalf.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="margin: 0 0 0.5rem 0; color: #333;">🛡️ You're Always in Control</h4>
+          <p style="margin: 0; color: #555; font-size: 0.9rem;">
+            Revoke access anytime using the buttons above. The app will need to ask for permission again.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="margin: 0 0 0.5rem 0; color: #333;">📧 Activity Notifications</h4>
+          <p style="margin: 0; color: #555; font-size: 0.9rem;">
+            You'll receive an email whenever a new app is authorized to access your account.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <hr style="margin: 2rem 0; border: none; border-top: 1px solid #eee;" />
+
+    <!-- Suspicious Activity -->
+    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1.5rem; border-radius: 6px;">
+      <h3 style="margin-top: 0; color: #856404; display: flex; align-items: center; gap: 0.5rem;">
+        <span>⚠️</span> Don't Recognize an App?
+      </h3>
+      <p style="margin: 0 0 1rem 0; color: #856404; font-size: 0.9rem;">
+        If you see an app you didn't authorize, immediately revoke its access and change your password.
+      </p>
+      <a href="/dashboard/security" style="background: #ffc107; color: #333; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 500; display: inline-block;">
+        📱 View Security Dashboard
+      </a>
+    </div>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

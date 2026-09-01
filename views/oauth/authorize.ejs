@@ -1,0 +1,60 @@
+<% pageTitle = "Authorize application — Rizzzler" %>
+<%- include('../../partials/header') %>
+
+<div class="rz-auth-wrapper">
+  <div class="rz-auth-blob rz-auth-blob--1"></div>
+  <div class="rz-auth-blob rz-auth-blob--2"></div>
+  <div class="rz-auth-blob rz-auth-blob--3"></div>
+
+  <section class="rz-auth-card" style="max-width: 500px;">
+    <h2 style="margin-bottom: 0.5rem;"><%= app.name %></h2>
+    <p class="rz-muted" style="margin-bottom: 1.5rem;">is requesting access to your Rizzzler account</p>
+
+    <% if (app.logoUrl) { %>
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <img src="<%= app.logoUrl %>" alt="<%= app.name %>" style="max-width: 80px; border-radius: 8px;" />
+      </div>
+    <% } %>
+
+    <% if (app.description) { %>
+      <p style="margin-bottom: 1.5rem; line-height: 1.5;"><%= app.description %></p>
+    <% } %>
+
+    <div style="background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+      <p style="font-weight: bold; margin-bottom: 0.75rem; font-size: 0.9rem;">If you continue, this app can access:</p>
+      <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem;">
+        <% requestedScopes.forEach(scope => { %>
+          <li style="margin-bottom: 0.5rem;">
+            <% if (scope === 'profile') { %>
+              Your username and display name
+            <% } else if (scope === 'email') { %>
+              Your email address
+            <% } else if (scope === 'avatar') { %>
+              Your profile avatar
+            <% } %>
+          </li>
+        <% }); %>
+      </ul>
+    </div>
+
+    <form action="/oauth/authorize" method="POST" style="display: flex; gap: 0.75rem;">
+      <input type="hidden" name="client_id" value="<%= client_id %>" />
+      <input type="hidden" name="redirect_uri" value="<%= redirect_uri %>" />
+      <input type="hidden" name="state" value="<%= state %>" />
+      <input type="hidden" name="scope" value="<%= requestedScopes.join(' ') %>" />
+
+      <button type="submit" name="approve" value="no" class="rz-btn" style="flex: 1;">
+        Cancel
+      </button>
+      <button type="submit" name="approve" value="yes" class="rz-btn rz-btn-primary" style="flex: 1;">
+        Allow access
+      </button>
+    </form>
+
+    <p class="rz-muted" style="margin-top: 1rem; font-size: 0.85rem; text-align: center;">
+      You can revoke this access anytime from your <a href="/dashboard/oauth-apps">Connected Apps</a> page.
+    </p>
+  </section>
+</div>
+
+<%- include('../../partials/footer') %>

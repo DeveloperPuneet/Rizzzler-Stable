@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; }
+    .header h1 { margin: 0; font-size: 1.8rem; }
+    .content { padding: 2rem; }
+    .app-info { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: flex; align-items: center; gap: 1rem; }
+    .app-logo { width: 64px; height: 64px; border-radius: 8px; background: #ddd; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .app-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+    .app-details h3 { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
+    .app-details p { margin: 0; color: #666; font-size: 0.9rem; }
+    .scope-list { background: #f0f7ff; border-left: 4px solid #0066cc; padding: 1rem; border-radius: 4px; margin: 1rem 0; }
+    .scope-list h4 { margin-top: 0; color: #0066cc; }
+    .scope-item { display: flex; align-items: center; margin: 0.5rem 0; }
+    .scope-item::before { content: "✓"; display: inline-block; color: #28a745; font-weight: bold; margin-right: 0.5rem; }
+    .info-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { font-weight: 600; color: #666; }
+    .info-value { color: #333; }
+    .action-button { display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; margin: 1rem 0.5rem 1rem 0; font-weight: 600; }
+    .action-button:hover { background: #5568d3; }
+    .action-button.danger { background: #dc3545; }
+    .action-button.danger:hover { background: #c82333; }
+    .footer { background: #f9f9f9; padding: 1.5rem; text-align: center; color: #666; font-size: 0.85rem; border-top: 1px solid #eee; }
+    .footer a { color: #667eea; text-decoration: none; }
+    .warning-box { background: #ffe5e5; border-left: 4px solid #dc3545; padding: 1rem; border-radius: 4px; margin: 1rem 0; }
+    .warning-box h4 { margin-top: 0; color: #c82333; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔗 New App Authorization</h1>
+      <p>An app has been granted access to your account</p>
+    </div>
+
+    <div class="content">
+      <p>Hi <strong><%= displayName %></strong>,</p>
+
+      <p>You authorized a new app to access your Rizzzler account. Here are the details:</p>
+
+      <div class="app-info">
+        <div class="app-logo">
+          <% if (appLogoUrl) { %>
+            <img src="<%= appLogoUrl %>" alt="<%= appName %>">
+          <% } else { %>
+            📱
+          <% } %>
+        </div>
+        <div class="app-details">
+          <h3><%= appName %></h3>
+          <p><%= appDescription || 'External application' %></p>
+          <p style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">Authorized on <%= new Date().toLocaleString() %></p>
+        </div>
+      </div>
+
+      <h3>📋 Data Access Granted</h3>
+      <p>This app now has permission to access the following information from your Rizzzler account:</p>
+
+      <div class="scope-list">
+        <h4>Granted Permissions:</h4>
+        <% const scopeDescriptions = {
+          profile: 'Your username, display name, and public profile information',
+          email: 'Your email address',
+          avatar: 'Your profile picture'
+        }; %>
+        <% scopes.forEach(scope => { %>
+          <div class="scope-item">
+            <%= scopeDescriptions[scope] || scope %>
+          </div>
+        <% }); %>
+      </div>
+
+      <h3>🔐 What This Means</h3>
+      <ul>
+        <li><strong>No Password Shared:</strong> The app never sees your password</li>
+        <li><strong>Limited Access:</strong> The app can only access the permissions above</li>
+        <li><strong>You're in Control:</strong> You can revoke access anytime from your dashboard</li>
+        <li><strong>No Hidden Access:</strong> The app cannot perform actions on your behalf</li>
+      </ul>
+
+      <div class="warning-box">
+        <h4>⚠️ Important</h4>
+        <p>Did you NOT authorize this app? You can revoke access immediately by clicking the button below or visiting your Connected Apps page.</p>
+      </div>
+
+      <h3>🛡️ Manage Your Access</h3>
+      <p>You can manage this authorization anytime:</p>
+
+      <div style="text-align: center;">
+        <a href="<%= revokeUrl %>" class="action-button danger">Revoke Access Immediately</a>
+        <br>
+        <a href="<%= connectedAppsUrl %>" class="action-button">View All Connected Apps</a>
+      </div>
+
+      <h3>❓ Questions?</h3>
+      <p>If you have questions about this authorization or didn't recognize this app, please:</p>
+      <ul>
+        <li>Check the app's official website for contact information</li>
+        <li><a href="<%= contactUrl %>">Contact Rizzzler support</a></li>
+        <li>Revoke access if you don't recognize the app</li>
+      </ul>
+
+      <p style="margin-top: 2rem; color: #666; font-size: 0.9rem;">
+        <strong>💡 Tip:</strong> Keep your Connected Apps page clean. Regularly review and revoke access to apps you no longer use.
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>
+        This is an automated notification from Rizzzler.
+      </p>
+      <p>
+        <a href="<%= dashboardUrl %>">Dashboard</a> |
+        <a href="<%= connectedAppsUrl %>">Connected Apps</a> |
+        <a href="<%= contactUrl %>">Contact Support</a>
+      </p>
+      <p>&copy; Rizzzler - Your Creative Platform</p>
+    </div>
+  </div>
+</body>
+</html>

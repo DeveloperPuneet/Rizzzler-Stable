@@ -28,6 +28,7 @@
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "socket.io": "^4.8.3",
+    "stripe": "^18.4.0",
     "ua-parser-js": "^2.0.10"
   },
   "devDependencies": {

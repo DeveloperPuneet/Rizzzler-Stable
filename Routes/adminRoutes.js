@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
+const oauthAdminController = require("../controllers/oauthAdminController");
 const { ensureDeviceToken, blockGate, requireAdmin, guestAdminOnly } = require("../middlewares/adminMiddleware");
 const asyncHandler = require("../middlewares/asyncHandler");
 
@@ -39,5 +40,14 @@ router.post("/security/clear-ip-rules", asyncHandler(adminController.clearIpRule
 router.post("/security/clear-admin-access", asyncHandler(adminController.clearAdminAccess));
 router.post("/security/ip-rules", asyncHandler(adminController.addIpRule));
 router.post("/security/ip-rules/:id/delete", asyncHandler(adminController.removeIpRule));
+
+// ----  OAuth Admin =====
+router.get("/oauth-apps", asyncHandler(oauthAdminController.listOAuthApps));
+router.get("/oauth-apps/:appId", asyncHandler(oauthAdminController.getOAuthAppDetail));
+router.post("/oauth-apps/:appId/toggle", asyncHandler(oauthAdminController.toggleOAuthAppStatus));
+router.post("/oauth-apps/:appId/approve", asyncHandler(oauthAdminController.approveOAuthApp));
+router.post("/oauth-apps/:appId/disapprove", asyncHandler(oauthAdminController.disapproveOAuthApp));
+router.post("/oauth-apps/:appId/delete", asyncHandler(oauthAdminController.deleteOAuthApp));
+router.post("/oauth-tokens/:tokenId/revoke", asyncHandler(oauthAdminController.revokeUserToken));
 
 module.exports = router;

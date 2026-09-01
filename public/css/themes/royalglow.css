@@ -1,0 +1,57 @@
+/* =====================================================================
+   ROYAL GLOW — premium royal gold luxury styling
+   ===================================================================== */
+.rz-theme-royalglow { --accent: #f4d35e; --accent2: #f7b267; color: #fef6db; background: linear-gradient(135deg, #120b08 0%, #1c1326 35%, #2d1b12 100%); }
+
+.rz-theme-royalglow .rz-showcase-bg {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(244, 211, 94, 0.18), transparent 26%),
+    linear-gradient(135deg, rgba(18,11,8,0.9), rgba(34,23,22,0.88), rgba(18,17,32,0.9));
+}
+.rz-theme-royalglow .rz-showcase-bg::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(120deg, rgba(244,211,94,0.06), transparent 40%, rgba(247,178,103,0.08));
+}
+.rz-theme-royalglow .rz-floating-particles {
+  background-image: radial-gradient(circle, rgba(244,211,94,0.9) 1.2px, transparent 1.2px);
+  background-size: 80px 80px;
+  opacity: 0.72;
+}
+.rz-theme-royalglow .rz-hero-overlay { background: linear-gradient(180deg, rgba(21,12,12,0.15) 0%, rgba(21,12,12,0.7) 65%, rgba(18,11,8,1) 100%); }
+.rz-theme-royalglow .rz-hero-avatar {
+  box-shadow: 0 0 0 3px rgba(244,211,94,0.5), 0 0 40px rgba(244,211,94,0.45), 0 0 90px rgba(247,178,103,0.12);
+}
+.rz-theme-royalglow .rz-hero-badge {
+  color: #fde7a6; border-color: rgba(244,211,94,0.4); background: rgba(244,211,94,0.09);
+}
+.rz-theme-royalglow .rz-hero-name { color: #fff4d3; text-shadow: 0 0 28px rgba(244,211,94,0.5); }
+.rz-theme-royalglow .rz-hero-username, .rz-theme-royalglow .rz-hero-views { color: #efcf8d; }
+.rz-theme-royalglow .rz-story-card {
+  border: 1px solid rgba(244,211,94,0.25);
+  background: rgba(16,10,16,0.78);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+.rz-theme-royalglow .rz-section-eyebrow {
+  background: rgba(244,211,94,0.08);
+  border: 1px solid rgba(244,211,94,0.2);
+  color: #fdd879;
+}
+.rz-theme-royalglow .rz-grand-text {
+  color: #fff8e2; text-shadow: 0 0 36px rgba(244,211,94,0.42);
+}
+.rz-theme-royalglow .rz-links-grid .rz-link-item {
+  background: linear-gradient(135deg, rgba(244,211,94,0.12), rgba(247,178,103,0.08));
+  border: 1px solid rgba(244,211,94,0.25);
+  color: #fff4d3;
+}
+.rz-theme-royalglow .rz-links-grid .rz-link-item:hover {
+  box-shadow: 0 0 26px rgba(244,211,94,0.28);
+}
+.rz-theme-royalglow .rz-detail-item {
+  border: 1px solid rgba(244,211,94,0.24);
+  background: rgba(255,255,255,0.02);
+}
+.rz-theme-royalglow .rz-credits-logo {
+  color: #f4d35e; text-shadow: 0 0 26px rgba(244,211,94,0.5);
+}

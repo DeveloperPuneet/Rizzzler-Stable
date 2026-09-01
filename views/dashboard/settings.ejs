@@ -121,7 +121,7 @@
             <h3>🎵 Audio</h3>
             <label>Background track
               <div class="rz-audio-picker-row">
-                <select name="audioKey" id="audioKeySelect">
+                <select name="audioKey" id="audioKeySelect" data-has-custom-audio="<%= user.audio && user.audio.fileId ? 'true' : 'false' %>">
                   <option value="">None</option>
                   <% audios.forEach(a => { %>
                     <option value="<%= a %>" <%= user.audio.key === a ? 'selected' : '' %>><%= a %></option>
@@ -130,6 +130,8 @@
                 <button type="button" class="rz-btn rz-btn-ghost rz-audio-preview-btn" id="audioPreviewBtn" title="Play/pause preview">▶ Preview</button>
               </div>
               <small class="rz-muted" id="audioPreviewStatus">Pick a track to hear how it sounds. Only one preview plays at a time.</small>
+              <% const hasCustomAudio = !!(user.audio && user.audio.fileId); %>
+              <small id="audioReplaceNotice" class="rz-muted" style="<%= hasCustomAudio ? '' : 'display:none;' %>">Selecting a preset track will replace your uploaded custom audio when you save.</small>
             </label>
             <label class="rz-checkbox">
               <input type="checkbox" name="audioAutoplay" <%= user.audio.autoplay ? 'checked' : '' %> />
@@ -498,7 +500,19 @@
   const select = document.getElementById('audioKeySelect');
   const btn = document.getElementById('audioPreviewBtn');
   const status = document.getElementById('audioPreviewStatus');
+  const replaceNotice = document.getElementById('audioReplaceNotice');
   if (!select || !btn) return;
+
+  const hasCustomAudio = select.dataset.hasCustomAudio === 'true';
+
+  function updateAudioWarning() {
+    if (!replaceNotice) return;
+    const shouldWarn = hasCustomAudio && !!select.value;
+    replaceNotice.style.display = shouldWarn ? '' : 'none';
+    if (shouldWarn) {
+      replaceNotice.textContent = 'Selecting a preset track will replace your uploaded custom audio when you save.';
+    }
+  }
 
   // One shared Audio instance: selecting a new track — or hitting play on a
   // different track — always pauses whatever was already playing first, so
@@ -530,6 +544,7 @@
 
   select.addEventListener('change', () => {
     stop();
+    updateAudioWarning();
     if (select.value) {
       play(select.value);
     } else {
@@ -537,6 +552,8 @@
       status.textContent = 'Pick a track to hear how it sounds. Only one preview plays at a time.';
     }
   });
+
+  updateAudioWarning();
 
   btn.addEventListener('click', () => {
     if (!select.value) {

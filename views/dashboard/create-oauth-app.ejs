@@ -1,0 +1,73 @@
+<% pageTitle = "Create OAuth App — Developer Portal" %>
+<%- include('../partials/header') %>
+
+<div class="rz-container">
+  <section class="rz-section">
+    <h1 style="margin-bottom: 0.5rem; color: #f5f7ff;">🚀 Create New OAuth App</h1>
+    <p class="rz-muted" style="color: #c6c9d6;">Register your application to allow users to log in with Rizzzler.</p>
+
+    <% if (error) { %>
+      <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; color: #721c24;">
+        ✗ <%= error %>
+      </div>
+    <% } %>
+
+    <form method="POST" action="/dashboard/oauth-app/create" style="max-width: 600px; background: rgba(17, 17, 24, 0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem; box-shadow: 0 12px 28px rgba(0,0,0,0.2);">
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #f5f7ff;">App Name *</label>
+        <input type="text" name="name" placeholder="e.g., My Awesome App" required style="width: 100%; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; background: rgba(11, 11, 18, 0.9); color: #f5f7ff; font-size: 1rem;">
+        <p style="font-size: 0.85rem; color: #c6c9d6; margin-top: 0.25rem;">The name displayed to users when they authorize your app.</p>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #f5f7ff;">Description</label>
+        <textarea name="description" placeholder="What does your app do?" rows="3" style="width: 100%; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; background: rgba(11, 11, 18, 0.9); color: #f5f7ff; font-size: 1rem; font-family: inherit; resize: vertical;"></textarea>
+        <p style="font-size: 0.85rem; color: #c6c9d6; margin-top: 0.25rem;">Help users understand what your app is and why it needs access.</p>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #f5f7ff;">Website URL</label>
+        <input type="url" name="websiteUrl" placeholder="https://myapp.com" style="width: 100%; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; background: rgba(11, 11, 18, 0.9); color: #f5f7ff; font-size: 1rem;">
+        <p style="font-size: 0.85rem; color: #c6c9d6; margin-top: 0.25rem;">Where users can learn more about your app.</p>
+      </div>
+
+      <div style="margin-bottom: 2rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #f5f7ff;">Redirect URI(s) *</label>
+        <textarea name="redirectUris" placeholder="https://myapp.com/auth/callback&#10;https://staging.myapp.com/auth/callback" rows="4" required style="width: 100%; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; background: rgba(11, 11, 18, 0.9); color: #f5f7ff; font-size: 0.9rem; font-family: monospace; resize: vertical;"></textarea>
+        <p style="font-size: 0.85rem; color: #c6c9d6; margin-top: 0.25rem;">
+          Where users will be redirected after authorizing your app.
+          <br/>Enter one URL per line. Must be HTTPS in production.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 1rem;">
+        <button type="submit" style="flex: 1; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.8rem; border: none; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: transform 0.2s;">
+          Create App
+        </button>
+        <a href="/dashboard/my-oauth-apps" style="flex: 1; display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #333; padding: 0.8rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 1rem;">
+          Cancel
+        </a>
+      </div>
+    </form>
+
+    <div style="margin-top: 3rem; padding: 2rem; background: #f0f4ff; border-radius: 12px; border-left: 4px solid #667eea;">
+      <h3 style="margin-top: 0;">✅ What Happens Next?</h3>
+      <ol style="margin: 1rem 0; line-height: 1.8;">
+        <li><strong>App Created</strong> — You'll receive your CLIENT_ID and CLIENT_SECRET</li>
+        <li><strong>Pending Review</strong> — Our team reviews your app for security within 24-48 hours</li>
+        <li><strong>Approved</strong> — Once approved, your app becomes active and users can authorize it</li>
+        <li><strong>Integration Ready</strong> — Use the OAuth endpoints in your app</li>
+      </ol>
+
+      <h3>🔐 Security Notes</h3>
+      <ul style="margin: 1rem 0; line-height: 1.8;">
+        <li>Keep your <strong>CLIENT_SECRET private</strong> — only use it on your backend</li>
+        <li>Your <strong>redirect URIs must exactly match</strong> what you register here</li>
+        <li>Always use <strong>HTTPS in production</strong></li>
+        <li>We may reject apps that appear malicious or misleading</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

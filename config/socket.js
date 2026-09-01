@@ -13,14 +13,6 @@ function initSocket(server) {
 
   io.on("connection", (socket) => {
     socket.emit("connected", { ok: true, time: Date.now() });
-
-    socket.on("join-community", () => {
-      socket.join("community");
-    });
-
-    socket.on("leave-community", () => {
-      socket.leave("community");
-    });
   });
 
   ioInstance = io;
@@ -41,9 +33,4 @@ function emitUserStateUpdate(userId, payload = {}) {
   ioInstance.emit("userState:update", { userId, payload });
 }
 
-function emitCommunityMessage(message) {
-  if (!ioInstance) return;
-  ioInstance.to("community").emit("community:message", { message });
-}
-
-module.exports = { initSocket, getSocketIo, emitPlatformStats, emitUserStateUpdate, emitCommunityMessage };
+module.exports = { initSocket, getSocketIo, emitPlatformStats, emitUserStateUpdate };

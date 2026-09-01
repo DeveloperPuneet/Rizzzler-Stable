@@ -15,6 +15,9 @@ router.get("/settings", dashboardController.getSettings);
 router.post("/settings", asyncHandler(dashboardController.updateProfile));
 router.post("/settings/email-preferences", asyncHandler(dashboardController.updateEmailPreferences));
 router.post("/settings/message-rate", asyncHandler(dashboardController.updateMessageRate));
+router.post("/premium/create-checkout", asyncHandler(dashboardController.createPremiumCheckout));
+router.get("/premium/success", asyncHandler(dashboardController.handlePremiumSuccess));
+router.get("/premium/cancel", asyncHandler(dashboardController.handlePremiumCancel));
 
 // ---- Rizz-paid messaging ----
 router.get("/messages", asyncHandler(messageController.inbox));
@@ -43,5 +46,21 @@ router.post("/audio/delete", asyncHandler(dashboardController.deleteAudio));
 router.post("/showcase/:fileId/delete", asyncHandler(dashboardController.deleteShowcaseImage));
 router.post("/settings/status", asyncHandler(dashboardController.toggleAccountStatus));
 router.post("/settings/delete", asyncHandler(dashboardController.deleteAccount));
+
+// ---- OAuth App Management ----
+router.get("/oauth-apps", asyncHandler(dashboardController.getOAuthApps));
+router.post("/oauth-apps/:tokenId/revoke", asyncHandler(dashboardController.revokeOAuthApp));
+
+// ---- OAuth Developer Apps (User's own apps) ----
+router.get("/my-oauth-apps", asyncHandler(dashboardController.getMyOAuthApps));
+router.get("/oauth-app/create", asyncHandler(dashboardController.getCreateOAuthApp));
+router.post("/oauth-app/create", asyncHandler(dashboardController.postCreateOAuthApp));
+router.get("/oauth-app/:appId", asyncHandler(dashboardController.getOAuthAppDetail));
+router.post("/oauth-app/:appId/update", asyncHandler(dashboardController.postUpdateOAuthApp));
+router.post("/oauth-app/:appId/regenerate-secret", asyncHandler(dashboardController.postRegenerateOAuthSecret));
+router.post("/oauth-app/:appId/delete", asyncHandler(dashboardController.postDeleteOAuthApp));
+
+// ---- Security & Privacy ----
+router.get("/security", asyncHandler(dashboardController.getSecurity));
 
 module.exports = router;

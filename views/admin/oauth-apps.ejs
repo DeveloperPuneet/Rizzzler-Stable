@@ -1,0 +1,74 @@
+<% var pageTitle = "OAuth Applications"; var activeNav = "oauth-apps"; %>
+<%- include('partials/header') %>
+
+<div class="rz-admin-section">
+  <h1>🔌 OAuth Applications</h1>
+  <p>Review and manage applications registered to let users sign in with Rizzzler.</p>
+
+  <% if (error) { %>
+    <div class="rz-alert rz-alert-error"><%= error %></div>
+  <% } %>
+
+  <% if (apps.length === 0) { %>
+    <div style="text-align: center; padding: 3rem 1rem;">
+      <p class="rz-muted">No OAuth applications registered yet.</p>
+    </div>
+  <% } else { %>
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f5f5f5; border-bottom: 2px solid #ddd;">
+            <th style="padding: 1rem; text-align: left; font-weight: bold;">App Name</th>
+            <th style="padding: 1rem; text-align: left; font-weight: bold;">Owner</th>
+            <th style="padding: 1rem; text-align: center; font-weight: bold;">Active authorizations</th>
+            <th style="padding: 1rem; text-align: center; font-weight: bold;">Approval</th>
+            <th style="padding: 1rem; text-align: center; font-weight: bold;">Status</th>
+            <th style="padding: 1rem; text-align: center; font-weight: bold;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% apps.forEach(app => { %>
+            <tr style="border-bottom: 1px solid #eee;">
+              <td style="padding: 1rem;">
+                <a href="/admin/oauth-apps/<%= app._id %>" style="color: #2563eb; text-decoration: none; font-weight: 500;">
+                  <%= app.name %>
+                </a>
+              </td>
+              <td style="padding: 1rem;">
+                <small><%= app.owner ? (app.owner.displayName || app.owner.username || app.owner.email) : "Account unavailable" %></small>
+              </td>
+              <td style="padding: 1rem; text-align: center;">
+                <strong><%= app.tokenCount || 0 %></strong>
+              </td>
+              <td style="padding: 1rem; text-align: center;">
+                <% if (app.isApproved) { %>
+                  <span style="background: #d4edda; color: #155724; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">
+                    ✓ Approved
+                  </span>
+                <% } else { %>
+                  <span style="background: #fff3cd; color: #856404; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">
+                    ⏳ Pending
+                  </span>
+                <% } %>
+              </td>
+              <td style="padding: 1rem; text-align: center;">
+                <% if (app.isActive) { %>
+                  <span style="color: #10b981; font-weight: bold;">●</span> Active
+                <% } else { %>
+                  <span style="color: #ef4444; font-weight: bold;">●</span> Inactive
+                <% } %>
+              </td>
+              <td style="padding: 1rem; text-align: center;">
+                <a href="/admin/oauth-apps/<%= app._id %>" class="rz-btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                  Review
+                </a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

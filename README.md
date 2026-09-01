@@ -68,12 +68,15 @@ Additional visual settings include:
 - Email verification with 6-digit secure codes
 - Unverified login guard with resend support
 - Forgot password and reset flow
-- OAuth login support for Google and GitHub
+- OAuth login support for Google and GitHub (consumers)
+- **OAuth 2.0 provider** — Other apps can integrate "Login with Rizzzler" button
+- Account linking: same email across providers auto-links accounts
 - Legacy badge system for early users and creators
 
 ### Admin panel and moderation tools
 - Secure admin area at `/admin`
 - User management and analytics
+- OAuth application management and usage stats
 - Security controls and IP/device lockout protections
 - Mail tools for newsletters, milestone announcements, and AI-assisted messaging
 - Operational cleanup for stale users, visitors, and orphaned uploads
@@ -97,9 +100,9 @@ Node.js · Express · EJS · MongoDB + Mongoose · GridFS · express-session · 
 ```text
 app.js
 config/          accountCleanup.js, aiMailScheduler.js, db.js, mailer.js, passport.js, socket.js, storageRouter.js, themes.js, visuals.js
-controllers/     adminController.js, authController.js, communityController.js, dashboardController.js, exploreController.js, fileController.js, messageController.js, notificationController.js, showcaseController.js
+controllers/     adminController.js, authController.js, dashboardController.js, exploreController.js, fileController.js, messageController.js, notificationController.js, showcaseController.js
 middlewares/     adminMiddleware.js, asyncHandler.js, authMiddleware.js, ipAccessControl.js, rateLimiter.js, upload.js, visitorTracker.js
-models/          User.js, Visitor.js, Settings.js, AdminAccess.js, SecurityEvent.js, IpRule.js, Message.js, Notification.js, CommunityMessage.js, FileLocation.js, Counter.js, ProfileView.js
+models/          User.js, Visitor.js, Settings.js, AdminAccess.js, SecurityEvent.js, IpRule.js, Message.js, Notification.js, FileLocation.js, Counter.js, ProfileView.js
 Routes/          adminRoutes.js, apiRoutes.js, authRoutes.js, dashboardRoutes.js, fileRoutes.js, showcaseRoutes.js
 services/        mistralService.js
 shared/          registry.js
@@ -111,7 +114,63 @@ tests/           app-level validation and cleanup checks
 
 ---
 
-## 🚀 Setup
+## � OAuth 2.0 Provider — "Login with Rizzzler"
+
+Rizzzler is an OAuth 2.0 provider. Other developers can integrate a "Login with Rizzzler" button into their apps, just like "Login with Google" or "Login with GitHub".
+
+### For Users
+- Sign up and log in to other apps using your Rizzzler account
+- Grant specific permissions (profile, email, avatar)
+- Manage connected apps in your dashboard at `/dashboard/oauth-apps`
+- Revoke access anytime
+
+### For Developers
+- Standard OAuth 2.0 Authorization Code flow
+- Endpoints: `/oauth/authorize`, `/oauth/token`, `/oauth/userinfo`
+- Scopes: `profile` (username, display name), `email`, `avatar`
+- Automatic account linking by email across providers
+
+### Getting Started
+See [OAUTH_PROVIDER.md](OAUTH_PROVIDER.md) for complete developer documentation with examples in Node.js, Python, and more.
+
+---
+## 🔐 Security, Privacy & Email Alerts
+
+Rizzzler prioritizes user security with comprehensive privacy controls and automatic security notifications.
+
+### Email Security Alerts
+- **Registration confirmation** — Email sent on account creation with device and location info
+- **Login notifications** — Every login triggers an email with device details and IP address
+- **App authorization alerts** — Email when a new app is authorized, with one-click revocation link
+- **Device detection** — New device logins are flagged for extra safety
+
+### Privacy & Data Sharing Controls
+- **View connected apps** — Dashboard shows all apps with access to your data at `/dashboard/oauth-apps`
+- **See what's shared** — Each app displays exactly which data it can access (profile, email, avatar)
+- **Revoke anytime** — Remove app access immediately from dashboard or email link (no login required)
+- **Last access tracking** — See when each app last accessed your account
+
+### Security Dashboard
+Access your security dashboard at `/dashboard/security` to:
+- View recent login activity with device and location info
+- Monitor all apps with access to your data
+- Change your password
+- Access privacy settings and security tips
+- See active sessions
+
+### Built-In Security Features
+- CSRF protection on all forms
+- One-time use authorization codes (10-minute expiry)
+- Auto-expiring access tokens (30-day expiry)
+- Secure password hashing with bcrypt
+- Email verification for account creation
+- Password reset flow with verification codes
+- OAuth 2.0 standard compliance
+
+For complete details, see [SECURITY_FEATURES.md](SECURITY_FEATURES.md).
+
+---
+## �🚀 Setup
 
 ### 1. Install dependencies
 ```bash

@@ -1,9 +1,10 @@
 const crypto = require("crypto");
 const User = require("../models/User");
 const { getNextSequence } = require("../models/Counter");
-const { sendVerificationEmail, sendPasswordResetEmail } = require("../config/mailer");
+const { sendVerificationEmail, sendPasswordResetEmail, sendRegistrationAlertEmail, sendLoginAlertEmail } = require("../config/mailer");
 const SecurityEvent = require("../models/SecurityEvent");
 const { getClientIp } = require("../middlewares/visitorTracker");
+const UAParser = require("ua-parser-js");
 
 const CODE_TTL_MS = 15 * 60 * 1000; // 15 minutes
 
@@ -11,6 +12,31 @@ function genCode() {
   // Cryptographically secure 6-digit code (Math.random() is predictable and
   // not safe for anything security-related, like account verification codes).
   return String(crypto.randomInt(100000, 1000000));
+}
+
+// Helper function to extract device info from user agent
+function getDeviceInfo(userAgent) {
+  try {
+    const parser = new UAParser(userAgent);
+    const result = parser.getResult();
+    const browser = result.browser.name || "Unknown Browser";
+    const version = result.browser.version || "";
+    return `${browser}${version ? " " + version : ""}`;
+  } catch (err) {
+    return "Unknown Device";
+  }
+}
+
+function getOsInfo(userAgent) {
+  try {
+    const parser = new UAParser(userAgent);
+    const result = parser.getResult();
+    const os = result.os.name || "Unknown OS";
+    const version = result.os.version || "";
+    return `${os}${version ? " " + version : ""}`;
+  } catch (err) {
+    return "Unknown OS";
+  }
 }
 
 // ---------- GET pages ----------
@@ -68,9 +94,18 @@ exports.postRegister = async (req, res) => {
       verifyCodeExpires: new Date(Date.now() + CODE_TTL_MS),
     });
 
+    // Send verification email
     void sendVerificationEmail(user.email, code).catch((mailErr) => {
       console.error("Verification email failed:", mailErr?.message || mailErr);
       console.log("⚠️ Verification email delivery failed; the code remains stored for manual fallback.");
+    });
+
+    // Send registration alert email with device info
+    const ipAddress = req.clientIp || getClientIp(req);
+    const deviceInfo = getDeviceInfo(req.headers["user-agent"]);
+    const osInfo = getOsInfo(req.headers["user-agent"]);
+    void sendRegistrationAlertEmail(user, deviceInfo, osInfo, ipAddress).catch((mailErr) => {
+      console.error("Registration alert email failed:", mailErr?.message || mailErr);
     });
 
     req.session.pendingUserId = user._id.toString();
@@ -182,6 +217,14 @@ exports.postLogin = async (req, res) => {
       req.session.verifyInfo = "A fresh verification code has been sent to your email.";
       return res.redirect("/verify");
     }
+
+    // Send login alert email
+    const ipAddress = req.clientIp || getClientIp(req);
+    const deviceInfo = getDeviceInfo(req.headers["user-agent"]);
+    const osInfo = getOsInfo(req.headers["user-agent"]);
+    void sendLoginAlertEmail(user, deviceInfo, osInfo, ipAddress, false).catch((mailErr) => {
+      console.error("Login alert email failed:", mailErr?.message || mailErr);
+    });
 
     req.session.userId = user._id.toString();
     res.redirect("/dashboard");

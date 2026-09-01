@@ -14,7 +14,6 @@ const startKeepAlive = require("./config/keepAlive");
 const { startAiMailScheduler } = require("./config/aiMailScheduler");
 const { startAccountCleanupScheduler } = require("./config/accountCleanup");
 const { startTrendingReset } = require("./config/trendingReset");
-const { startCommunityCleanupScheduler } = require("./config/communityCleanup");
 const { initSocket } = require("./config/socket");
 const User = require("./models/User");
 const Notification = require("./models/Notification");
@@ -25,6 +24,7 @@ const showcaseRoutes = require("./Routes/showcaseRoutes");
 const fileRoutes = require("./Routes/fileRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
 const apiRoutes = require("./Routes/apiRoutes");
+const oauthRoutes = require("./Routes/oauthRoutes");
 
 const { visitorTracker } = require("./middlewares/visitorTracker");
 const { ipAccessControl } = require("./middlewares/ipAccessControl");
@@ -42,7 +42,6 @@ startKeepAlive();
 startAiMailScheduler();
 startAccountCleanupScheduler(); // deletes accounts left unverified for 15+ days (config/accountCleanup.js)
 startTrendingReset(); // weekly reset of User.weeklyViews that powers /trending-developers (config/trendingReset.js)
-startCommunityCleanupScheduler();
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -175,6 +174,27 @@ app.get("/robots.txt", (req, res) => {
   res.send(`User-agent: *\nAllow: /\nSitemap: ${req.protocol}://${req.get("host")}/sitemap.xml\n`);
 });
 
+app.get("/ads.txt", (req, res) => {
+  res.type("text/plain");
+  res.send(`# SOVRN
+lijit.com, 531108, DIRECT, fafdf38b16bf6b2b #SOVRN
+lijit.com, 531108-eb, DIRECT, fafdf38b16bf6b2b #SOVRN
+openx.com, 538959099, RESELLER, 6a698e2ec38604c6
+pubmatic.com, 137711, RESELLER, 5d62403b186f2ace
+pubmatic.com, 156212, RESELLER, 5d62403b186f2ace
+rubiconproject.com, 17960, RESELLER, 0bfd66d529a55807
+appnexus.com, 1019, RESELLER, f5ab79cb980f11d1
+video.unrulymedia.com, 2444764291, RESELLER
+krushmedia.com, AJxF6R572a9M6CaTvK, RESELLER
+motorik.io, 100463, RESELLER
+smaato.com, 1100056344, RESELLER, 07bcf65f187117b4
+smartadserver.com, 4926, RESELLER, 060d053dcf45cbf3
+opera.com, pub10014056052800, RESELLER, 55a0c5fd61378de3
+axonix.com, 59143, RESELLER, bc385f2b4a87b721
+programmaticx.ai, 100464, RESELLER
+sharethrough.com, 4926, RESELLER, 060d053dcf45cbf3`);
+});
+
 app.get("/sitemap.xml", async (req, res) => {
   try {
     const baseUrl = `${req.protocol}://${req.get("host")}`;
@@ -231,6 +251,7 @@ app.use("/api", apiRoutes); // GET /api/registry — shared themes/effects as JS
 app.use("/file", fileRoutes); // GridFS file streaming: /file/:id
 app.use("/dashboard", dashboardRoutes); // /dashboard, /dashboard/settings, uploads
 app.use("/admin", adminRoutes); // admin panel (own password, own lockout) — MUST be before showcase catch-all
+app.use("/oauth", oauthRoutes); // OAuth provider endpoints: /oauth/authorize, /oauth/token, /oauth/userinfo
 app.use("/", authLimiter, authRoutes); // /register /login /verify /forgot-password /reset-password (extra-strict rate limit)
 app.use("/", showcaseRoutes); // "/" landing + "/:username" showcase (KEEP LAST - catch-all)
 

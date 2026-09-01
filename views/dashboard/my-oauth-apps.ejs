@@ -1,0 +1,90 @@
+<% pageTitle = "My OAuth Apps — Developer Portal" %>
+<%- include('../partials/header') %>
+
+<div class="rz-container">
+  <section class="rz-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <div>
+        <h1>🔌 My OAuth Apps</h1>
+        <p class="rz-muted">Create and manage OAuth applications that users can integrate with Rizzzler.</p>
+      </div>
+      <a href="/dashboard/oauth-app/create" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: transform 0.2s;">
+        ➕ Create New App
+      </a>
+    </div>
+
+    <% if (error) { %>
+      <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; color: #721c24;">
+        ✗ <%= error %>
+      </div>
+    <% } %>
+
+    <% if (success) { %>
+      <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; color: #155724;">
+        ✓ <%= success %>
+      </div>
+    <% } %>
+
+    <% if (apps.length === 0) { %>
+      <div style="text-align: center; padding: 3rem 1rem; background: linear-gradient(135deg, rgba(102,126,234,0.14), rgba(118,75,162,0.12)); border-radius: 12px; border: 2px dashed rgba(255,255,255,0.2); box-shadow: 0 12px 28px rgba(0,0,0,0.16);">
+        <p style="font-size: 2rem; margin: 0;">🚀</p>
+        <p style="font-size: 1.1rem; font-weight: 500; color: #f5f7ff; margin: 0.5rem 0;">No apps yet</p>
+        <p style="font-size: 0.9rem; color: #c6c9d6; margin: 0.5rem 0;">
+          Create your first OAuth app to let other apps integrate with Rizzzler.
+        </p>
+        <a href="/dashboard/oauth-app/create" style="display: inline-block; background: #667eea; color: white; padding: 0.7rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 1rem;">
+          Create Your First App
+        </a>
+      </div>
+    <% } else { %>
+      <div style="display: grid; gap: 1.5rem;">
+        <% apps.forEach(app => { %>
+          <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem; background: rgba(17,17,24,0.82); box-shadow: 0 12px 28px rgba(0,0,0,0.15); transition: box-shadow 0.2s;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; gap: 1rem;">
+              <div style="flex: 1;">
+                <h3 style="margin: 0 0 0.25rem 0; font-size: 1.2rem; color: #f5f7ff;"><%= app.name %></h3>
+                <% if (app.description) { %>
+                  <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #c6c9d6;"><%= app.description %></p>
+                <% } %>
+                <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: #d8dbe5; margin: 0.5rem 0; flex-wrap: wrap;">
+                  <span>📅 Created <%= new Date(app.createdAt).toLocaleDateString() %></span>
+                  <span>👥 <%= app.tokenCount %> authorization<%= app.tokenCount !== 1 ? 's' : '' %></span>
+                  <span style="padding: 0.2rem 0.6rem; border-radius: 12px; background: <%= app.isApproved ? '#d4edda' : '#fff3cd' %>; color: <%= app.isApproved ? '#155724' : '#856404' %>;">
+                    <%= app.isApproved ? '✓ Approved' : '⏳ Pending Approval' %>
+                  </span>
+                  <span style="padding: 0.2rem 0.6rem; border-radius: 12px; background: <%= app.isActive ? '#d4edda' : '#f8d7da' %>; color: <%= app.isActive ? '#155724' : '#721c24' %>;">
+                    <%= app.isActive ? '🟢 Active' : '🔴 Inactive' %>
+                  </span>
+                </div>
+              </div>
+              <a href="/dashboard/oauth-app/<%= app._id %>" style="display: inline-block; background: #667eea; color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+                View Details →
+              </a>
+            </div>
+
+            <% if (app.websiteUrl) { %>
+              <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #99a3ff;">
+                <a href="<%= app.websiteUrl %>" target="_blank" style="color: #99a3ff; text-decoration: none;">
+                  🌐 <%= app.websiteUrl %>
+                </a>
+              </p>
+            <% } %>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+
+    <div style="margin-top: 3rem; padding: 2rem; background: #f0f4ff; border-radius: 12px; border-left: 4px solid #667eea;">
+      <h3 style="margin-top: 0;">📚 How It Works</h3>
+      <ol style="margin: 1rem 0; line-height: 1.8;">
+        <li><strong>Create an app</strong> and get your CLIENT_ID and CLIENT_SECRET</li>
+        <li><strong>Set redirect URIs</strong> where users return after authorization</li>
+        <li><strong>Admin approval</strong> — our team reviews your app for security</li>
+        <li><strong>Share your credentials</strong> with your team to integrate OAuth login</li>
+        <li><strong>Monitor usage</strong> — see how many users have authorized your app</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<%- include('../partials/footer') %>

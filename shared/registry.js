@@ -54,6 +54,21 @@ const THEMES = [
     creditsTagline: "carried by moonlight",
   },
   {
+    key: "royalglow",
+    label: "Royal Glow",
+    desc: "Luxury royal gold gradients, elegant glow, premium prestige styling",
+    css: "/css/themes/royalglow.css",
+    accent: "#f4d35e",
+    premium: true,
+    heroEyebrow: "Royal Glow",
+    grandWords: ["Royal", "Luminous", "Prestige", "Velvet"],
+    storyBlurbs: [
+      "A premium presence built to feel elevated, polished, and unforgettable.",
+      "Warm gold tones and richer visual presence turn every moment into a statement.",
+    ],
+    creditsTagline: "styled in pure royal light",
+  },
+  {
     key: "scarysky",
     label: "Scary Sky",
     desc: "Jagged split panels, storm flicker, lightning flashes, blood-orange glow",
@@ -265,21 +280,46 @@ const SHOWCASE_EFFECTS = [
 // ---------------------------------------------------------------------
 // Validation helpers — the ONLY place "is this a legal value" is decided.
 // ---------------------------------------------------------------------
+const PREMIUM_PLANS = [
+  {
+    key: "2month",
+    label: "2 month premium",
+    amount: 59,
+    priceInr: 59,
+    description: "Unlock Royal Glow for 56 days",
+    durationDays: 56,
+  },
+  {
+    key: "6month",
+    label: "6 month premium",
+    amount: 149,
+    priceInr: 149,
+    description: "Unlock Royal Glow for 6 months",
+    durationDays: 182,
+  },
+];
+
 const isValidTheme = (key) => THEMES.some((t) => t.key === key);
 const isValidAvatarEffect = (value) => AVATAR_EFFECTS.some((e) => e.value === value);
 const isValidTitleEffect = (value) => TITLE_EFFECTS.some((e) => e.value === value);
 const isValidShowcaseEffect = (value) => SHOWCASE_EFFECTS.some((e) => e.value === value);
 
 const getTheme = (key) => THEMES.find((t) => t.key === key) || null;
+const getPremiumPlan = (key) => PREMIUM_PLANS.find((plan) => plan.key === key) || null;
+const isPremiumTheme = (key) => THEMES.some((t) => t.key === key && !!t.premium);
 
 module.exports = {
   themes: THEMES,
   avatarEffects: AVATAR_EFFECTS,
   titleEffects: TITLE_EFFECTS,
   showcaseEffects: SHOWCASE_EFFECTS,
+  premiumPlans: PREMIUM_PLANS,
   isValidTheme,
   isValidAvatarEffect,
   isValidTitleEffect,
   isValidShowcaseEffect,
   getTheme,
+  getPremiumPlan,
+  isPremiumTheme,
+  getPremiumPlans: () => PREMIUM_PLANS,
 };

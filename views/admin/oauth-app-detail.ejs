@@ -1,0 +1,233 @@
+<% var pageTitle = `OAuth App: ${app ? app.name : 'Not found'}`; var activeNav = "oauth-apps"; %>
+<%- include('partials/header') %>
+
+<div class="rz-admin-section">
+  <% if (!app) { %>
+    <p class="rz-error">App not found.</p>
+    <a href="/admin/oauth-apps" class="rz-btn">Back to OAuth Apps</a>
+  <% } else { %>
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+      <div>
+        <h1><%= app.name %></h1>
+        <p class="rz-muted"><%= app.description || '(No description)' %></p>
+      </div>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <% if (!app.isApproved) { %>
+          <button class="rz-btn" style="background: #28a745;" data-app-id="<%= app._id %>" onclick="handleApprove(this)">
+            ✓ Approve
+          </button>
+        <% } else { %>
+          <button class="rz-btn" style="background: #ffc107; color: #333;" data-app-id="<%= app._id %>" onclick="handleDisapprove(this)">
+            ✗ Disapprove
+          </button>
+        <% } %>
+        <button class="rz-btn" data-app-id="<%= app._id %>" data-is-active="<%= app.isActive %>" onclick="handleToggle(this)">
+          <% if (app.isActive) { %>🔴 Deactivate<% } else { %>🟢 Activate<% } %>
+        </button>
+        <button class="rz-btn rz-btn-danger" data-app-id="<%= app._id %>" onclick="handleDelete(this)">🗑️ Delete</button>
+      </div>
+    </div>
+
+    <% if (!app.isApproved) { %>
+      <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; border-radius: 6px; margin-bottom: 2rem; color: #856404;">
+        <strong>⏳ Pending Admin Approval</strong>
+        <p style="margin: 0.5rem 0 0 0;">Review the app details and URIs below before approving.</p>
+      </div>
+    <% } %>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+      <!-- App Details -->
+      <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px;">
+        <h2 style="font-size: 1rem; margin-top: 0;">App Details</h2>
+        <div style="display: grid; gap: 1rem; font-size: 0.9rem;">
+          <div>
+            <strong>Owner:</strong><br />
+            <small><%= app.owner ? `${app.owner.displayName || app.owner.username || "Unknown account"} (${app.owner.email || "no email"})` : "Account unavailable" %></small>
+          </div>
+          <div>
+            <strong>Approval Status:</strong><br />
+            <small>
+              <% if (app.isApproved) { %>
+                <span style="background: #d4edda; color: #155724; padding: 0.2rem 0.6rem; border-radius: 4px;">✓ Approved</span>
+              <% } else { %>
+                <span style="background: #fff3cd; color: #856404; padding: 0.2rem 0.6rem; border-radius: 4px;">⏳ Pending</span>
+              <% } %>
+            </small>
+          </div>
+          <div>
+            <strong>Activity Status:</strong><br />
+            <small>
+              <% if (app.isActive) { %>
+                <span style="color: #10b981;">● Active</span>
+              <% } else { %>
+                <span style="color: #ef4444;">● Inactive</span>
+              <% } %>
+            </small>
+          </div>
+          <div>
+            <strong>Created:</strong><br />
+            <small><%= new Date(app.createdAt).toLocaleString() %></small>
+          </div>
+          <div>
+            <strong>Active authorizations:</strong><br />
+            <strong><%= app.tokenCount || 0 %></strong>
+          </div>
+          <% if (app.lastUsedAt) { %>
+            <div>
+              <strong>Last Used:</strong><br />
+              <small><%= new Date(app.lastUsedAt).toLocaleString() %></small>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- OAuth Credentials -->
+      <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px;">
+        <h2 style="font-size: 1rem; margin-top: 0;">OAuth Credentials</h2>
+        <div style="display: grid; gap: 1rem; font-size: 0.85rem;">
+          <div>
+            <strong>Client ID:</strong><br />
+            <code style="background: white; padding: 0.5rem; border-radius: 4px; display: block; word-break: break-all; font-family: monospace; font-size: 0.8rem;">
+              <%= app.clientId %>
+            </code>
+          </div>
+          <% if (app.websiteUrl) { %>
+            <div>
+              <strong>Website:</strong><br />
+              <a href="<%= app.websiteUrl %>" target="_blank" style="color: #2563eb; text-decoration: none;">
+                🌐 <%= app.websiteUrl %>
+              </a>
+            </div>
+          <% } %>
+          <div>
+            <strong>Redirect URIs:</strong><br />
+            <% app.redirectUris.forEach(uri => { %>
+              <code style="background: white; padding: 0.5rem; border-radius: 4px; display: block; word-break: break-all; font-family: monospace; margin-bottom: 0.5rem; font-size: 0.8rem;">
+                <%= uri %>
+              </code>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Authorizations -->
+    <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+      <h2>Active User Authorizations (<%= tokens.length %>)</h2>
+      <% if (tokens.length === 0) { %>
+        <p class="rz-muted">No users have authorized this app yet.</p>
+      <% } else { %>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: white; border-bottom: 2px solid #ddd;">
+                <th style="padding: 1rem; text-align: left; font-weight: bold;">User</th>
+                <th style="padding: 1rem; text-align: left; font-weight: bold;">Authorized</th>
+                <th style="padding: 1rem; text-align: left; font-weight: bold;">Last Used</th>
+                <th style="padding: 1rem; text-align: center; font-weight: bold;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% tokens.forEach(token => { %>
+                <tr style="border-bottom: 1px solid #eee;">
+                  <td style="padding: 1rem;">
+                    <strong><%= token.user ? (token.user.displayName || token.user.username || token.user.email) : "Account unavailable" %></strong><br />
+                    <% if (token.user && token.user.email) { %><small class="rz-muted"><%= token.user.email %></small><% } %>
+                  </td>
+                  <td style="padding: 1rem;">
+                    <small><%= new Date(token.createdAt).toLocaleString() %></small>
+                  </td>
+                  <td style="padding: 1rem;">
+                    <small class="rz-muted">
+                      <% if (token.lastUsedAt) { %>
+                        <%= new Date(token.lastUsedAt).toLocaleString() %>
+                      <% } else { %>
+                        Never
+                      <% } %>
+                    </small>
+                  </td>
+                  <td style="padding: 1rem; text-align: center;">
+                    <button onclick="revokeToken('<%= token._id %>')" class="rz-btn rz-btn-danger" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                      Revoke Access
+                    </button>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+
+    <a href="/admin/oauth-apps" class="rz-btn">← Back to OAuth Apps</a>
+  <% } %>
+</div>
+
+<script>
+function handleApprove(btn) {
+  const appId = btn.getAttribute('data-app-id');
+  if (confirm('Approve this OAuth app? Users will be able to authorize it.')) {
+    fetch(`/admin/oauth-apps/${appId}/approve`, { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) location.reload();
+        else alert('Failed: ' + data.error);
+      })
+      .catch(err => alert('Failed: ' + err.message));
+  }
+}
+
+function handleDisapprove(btn) {
+  const appId = btn.getAttribute('data-app-id');
+  if (confirm('Disapprove this app? It will become inactive.')) {
+    fetch(`/admin/oauth-apps/${appId}/disapprove`, { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) location.reload();
+        else alert('Failed: ' + data.error);
+      })
+      .catch(err => alert('Failed: ' + err.message));
+  }
+}
+
+function handleToggle(btn) {
+  const appId = btn.getAttribute('data-app-id');
+  const isActive = btn.getAttribute('data-is-active') === 'true';
+  if (confirm(isActive ? 'Deactivate this app? Users won\'t be able to authorize it.' : 'Activate this app? Users can authorize it again.')) {
+    fetch(`/admin/oauth-apps/${appId}/toggle`, { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) location.reload();
+        else alert('Failed: ' + data.error);
+      })
+      .catch(err => alert('Failed: ' + err.message));
+  }
+}
+
+function handleDelete(btn) {
+  const appId = btn.getAttribute('data-app-id');
+  if (confirm('Delete this app? All user authorizations will be revoked. This cannot be undone.')) {
+    fetch(`/admin/oauth-apps/${appId}/delete`, { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) location.href = '/admin/oauth-apps';
+        else alert('Failed: ' + data.error);
+      })
+      .catch(err => alert('Failed: ' + err.message));
+  }
+}
+
+function revokeToken(tokenId) {
+  if (confirm('Revoke this user\'s access to the app?')) {
+    fetch(`/admin/oauth-tokens/${tokenId}/revoke`, { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) location.reload();
+        else alert('Failed: ' + data.error);
+      })
+      .catch(err => alert('Failed: ' + err.message));
+  }
+}
+</script>
+
+<%- include('partials/footer') %>

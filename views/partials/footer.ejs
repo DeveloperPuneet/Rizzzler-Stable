@@ -126,7 +126,6 @@
     <div class="rz-footer-links-col">
       <h4>Product</h4>
       <a href="/#features">Features</a>
-      <a href="/community-chat">Community Chat</a>
       <a href="/explore">Explore Profiles</a>
       <a href="/featured-creators">Featured Creators</a>
       <a href="/trending-developers">Trending Developers</a>
@@ -135,6 +134,18 @@
       <a href="/register">Get your page</a>
       <a href="/#how">How it works</a>
       <a href="/about-developer">About</a>
+    </div>
+    <div class="rz-footer-links-col">
+      <h4>Account & Security</h4>
+      <% if (typeof session !== 'undefined' && session.userId) { %>
+        <a href="/dashboard/security">🔐 Security Dashboard</a>
+        <a href="/dashboard/oauth-apps">🔗 Connected Apps</a>
+        <a href="/developer-docs">🛠️ Developer Docs</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Sign Up</a>
+        <a href="/developer-docs">Developer Docs</a>
+      <% } %>
     </div>
     <div class="rz-footer-links-col">
       <h4>Company</h4>
@@ -240,5 +251,10 @@
   window.setTimeout(hide, 1800);
 })();
 </script>
+<script type="text/javascript">
+var infolinks_pid = 3421437;
+var infolinks_wsid = 0;
+</script>
+<script type="text/javascript" src="http://resources.infolinks.com/js/infolinks_main.js"></script>
 </body>
 </html>

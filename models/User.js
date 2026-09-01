@@ -114,6 +114,12 @@ const userSchema = new mongoose.Schema(
     titleEffect: { type: String, default: "none" },
     showcaseEffect: { type: String, default: "none" },
 
+    // ---- Premium access ----
+    isPremium: { type: Boolean, default: false },
+    premiumPlan: { type: String, default: null },
+    premiumUntil: { type: Date, default: null },
+    stripeCustomerId: { type: String, default: null },
+
     // ---- Email preferences (user-controlled) ----
     emailPreferences: {
       newsletter: { type: Boolean, default: true }, // Opt-in for newsletter

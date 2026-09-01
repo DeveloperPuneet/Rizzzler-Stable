@@ -1,0 +1,232 @@
+<% pageTitle = app ? app.name + " — OAuth App" : "App Details — OAuth" %>
+<%- include('../partials/header') %>
+
+<% if (!app) { %>
+  <div class="rz-container">
+    <section class="rz-section">
+      <div style="text-align: center; padding: 3rem 1rem;">
+        <p style="font-size: 1.2rem; color: #666;"><%= error %></p>
+        <a href="/dashboard/my-oauth-apps" style="display: inline-block; background: #667eea; color: white; padding: 0.7rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 1rem;">
+          ← Back to My Apps
+        </a>
+      </div>
+    </section>
+  </div>
+<% } else { %>
+
+<div class="rz-container">
+  <section class="rz-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
+      <div>
+        <a href="/dashboard/my-oauth-apps" style="color: #99a3ff; text-decoration: none;">← Back to My Apps</a>
+        <h1 style="margin: 0.5rem 0 0 0; color: #f5f7ff;"> <%= app.name %></h1>
+        <% if (app.description) { %>
+          <p style="margin: 0; color: #c6c9d6; font-size: 0.95rem;"><%= app.description %></p>
+        <% } %>
+      </div>
+      <div>
+        <span style="display: inline-block; padding: 0.3rem 0.8rem; border-radius: 12px; background: <%= app.isApproved ? '#d4edda' : '#fff3cd' %>; color: <%= app.isApproved ? '#155724' : '#856404' %>; font-size: 0.85rem; font-weight: 600;">
+          <%= app.isApproved ? '✓ Approved' : '⏳ Pending Approval' %>
+        </span>
+        <span style="display: inline-block; margin-left: 0.5rem; padding: 0.3rem 0.8rem; border-radius: 12px; background: <%= app.isActive ? '#d4edda' : '#f8d7da' %>; color: <%= app.isActive ? '#155724' : '#721c24' %>; font-size: 0.85rem; font-weight: 600;">
+          <%= app.isActive ? '🟢 Active' : '🔴 Inactive' %>
+        </span>
+      </div>
+    </div>
+
+    <% if (error) { %>
+      <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; color: #721c24;">
+        ✗ <%= error %>
+      </div>
+    <% } %>
+
+    <% if (success) { %>
+      <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; color: #155724;">
+        ✓ <%= success %>
+      </div>
+    <% } %>
+
+    <!-- OAuth Credentials -->
+    <div style="background: rgba(17,17,24,0.82); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 12px 28px rgba(0,0,0,0.18);">
+      <h2 style="margin-top: 0; color: #f5f7ff;">🔐 OAuth Credentials</h2>
+      <p style="color: #c6c9d6; margin-bottom: 1.5rem;">Use these credentials to configure the OAuth flow in your application.</p>
+
+      <div style="background: rgba(12,12,18,0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #f5f7ff;">CLIENT_ID</label>
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="text" value="<%= app.clientId %>" readonly style="flex: 1; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; font-family: monospace; background: rgba(11,11,18,0.9); color: #f5f7ff;">
+          <button onclick="copyToClipboard('<%= app.clientId %>')" style="padding: 0.75rem 1.5rem; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            📋 Copy
+          </button>
+        </div>
+        <p style="font-size: 0.85rem; color: #c6c9d6; margin-top: 0.5rem;">Public identifier for your app. Safe to share.</p>
+      </div>
+
+      <div style="background: rgba(12,12,18,0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #f5f7ff;">CLIENT_SECRET</label>
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="password" value="<%= app.clientSecret %>" readonly style="flex: 1; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; font-family: monospace; background: rgba(11,11,18,0.9); color: #f5f7ff;" id="clientSecret">
+          <button onclick="togglePasswordVisibility()" style="padding: 0.75rem 1.5rem; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            👁️ Show
+          </button>
+          <button onclick="copyToClipboard('<%= app.clientSecret %>')" style="padding: 0.75rem 1.5rem; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            📋 Copy
+          </button>
+        </div>
+        <p style="font-size: 0.85rem; color: #c6c9d6; margin-top: 0.5rem;">⚠️ Keep this secret! Only share with your backend.</p>
+      </div>
+
+      <button onclick="regenerateSecret('<%= app._id %>')" style="background: #dc3545; color: white; padding: 0.7rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+        🔄 Regenerate Secret
+      </button>
+      <p style="font-size: 0.85rem; color: #c6c9d6; margin-top: 0.5rem;">⚠️ This will invalidate the current secret. All integrations must update their credentials.</p>
+    </div>
+
+    <!-- Redirect URIs -->
+    <div style="background: rgba(17,17,24,0.82); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 12px 28px rgba(0,0,0,0.18);">
+      <h2 style="margin-top: 0; color: #f5f7ff;">🔗 Redirect URIs</h2>
+      <p style="color: #c6c9d6; margin-bottom: 1rem;">Where users return after authorizing your app. Must match exactly (including https://).</p>
+
+      <div style="display: grid; gap: 0.75rem;">
+        <% app.redirectUris.forEach(uri => { %>
+          <div style="background: rgba(12,12,18,0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 1rem; font-family: monospace; font-size: 0.9rem; word-break: break-all; color: #f5f7ff;">
+            <%= uri %>
+          </div>
+        <% }); %>
+      </div>
+
+      <button onclick="editRedirectUris('<%= app._id %>')" style="margin-top: 1rem; background: #6c757d; color: white; padding: 0.7rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+        ✏️ Edit URIs
+      </button>
+    </div>
+
+    <!-- App Info -->
+    <div style="background: rgba(17,17,24,0.82); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 12px 28px rgba(0,0,0,0.18);">
+      <h2 style="margin-top: 0; color: #f5f7ff;">ℹ️ App Information</h2>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #f5f7ff;">Website</label>
+        <% if (app.websiteUrl) { %>
+          <a href="<%= app.websiteUrl %>" target="_blank" style="color: #99a3ff; text-decoration: none;">
+            🌐 <%= app.websiteUrl %>
+          </a>
+        <% } else { %>
+          <p style="color: #bfc5d4;">Not provided</p>
+        <% } %>
+      </div>
+
+      <div>
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #f5f7ff;">Created</label>
+        <p style="margin: 0; color: #c6c9d6;"><%= new Date(app.createdAt).toLocaleString() %></p>
+      </div>
+
+      <button onclick="editAppInfo('<%= app._id %>')" style="margin-top: 1rem; background: #6c757d; color: white; padding: 0.7rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+        ✏️ Edit Info
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div style="background: rgba(17,17,24,0.82); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 12px 28px rgba(0,0,0,0.18);">
+      <h2 style="margin-top: 0; color: #f5f7ff;">📊 Usage Stats</h2>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+        <div style="background: rgba(12,12,18,0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1.5rem; text-align: center;">
+          <p style="margin: 0; font-size: 0.9rem; color: #c6c9d6;">Total Authorizations</p>
+          <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: bold; color: #99a3ff;"><%= app.authorizations || 0 %></p>
+        </div>
+
+        <div style="background: rgba(12,12,18,0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1.5rem; text-align: center;">
+          <p style="margin: 0; font-size: 0.9rem; color: #c6c9d6;">Active Users</p>
+          <p style="margin: 0.5rem 0 0 0; font-size: 2rem; font-weight: bold; color: #4ade80;"><%= app.tokenCount || 0 %></p>
+        </div>
+
+        <div style="background: rgba(12,12,18,0.9); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 1.5rem; text-align: center;">
+          <p style="margin: 0; font-size: 0.9rem; color: #c6c9d6;">Last Used</p>
+          <p style="margin: 0.5rem 0 0 0; font-size: 0.95rem; color: #f5f7ff;">
+            <% if (app.lastUsedAt) { %>
+              <%= new Date(app.lastUsedAt).toLocaleDateString() %>
+            <% } else { %>
+              Never
+            <% } %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; padding: 2rem;">
+      <h2 style="margin-top: 0; color: #856404;">⚠️ Danger Zone</h2>
+
+      <button onclick="deleteApp('<%= app._id %>')" style="background: #dc3545; color: white; padding: 0.7rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+        🗑️ Delete App
+      </button>
+      <p style="font-size: 0.85rem; color: #856404; margin-top: 0.5rem;">
+        This will permanently delete your app and revoke all user authorizations. This cannot be undone.
+      </p>
+    </div>
+  </section>
+</div>
+
+<% } %>
+
+<script>
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Copied to clipboard!');
+  });
+}
+
+function togglePasswordVisibility() {
+  const field = document.getElementById('clientSecret');
+  const btn = event.target;
+  if (field.type === 'password') {
+    field.type = 'text';
+    btn.textContent = '🙈 Hide';
+  } else {
+    field.type = 'password';
+    btn.textContent = '👁️ Show';
+  }
+}
+
+function regenerateSecret(appId) {
+  if (!confirm('This will invalidate the current secret. All integrations must update their credentials. Continue?')) return;
+
+  fetch(`/dashboard/oauth-app/${appId}/regenerate-secret`, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        alert('✓ New secret generated: ' + data.clientSecret + '\n\nMake sure to update your application code!');
+        location.reload();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    })
+    .catch(err => alert('Error: ' + err.message));
+}
+
+function deleteApp(appId) {
+  if (!confirm('Are you sure? This will permanently delete the app and all authorizations.\n\nThis cannot be undone.')) return;
+
+  fetch(`/dashboard/oauth-app/${appId}/delete`, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        alert('✓ App deleted');
+        location.href = '/dashboard/my-oauth-apps';
+      } else {
+        alert('Error: ' + data.error);
+      }
+    })
+    .catch(err => alert('Error: ' + err.message));
+}
+
+function editAppInfo(appId) {
+  alert('To update this app, use the app update endpoint from your developer dashboard integration.');
+}
+
+function editRedirectUris(appId) {
+  alert('Redirect URI editing is available through the app update endpoint. Changes must match the registered URL exactly.');
+}
+</script>
+
+<%- include('../partials/footer') %>

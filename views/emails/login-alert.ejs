@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; }
+    .header h1 { margin: 0; font-size: 1.8rem; }
+    .content { padding: 2rem; }
+    .alert-box { background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; border-radius: 4px; margin: 1rem 0; }
+    .alert-box.warning { background: #fff3cd; border-left-color: #ffc107; }
+    .info-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { font-weight: 600; color: #666; }
+    .info-value { color: #333; font-family: 'Courier New', monospace; }
+    .action-button { display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; margin: 1rem 0; font-weight: 600; }
+    .action-button:hover { background: #5568d3; }
+    .action-button.danger { background: #dc3545; }
+    .action-button.danger:hover { background: #c82333; }
+    .footer { background: #f9f9f9; padding: 1.5rem; text-align: center; color: #666; font-size: 0.85rem; border-top: 1px solid #eee; }
+    .footer a { color: #667eea; text-decoration: none; }
+    .security-tips { background: #e8f4f8; border-left: 4px solid #17a2b8; padding: 1rem; border-radius: 4px; margin: 1rem 0; }
+    .security-tips h4 { margin-top: 0; color: #17a2b8; }
+    .security-tips li { margin: 0.5rem 0; }
+    .badge { display: inline-block; background: #f0f0f0; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.85rem; margin: 0 0.25rem; }
+    .badge.recognized { background: #d4edda; color: #155724; }
+    .badge.unknown { background: #fff3cd; color: #856404; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔔 New Login Alert</h1>
+      <p>Your Rizzzler account was just accessed</p>
+    </div>
+
+    <div class="content">
+      <p>Hi <strong><%= displayName %></strong>,</p>
+
+      <p>A successful login to your Rizzzler account was detected. Here are the details:</p>
+
+      <div class="alert-box <%= isNewDevice ? 'warning' : '' %>">
+        <strong>📍 Login Details:</strong>
+        <div class="info-row">
+          <span class="info-label">Time:</span>
+          <span class="info-value"><%= new Date().toLocaleString() %></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Browser/Device:</span>
+          <span class="info-value"><%= deviceInfo || 'Unknown' %></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Operating System:</span>
+          <span class="info-value"><%= osInfo || 'Unknown' %></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">IP Address:</span>
+          <span class="info-value"><%= ipAddress || 'Unknown' %></span>
+        </div>
+        <% if (isNewDevice) { %>
+          <div class="info-row">
+            <span class="badge unknown">⚠️ New Device</span>
+          </div>
+        <% } else { %>
+          <div class="info-row">
+            <span class="badge recognized">✓ Recognized Device</span>
+          </div>
+        <% } %>
+      </div>
+
+      <% if (isNewDevice) { %>
+        <h3>⚡ New Device Detected</h3>
+        <p>We detected a login from a device we haven't seen before. If this was you, no action is needed. If not, you can:</p>
+        <a href="<%= securityUrl %>" class="action-button danger">Review Security</a>
+      <% } else { %>
+        <h3>✅ Recognized Device</h3>
+        <p>Your login from a device we recognize.</p>
+      <% } %>
+
+      <h3>📱 Recent Activity</h3>
+      <p>You can view all your recent logins and connected devices in your Security Settings:</p>
+      <a href="<%= securityUrl %>" class="action-button">View Security Dashboard</a>
+
+      <div class="security-tips">
+        <h4>🔐 Keep Your Account Secure:</h4>
+        <ul style="margin: 0.5rem 0; padding-left: 1.2rem;">
+          <li>If you didn't login from this device, change your password immediately</li>
+          <li>Review your connected apps and sessions</li>
+          <li>Enable two-factor authentication when available</li>
+          <li>Log out from suspicious sessions</li>
+        </ul>
+      </div>
+
+      <p style="margin-top: 2rem; color: #666; font-size: 0.9rem;">
+        <strong>Suspicious activity?</strong> If you didn't login, please <a href="<%= contactUrl %>">contact us</a> and change your password immediately.
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>
+        This is an automated security alert from Rizzzler.
+      </p>
+      <p>
+        <a href="<%= dashboardUrl %>">Dashboard</a> |
+        <a href="<%= securityUrl %>">Security Settings</a> |
+        <a href="<%= contactUrl %>">Contact Support</a>
+      </p>
+      <p>&copy; Rizzzler - Your Creative Platform</p>
+    </div>
+  </div>
+</body>
+</html>

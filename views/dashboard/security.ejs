@@ -1,0 +1,229 @@
+<% pageTitle = "Security & Privacy — Rizzzler" %>
+<%- include('../partials/header') %>
+
+<div class="rz-container">
+  <section class="rz-section">
+    <h1>🔐 Security & Privacy</h1>
+    <p class="rz-muted">Monitor your account security, recent logins, and manage your data sharing.</p>
+
+    <!-- Quick Actions -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0;">
+      <a href="/dashboard/oauth-apps" style="display: block; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; text-decoration: none; text-align: center;">
+        <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">🔗</div>
+        <div style="font-weight: 600; margin-bottom: 0.25rem;">Connected Apps</div>
+        <div style="font-size: 0.85rem; opacity: 0.9;"><%= connectedAppsCount || 0 %> apps authorized</div>
+      </a>
+
+      <a href="#password-section" style="display: block; padding: 1.5rem; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 8px; text-decoration: none; text-align: center;">
+        <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">🔑</div>
+        <div style="font-weight: 600; margin-bottom: 0.25rem;">Change Password</div>
+        <div style="font-size: 0.85rem; opacity: 0.9;">Keep your account secure</div>
+      </a>
+
+      <a href="#sessions-section" style="display: block; padding: 1.5rem; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border-radius: 8px; text-decoration: none; text-align: center;">
+        <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📱</div>
+        <div style="font-weight: 600; margin-bottom: 0.25rem;">Active Sessions</div>
+        <div style="font-size: 0.85rem; opacity: 0.9;"><%= activeSessionsCount || 1 %> session(s)</div>
+      </a>
+
+      <a href="#privacy-section" style="display: block; padding: 1.5rem; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; border-radius: 8px; text-decoration: none; text-align: center;">
+        <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">👁️</div>
+        <div style="font-weight: 600; margin-bottom: 0.25rem;">Privacy Settings</div>
+        <div style="font-size: 0.85rem; opacity: 0.9;">Control who sees your data</div>
+      </a>
+    </div>
+
+    <hr style="margin: 2rem 0; border: none; border-top: 1px solid #eee;" />
+
+    <!-- Recent Activity -->
+    <div id="activity-section" style="margin-bottom: 3rem;">
+      <h2 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📊</span> Recent Account Activity
+      </h2>
+      
+      <% if (recentLogins && recentLogins.length > 0) { %>
+        <div style="background: #f9f9f9; border-radius: 8px; overflow: hidden;">
+          <% recentLogins.forEach((login, index) => { %>
+            <div style="border-bottom: 1px solid #eee; padding: 1rem; display: flex; justify-content: space-between; align-items: center; <%= index === recentLogins.length - 1 ? 'border-bottom: none;' : '' %>">
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <span style="font-size: 1.2rem;">📍</span>
+                  <strong style="color: #333;"><%= login.device || 'Unknown Device' %></strong>
+                </div>
+                <p style="margin: 0; font-size: 0.9rem; color: #666;">
+                  <span style="font-weight: 500;"><%= login.ipAddress || 'Unknown IP' %></span> · <%= login.timestamp ? new Date(login.timestamp).toLocaleString() : 'Recently' %>
+                </p>
+                <% if (login.os) { %>
+                  <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #999;">
+                    OS: <%= login.os %>
+                  </p>
+                <% } %>
+              </div>
+              <div>
+                <% if (login.isCurrent) { %>
+                  <span style="background: #d4edda; color: #155724; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">
+                    ✓ Current
+                  </span>
+                <% } else { %>
+                  <span style="background: #e2e3e5; color: #383d41; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.85rem;">
+                    <%= Math.floor((new Date() - new Date(login.timestamp)) / (1000 * 60 * 60 * 24)) %> days ago
+                  </span>
+                <% } %>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <div style="background: #f9f9f9; border-radius: 8px; padding: 2rem; text-align: center; color: #999;">
+          <p>No recent login activity recorded yet.</p>
+        </div>
+      <% } %>
+    </div>
+
+    <hr style="margin: 2rem 0; border: none; border-top: 1px solid #eee;" />
+
+    <!-- Connected Apps Summary -->
+    <div style="margin-bottom: 3rem;">
+      <h2 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>🔗</span> Data Sharing Summary
+      </h2>
+      
+      <div style="background: #e8f4f8; border-left: 4px solid #17a2b8; padding: 1.5rem; border-radius: 6px; margin-bottom: 1rem;">
+        <p style="margin: 0 0 1rem 0; color: #17a2b8;">
+          Your Rizzzler data is currently being shared with <%= connectedAppsCount || 0 %> external app<%= (connectedAppsCount || 0) !== 1 ? 's' : '' %>.
+        </p>
+        
+        <% if (connectedAppsCount > 0) { %>
+          <div style="background: white; border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
+            <h4 style="margin: 0 0 0.75rem 0; color: #333;">Apps with Access:</h4>
+            <ul style="margin: 0; padding-left: 1.5rem;">
+              <% (sharedApps || []).slice(0, 5).forEach(app => { %>
+                <li style="margin: 0.5rem 0; color: #555; font-size: 0.9rem;">
+                  <strong><%= app.name %></strong>
+                  <span style="color: #999;">(Profile, Email, Avatar)</span>
+                </li>
+              <% }); %>
+              <% if ((sharedApps || []).length > 5) { %>
+                <li style="margin: 0.5rem 0; color: #999; font-style: italic;">
+                  + <%= (sharedApps || []).length - 5 %> more
+                </li>
+              <% } %>
+            </ul>
+          </div>
+
+          <a href="/dashboard/oauth-apps" style="display: inline-block; background: #17a2b8; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 500;">
+            Manage All Apps →
+          </a>
+        <% } else { %>
+          <p style="margin: 0; color: #555;">
+            ✓ Your data is not being shared with any external apps yet. When you use "Login with Rizzzler", apps will appear here.
+          </p>
+        <% } %>
+      </div>
+    </div>
+
+    <hr style="margin: 2rem 0; border: none; border-top: 1px solid #eee;" />
+
+    <!-- Privacy & Security Tips -->
+    <div id="privacy-section">
+      <h2 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>💡</span> Privacy & Security Tips
+      </h2>
+
+      <div style="display: grid; gap: 1.5rem;">
+        <!-- Tip 1 -->
+        <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1.5rem; border-radius: 6px;">
+          <h4 style="margin-top: 0; color: #856404;">🔍 Review Connected Apps Regularly</h4>
+          <p style="margin: 0 0 1rem 0; color: #856404; font-size: 0.9rem;">
+            Every month, visit your Connected Apps page and revoke access to apps you no longer use.
+          </p>
+          <a href="/dashboard/oauth-apps" style="color: #856404; text-decoration: underline; font-weight: 500;">
+            View Connected Apps →
+          </a>
+        </div>
+
+        <!-- Tip 2 -->
+        <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1.5rem; border-radius: 6px;">
+          <h4 style="margin-top: 0; color: #155724;">🔐 Use Strong, Unique Passwords</h4>
+          <p style="margin: 0; color: #155724; font-size: 0.9rem;">
+            Your Rizzzler password is the key to your account. Make it strong and never share it with anyone, including Rizzzler staff.
+          </p>
+        </div>
+
+        <!-- Tip 3 -->
+        <div style="background: #e8f4f8; border-left: 4px solid #17a2b8; padding: 1.5rem; border-radius: 6px;">
+          <h4 style="margin-top: 0; color: #17a2b8;">🚨 Enable Email Notifications</h4>
+          <p style="margin: 0 0 1rem 0; color: #17a2b8; font-size: 0.9rem;">
+            You'll receive email alerts whenever you login from a new device or a new app is authorized. This helps you spot unauthorized access.
+          </p>
+        </div>
+
+        <!-- Tip 4 -->
+        <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 1.5rem; border-radius: 6px;">
+          <h4 style="margin-top: 0; color: #721c24;">⚠️ Don't Trust Unsolicited Emails</h4>
+          <p style="margin: 0; color: #721c24; font-size: 0.9rem;">
+            Rizzzler will never ask for your password via email. If you receive a suspicious email claiming to be from Rizzzler, <a href="https://rizzzler.work.gd/contact" style="color: #721c24; text-decoration: underline;">report it</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <hr style="margin: 2rem 0; border: none; border-top: 1px solid #eee;" />
+
+    <!-- Change Password Section -->
+    <div id="password-section">
+      <h2 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>🔑</span> Change Your Password
+      </h2>
+
+      <div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 2rem; max-width: 500px;">
+        <p style="margin: 0 0 1.5rem 0; color: #666; font-size: 0.9rem;">
+          Regularly changing your password helps keep your account secure.
+        </p>
+
+        <a href="/forgot-password" style="display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 500; margin-bottom: 1rem;">
+          Reset Password
+        </a>
+
+        <p style="margin: 1rem 0 0 0; font-size: 0.85rem; color: #999;">
+          You'll receive an email with instructions to reset your password securely.
+        </p>
+      </div>
+    </div>
+
+    <!-- Sessions Section -->
+    <div id="sessions-section" style="margin-top: 3rem;">
+      <h2 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📱</span> Active Sessions
+      </h2>
+
+      <div style="background: #f9f9f9; border-radius: 8px; padding: 1.5rem; text-align: center; color: #666;">
+        <p style="margin: 0; font-size: 0.9rem;">
+          You currently have <%= activeSessionsCount || 1 %> active session<%= (activeSessionsCount || 1) !== 1 ? 's' : '' %> on this account.
+        </p>
+        <p style="margin: 1rem 0 0 0; font-size: 0.85rem; color: #999;">
+          To log out from all devices, change your password.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  .rz-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .rz-section {
+    padding: 2rem;
+  }
+
+  a[href="#password-section"],
+  a[href="#sessions-section"],
+  a[href="#privacy-section"],
+  a[href="#activity-section"] {
+    color: inherit;
+    text-decoration: none;
+  }
+</style>
