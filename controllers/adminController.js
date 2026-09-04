@@ -12,6 +12,7 @@ const { invalidateCache } = require("../middlewares/ipAccessControl");
 const { sendNewsletterEmail, sendInviteEmail, sendBulk } = require("../config/mailer");
 const { maybeSendAIMail } = require("../config/aiMailScheduler");
 const { getSystemHealthSnapshot, runCleanupCycle, clearCleanupLog, DATA_RETENTION_DAYS } = require("../config/accountCleanup");
+const registry = require("../shared/registry");
 
 // ---------- Login ----------
 exports.getLogin = (req, res) => {
@@ -223,6 +224,7 @@ exports.viewUser = async (req, res) => {
     res.render("admin/user-detail", {
       layout: false,
       u: user,
+      premiumPlans: registry.getPremiumPlans(),
       userAnalytics: {
         summary,
         dailyTrend: dailyTrend.map((day) => ({ ...day, percent: Math.max(8, (day.visits / maxVisits) * 100) })),
@@ -240,6 +242,7 @@ exports.viewUser = async (req, res) => {
     res.render("admin/user-detail", {
       layout: false,
       u: user,
+      premiumPlans: registry.getPremiumPlans(),
       userAnalytics: { summary: { totalVisits: 0, totalSeconds: 0, avgSeconds: 0 }, dailyTrend: [], sources: [], devices: [], recentViews: [] },
       error: "Could not load analytics for this user.",
       info: null,
@@ -252,7 +255,7 @@ exports.updateUser = async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).send("User not found");
 
-    const { displayName, email, username, bio, publicEmail, isVerified, isActive, showLegacyBadge, isFeatured, newPassword } = req.body;
+    const { displayName, email, username, bio, publicEmail, isVerified, isActive, showLegacyBadge, isFeatured, newPassword, rizz, premiumPlan, premiumUntil, emailNewsletter, emailAiMail, emailMilestone } = req.body;
 
     if (displayName !== undefined) user.displayName = String(displayName || "").slice(0, 40);
     if (bio !== undefined) user.bio = String(bio || "").slice(0, 250);
@@ -276,6 +279,31 @@ exports.updateUser = async (req, res) => {
     user.showLegacyBadge = showLegacyBadge === "on" || showLegacyBadge === "true";
     user.isFeatured = isFeatured === "on" || isFeatured === "true";
 
+    if (rizz !== undefined) {
+      const nextRizz = Number(rizz);
+      if (!Number.isFinite(nextRizz) || nextRizz < 0) throw new Error("Rizz balance must be a nonnegative number.");
+      user.rizz = Math.floor(nextRizz);
+    }
+
+    if (premiumPlan !== undefined) {
+      if (premiumPlan === "none") {
+        user.isPremium = false;
+        user.premiumPlan = null;
+        user.premiumUntil = null;
+      } else {
+        if (!registry.getPremiumPlan(premiumPlan)) throw new Error("Invalid premium plan.");
+        user.isPremium = true;
+        user.premiumPlan = premiumPlan;
+        user.premiumUntil = premiumUntil ? new Date(`${premiumUntil}T23:59:59.999Z`) : null;
+        if (user.premiumUntil && Number.isNaN(user.premiumUntil.getTime())) throw new Error("Invalid premium expiry date.");
+      }
+    }
+
+    user.emailPreferences = user.emailPreferences || {};
+    user.emailPreferences.newsletter = emailNewsletter === "on" || emailNewsletter === "true";
+    user.emailPreferences.aiMail = emailAiMail === "on" || emailAiMail === "true";
+    user.emailPreferences.milestoneEmails = emailMilestone === "on" || emailMilestone === "true";
+
     if (newPassword && newPassword.trim().length >= 6) {
       user.password = newPassword.trim(); // hashed by pre-save hook
     }
@@ -288,6 +316,8 @@ exports.updateUser = async (req, res) => {
     res.render("admin/user-detail", {
       layout: false,
       u: user,
+      premiumPlans: registry.getPremiumPlans(),
+      userAnalytics: { summary: { totalVisits: 0, totalSeconds: 0, avgSeconds: 0 }, dailyTrend: [], sources: [], devices: [], recentViews: [] },
       error: "Something went wrong — possibly a duplicate email/username.",
       info: null,
     });

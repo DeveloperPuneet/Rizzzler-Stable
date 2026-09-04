@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const dashboardController = require("../controllers/dashboardController");
-const messageController = require("../controllers/messageController");
 const notificationController = require("../controllers/notificationController");
 const { requireAuth } = require("../middlewares/authMiddleware");
 const { gridfsUpload, AUDIO_MAX_BYTES, audioFileFilter } = require("../middlewares/upload");
@@ -14,16 +13,7 @@ router.get("/api/stats", asyncHandler(dashboardController.getStats));
 router.get("/settings", dashboardController.getSettings);
 router.post("/settings", asyncHandler(dashboardController.updateProfile));
 router.post("/settings/email-preferences", asyncHandler(dashboardController.updateEmailPreferences));
-router.post("/settings/message-rate", asyncHandler(dashboardController.updateMessageRate));
-router.post("/premium/create-checkout", asyncHandler(dashboardController.createPremiumCheckout));
-router.get("/premium/success", asyncHandler(dashboardController.handlePremiumSuccess));
-router.get("/premium/cancel", asyncHandler(dashboardController.handlePremiumCancel));
-
-// ---- Rizz-paid messaging ----
-router.get("/messages", asyncHandler(messageController.inbox));
-router.get("/messages/:id", asyncHandler(messageController.thread));
-router.post("/messages/send", asyncHandler(messageController.send));
-router.post("/messages/:id/reply", asyncHandler(messageController.reply));
+router.post("/premium/purchase-rizz", asyncHandler(dashboardController.purchasePremiumWithRizz));
 
 // ---- Header notification bell ----
 router.get("/api/notifications", asyncHandler(notificationController.list));
@@ -62,5 +52,6 @@ router.post("/oauth-app/:appId/delete", asyncHandler(dashboardController.postDel
 
 // ---- Security & Privacy ----
 router.get("/security", asyncHandler(dashboardController.getSecurity));
+router.post("/security/password", asyncHandler(dashboardController.changePassword));
 
 module.exports = router;

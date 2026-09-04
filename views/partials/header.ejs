@@ -29,10 +29,13 @@
   <meta name="twitter:description"
     content="<%= typeof metaDescription !== 'undefined' && metaDescription ? metaDescription : defaultDescription %>" />
   <meta name="twitter:image" content="<%= baseUrl %>/images/logo.png" />
+  <meta name="google-adsense-account" content="ca-pub-8842807826372385">
   <link rel="canonical" href="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : currentUrl %>" />
   <title>
     <%= typeof pageTitle !=='undefined' ? pageTitle : 'Rizzzler' %>
   </title>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8842807826372385"
+     crossorigin="anonymous"></script>
   <% if (typeof structuredData !=='undefined' && structuredData) { %>
     <script type="application/ld+json"><%- JSON.stringify(structuredData) %></script>
     <% } %>
@@ -84,9 +87,6 @@
       <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
         <a href="/dashboard">Dashboard</a>
         <a href="/dashboard/settings">Customize</a>
-        <a href="/dashboard/messages" class="" title="Your inbox">
-          <span class="material-symbols-rounded" aria-hidden="true">mail</span>
-        </a>
         <span class="rz-nav-coins" title="Your Rizz balance">
           <img src="/images/coins.png" alt="Rizz" class="rz-coin-icon" style="aspect-ratio:1/1; height:18px;"/>
           <%= ((typeof navUser !== 'undefined' && navUser && navUser.rizz) || 0).toLocaleString() %>

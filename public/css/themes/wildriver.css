@@ -1,0 +1,35 @@
+/* Wild River premium theme: a layered, animated jungle riverbank. */
+.rz-theme-wildriver { --accent: #b9e769; --accent2: #37c98b; color: #f1f7dc; background: #09241f; font-family: 'Trebuchet MS', Verdana, sans-serif; }
+.rz-theme-wildriver .rz-showcase-bg { background: linear-gradient(180deg, #061817 0%, #0b332b 48%, #124b3c 100%); }
+.rz-theme-wildriver .rz-floating-particles { opacity: 0; }
+.rz-theme-wildriver .rz-jungle-scene { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.rz-theme-wildriver .rz-jungle-canopy { position: absolute; inset: -9vh -4vw; background: url('/decor/jungle-trees.svg') center bottom / min(46vw, 620px) auto repeat-x; transform: translateY(calc(var(--jungle-scroll, 0) * -0.12px)); }
+.rz-theme-wildriver .rz-jungle-canopy--back { opacity: 0.3; filter: blur(1px) saturate(0.75); background-size: min(58vw, 760px) auto; transform: translateY(calc(var(--jungle-scroll, 0) * -0.06px)); }
+.rz-theme-wildriver .rz-jungle-canopy--front { top: 42%; opacity: 0.62; background-size: min(38vw, 520px) auto; transform: translateY(calc(var(--jungle-scroll, 0) * -0.2px)); }
+.rz-theme-wildriver .rz-jungle-mist { position: absolute; inset: 36% 0 20%; background: radial-gradient(ellipse at 50% 70%, rgba(190,231,105,0.18), transparent 58%); transform: translateY(calc(var(--jungle-scroll, 0) * 0.08px)); }
+.rz-theme-wildriver .rz-jungle-water { position: absolute; left: -5%; right: -5%; bottom: -4%; height: 34%; background: linear-gradient(180deg, rgba(25,125,106,0.2), rgba(4,52,54,0.9)), repeating-linear-gradient(175deg, transparent 0 17px, rgba(154,235,187,0.2) 18px 20px, transparent 21px 40px); transform: translateY(calc(var(--jungle-scroll, 0) * 0.18px)); animation: rz-water-shimmer 4s ease-in-out infinite alternate; }
+.rz-theme-wildriver .rz-jungle-monkey { position: absolute; width: 30px; height: 42px; border-radius: 48% 48% 42% 42%; background: #3b241c; transform-origin: 50% -20px; animation: rz-monkey-swing 3.8s ease-in-out infinite; }
+.rz-theme-wildriver .rz-jungle-monkey::before { content: ''; position: absolute; width: 20px; height: 20px; left: 5px; top: -14px; border-radius: 50%; background: #503126; box-shadow: -7px 1px 0 -2px #503126, 7px 1px 0 -2px #503126; }
+.rz-theme-wildriver .rz-jungle-monkey::after { content: ''; position: absolute; width: 48px; height: 58px; left: 11px; top: 18px; border: 5px solid #3b241c; border-left-color: transparent; border-bottom-color: transparent; border-radius: 50%; transform: rotate(28deg); }
+.rz-theme-wildriver .rz-jungle-monkey i { position: absolute; width: 5px; height: 78px; left: 14px; top: -78px; background: #3b241c; border-radius: 5px; transform: rotate(8deg); }
+.rz-theme-wildriver .rz-jungle-monkey--one { top: 20%; left: 19%; animation-delay: -1.2s; transform: scale(0.85); }
+.rz-theme-wildriver .rz-jungle-monkey--two { top: 30%; right: 16%; animation-delay: -2.6s; transform: scale(0.62) scaleX(-1); }
+.rz-theme-wildriver .rz-hero-section { align-items: center; justify-content: flex-start; padding: 10vh 9vw; min-height: 84vh; }
+.rz-theme-wildriver .rz-hero-banner { inset: 0; opacity: 0.2; filter: saturate(0.7); }
+.rz-theme-wildriver .rz-hero-overlay { background: linear-gradient(90deg, rgba(4,25,22,0.98) 0%, rgba(4,25,22,0.78) 38%, rgba(4,25,22,0.08) 100%); }
+.rz-theme-wildriver .rz-hero-content { width: min(540px, 100%); max-width: 540px; padding: 5vh 0; text-align: left; display: flex; flex-direction: column; align-items: flex-start; }
+.rz-theme-wildriver .rz-hero-avatar-wrap { justify-content: flex-start; }
+.rz-theme-wildriver .rz-hero-avatar { border-radius: 18px 4px 18px 4px; border: 3px solid #b9e769; box-shadow: 12px 12px 0 rgba(7,45,36,0.8); }
+.rz-theme-wildriver .rz-hero-badge { border-radius: 4px; color: #b9e769; background: rgba(8,54,42,0.76); border: 1px solid rgba(185,231,105,0.45); text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.7rem; }
+.rz-theme-wildriver .rz-hero-badge > span[aria-hidden="true"], .rz-theme-wildriver .rz-hero-views > span[aria-hidden="true"], .rz-theme-wildriver .rz-detail-icon { display: none; }
+.rz-theme-wildriver .rz-hero-name, .rz-theme-wildriver .rz-grand-text { text-align: left; font-family: 'Trebuchet MS', Verdana, sans-serif; font-weight: 700; letter-spacing: -0.02em; text-transform: none; }
+.rz-theme-wildriver .rz-hero-name { font-size: clamp(3rem, 7vw, 6rem); line-height: 0.92; color: #f1f7dc; }
+.rz-theme-wildriver .rz-hero-username, .rz-theme-wildriver .rz-hero-views { color: #b9e769; }
+.rz-theme-wildriver .rz-story-card { border: 1px solid rgba(185,231,105,0.28); border-radius: 14px 3px 14px 3px; background: rgba(5,38,31,0.8); box-shadow: 0 18px 40px rgba(0,0,0,0.18); }
+.rz-theme-wildriver .rz-section-eyebrow { color: #b9e769; background: rgba(55,201,139,0.13); border: 1px solid rgba(185,231,105,0.22); border-radius: 4px; }
+.rz-theme-wildriver .rz-link-item, .rz-theme-wildriver .rz-detail-item { border-radius: 4px; border: 1px solid rgba(185,231,105,0.28); background: rgba(5,38,31,0.65); color: #f1f7dc; }
+.rz-theme-wildriver .rz-sound-toggle { border-radius: 4px; background: #09241f; border: 1px solid #b9e769; color: #b9e769; }
+.rz-theme-wildriver .rz-sound-label { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+@keyframes rz-water-shimmer { from { background-position: 0 0, 0 0; } to { background-position: 0 0, 90px 24px; } }
+@keyframes rz-monkey-swing { 0%, 100% { rotate: -4deg; } 50% { rotate: 7deg; } }
+@media (max-width: 700px) { .rz-theme-wildriver .rz-hero-section { padding: 20vh 24px 10vh; } .rz-theme-wildriver .rz-hero-content { width: auto; } .rz-theme-wildriver .rz-jungle-monkey--two { right: 5%; } }

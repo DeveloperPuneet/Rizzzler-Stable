@@ -1,7 +1,7 @@
 <% pageTitle = "Developer Docs — OAuth 2.0 Login Implementation Guide" %>
 <%- include('./partials/header') %>
 
-<div class="doc-shell">
+<div class="doc-shell rz-developer-surface">
   <section class="doc-hero">
     <div class="doc-badge">⚡ SDK-ready OAuth docs</div>
     <h1>🛠️ Developer Documentation</h1>
@@ -447,7 +447,7 @@ const response = await fetch('https://www.rizzzler.work.gd/oauth/token', {
 </div>
 
 <style>
-  body {
+  body:has(.rz-developer-surface) {
     background: linear-gradient(180deg, #f6f8ff 0%, #eef3ff 100%);
   }
 
@@ -576,33 +576,33 @@ const response = await fetch('https://www.rizzzler.work.gd/oauth/token', {
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
   }
 
-  pre code {
+  .doc-shell pre code {
     background: transparent;
     color: inherit;
     padding: 0;
   }
 
-  table {
+  .doc-shell table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 1rem;
     background: white;
   }
 
-  table th,
-  table td {
+  .doc-shell table th,
+  .doc-shell table td {
     border: 1px solid #e5e7eb;
     padding: 0.8rem 0.9rem;
     text-align: left;
     vertical-align: top;
   }
 
-  table th {
+  .doc-shell table th {
     background: linear-gradient(135deg, #667eea 0%, #7c6ee7 100%);
     color: white;
   }
 
-  table tr:nth-child(even) td {
+  .doc-shell table tr:nth-child(even) td {
     background: #f8fafc;
   }
 

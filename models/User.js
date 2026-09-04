@@ -67,14 +67,10 @@ const userSchema = new mongoose.Schema(
     isFeatured: { type: Boolean, default: false },
 
     // ---- Rizz coin economy ----
-    // Earned automatically (2 per genuine, non-self profile view) and via
-    // paid messages from other users (see models/Message.js). Spent when
-    // this user pays someone else's messageRate to send them a message.
+    // Earned automatically (2 per standard or 4 per premium genuine,
+    // non-self profile view) and spent
+    // when a user unlocks premium themes.
     rizz: { type: Number, default: 0, min: 0 },
-    // What it costs (in Rizz) for someone else to message this user.
-    // Owner-configurable in dashboard settings; 20 by default.
-    messageRate: { type: Number, default: 20, min: 0 },
-    messagesEnabled: { type: Boolean, default: true },
 
     // GridFS file references (fileId = ObjectId in uploads.files, filename kept for convenience)
     avatar: {
@@ -118,14 +114,12 @@ const userSchema = new mongoose.Schema(
     isPremium: { type: Boolean, default: false },
     premiumPlan: { type: String, default: null },
     premiumUntil: { type: Date, default: null },
-    stripeCustomerId: { type: String, default: null },
 
     // ---- Email preferences (user-controlled) ----
     emailPreferences: {
       newsletter: { type: Boolean, default: true }, // Opt-in for newsletter
       aiMail: { type: Boolean, default: true }, // Opt-in for fun AI mails
       milestoneEmails: { type: Boolean, default: true }, // Opt-in for milestone celebration mails
-      messageMail: { type: Boolean, default: true }, // Opt-in for "you got a message" mailbox emails
     },
 
     createdAt: { type: Date, default: Date.now },

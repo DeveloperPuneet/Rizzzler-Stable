@@ -149,7 +149,7 @@
     </div>
     <div class="rz-footer-links-col">
       <h4>Company</h4>
-      <a href="mailto:developerpuneet2010@gmail.com">Contact</a>
+      <a href="/contact">Contact</a>
       <a href="/privacy-policy">Privacy</a>
       <a href="/terms">Terms</a>
     </div>
@@ -175,6 +175,62 @@
   });
   socket.on('community:message', function(payload){
     window.dispatchEvent(new CustomEvent('rizzzler:community-message', { detail: payload.message }));
+  });
+})();
+</script>
+<script>
+(function () {
+  document.querySelectorAll('[data-screenshot-slider]').forEach(function (slider) {
+    const slides = Array.from(slider.querySelectorAll('.rz-screenshot-slide'));
+    const dots = Array.from(slider.querySelectorAll('.rz-screenshot-dot'));
+    const previous = slider.querySelector('[data-slider-previous]');
+    const next = slider.querySelector('[data-slider-next]');
+    if (slides.length < 2) return;
+
+    let current = 0;
+    let autoplayTimer;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    function show(index) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((slide, slideIndex) => slide.classList.toggle('is-active', slideIndex === current));
+      dots.forEach((dot, dotIndex) => {
+        dot.classList.toggle('is-active', dotIndex === current);
+        dot.setAttribute('aria-current', dotIndex === current ? 'true' : 'false');
+        dot.setAttribute('aria-selected', dotIndex === current ? 'true' : 'false');
+      });
+    }
+
+    function restartAutoplay() {
+      window.clearInterval(autoplayTimer);
+      autoplayTimer = window.setInterval(() => show(current + 1), 5500);
+    }
+
+    previous && previous.addEventListener('click', () => { show(current - 1); restartAutoplay(); });
+    next && next.addEventListener('click', () => { show(current + 1); restartAutoplay(); });
+    dots.forEach((dot, dotIndex) => dot.addEventListener('click', () => { show(dotIndex); restartAutoplay(); }));
+    slider.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowLeft') { show(current - 1); restartAutoplay(); }
+      if (event.key === 'ArrowRight') { show(current + 1); restartAutoplay(); }
+    });
+    slider.addEventListener('mouseenter', () => window.clearInterval(autoplayTimer));
+    slider.addEventListener('mouseleave', restartAutoplay);
+    slider.addEventListener('focusin', () => window.clearInterval(autoplayTimer));
+    slider.addEventListener('focusout', restartAutoplay);
+    slider.addEventListener('touchstart', (event) => {
+      touchStartX = event.changedTouches[0].clientX;
+      touchStartY = event.changedTouches[0].clientY;
+      window.clearInterval(autoplayTimer);
+    }, { passive: true });
+    slider.addEventListener('touchend', (event) => {
+      const touch = event.changedTouches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+      if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) show(current + (deltaX < 0 ? 1 : -1));
+      restartAutoplay();
+    }, { passive: true });
+    show(0);
+    restartAutoplay();
   });
 })();
 </script>
@@ -251,10 +307,6 @@
   window.setTimeout(hide, 1800);
 })();
 </script>
-<script type="text/javascript">
-var infolinks_pid = 3421437;
-var infolinks_wsid = 0;
-</script>
-<script type="text/javascript" src="http://resources.infolinks.com/js/infolinks_main.js"></script>
+
 </body>
 </html>

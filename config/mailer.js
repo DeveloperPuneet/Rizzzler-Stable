@@ -458,7 +458,7 @@ async function sendRegistrationAlertEmail(user, deviceInfo, osInfo, ipAddress) {
       deviceInfo: deviceInfo || "Unknown",
       osInfo: osInfo || "Unknown",
       ipAddress: ipAddress || "Unknown",
-      contactUrl: process.env.BASE_URL || "https://rizzzler.work.gd",
+      contactUrl: (process.env.BASE_URL || "https://rizzzler.work.gd") + "/contact",
       dashboardUrl: (process.env.BASE_URL || "https://rizzzler.work.gd") + "/dashboard",
       securityUrl: (process.env.BASE_URL || "https://rizzzler.work.gd") + "/dashboard/security",
     });
@@ -536,30 +536,6 @@ async function sendNewsletterEmail(to, subject, bodyText) {
       buttonLabel: "Open Rizzzler",
       showMarketing: true,
     }),
-  });
-}
-
-// ---------- New message / reply mailbox email ----------
-async function sendNewMessageEmail(to, displayName, senderName, messageBody, isReply = false) {
-  const preview = String(messageBody || "").slice(0, 280);
-  await sendMailWithLogging({
-    to,
-    subject: isReply ? `💬 @${senderName} replied to your message` : `💬 New message from @${senderName}`,
-    html: wrap(
-      isReply ? "You got a reply!" : "You've got a new message!",
-      `<p style="margin:0 0 14px;line-height:1.6;">Hey <strong>${escapeHtml(displayName || "there")}</strong>,</p>
-       <p style="margin:0 0 16px;line-height:1.6;"><strong>${escapeHtml(senderName || "Someone")}</strong> ${isReply ? "replied to your message" : "sent you a message"} on Rizzzler:</p>
-       <div style="margin:20px 0;padding:16px 18px;border-radius:14px;background:rgba(192,132,252,0.1);border-left:4px solid #c084fc;font-style:italic;color:#e8e0ff;">
-         "${escapeHtml(preview)}${messageBody && messageBody.length > 280 ? "…" : ""}"
-       </div>
-       <p style="margin:0;line-height:1.6;">${isReply ? "Head back to Rizzzler to see the full conversation." : "You can reply for free, once — head to your inbox to respond."}</p>`,
-      {
-        eyebrow: "Mailbox",
-        badge: "💬",
-        buttonUrl: process.env.BASE_URL || "https://www.rizzzler.work.gd",
-        buttonLabel: "Open your inbox",
-      }
-    ),
   });
 }
 
@@ -679,7 +655,6 @@ module.exports = {
   sendOAuthAuthorizationAlertEmail,
   sendNewsletterEmail,
   sendMilestoneEmail,
-  sendNewMessageEmail,
   sendAIMail,
   sendInviteEmail,
   sendBulk,

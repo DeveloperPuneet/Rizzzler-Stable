@@ -17,15 +17,13 @@ const notificationSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["message", "reply", "newsletter", "milestone", "system"],
+      enum: ["newsletter", "milestone", "system"],
       required: true,
     },
     title: { type: String, required: true, maxlength: 200 },
     body: { type: String, default: "", maxlength: 500 },
     link: { type: String, default: null }, // where clicking the notification should go
 
-    relatedMessage: { type: mongoose.Schema.Types.ObjectId, ref: "Message", default: null },
-    relatedUser: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }, // e.g. who sent the message
 
     read: { type: Boolean, default: false },
   },

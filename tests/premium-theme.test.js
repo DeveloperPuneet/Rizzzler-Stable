@@ -8,7 +8,7 @@ test('premium theme and pricing tiers are available', () => {
   assert.equal(premiumTheme.premium, true);
 
   const plans = registry.getPremiumPlans();
-  assert.ok(plans.some((plan) => plan.key === '2month' && plan.amount === 59), '2 month premium plan should cost ₹59');
-  assert.ok(plans.some((plan) => plan.key === '6month' && plan.amount === 149), '6 month premium plan should cost ₹149');
+  assert.ok(plans.some((plan) => plan.key === '1month' && plan.rizzCost === 99 && plan.durationDays === 30), '1 month premium plan should cost 99 Rizz');
+  assert.ok(plans.some((plan) => plan.key === '3month' && plan.rizzCost === 249 && plan.durationDays === 90), '3 month premium plan should cost 249 Rizz');
   assert.equal(registry.isPremiumTheme('royalglow'), true);
 });

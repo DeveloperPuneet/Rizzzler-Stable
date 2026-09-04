@@ -55,3 +55,30 @@
 .rz-theme-royalglow .rz-credits-logo {
   color: #f4d35e; text-shadow: 0 0 26px rgba(244,211,94,0.5);
 }
+
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-section { align-items: center; justify-content: flex-start; padding: 7vw; min-height: 86vh; }
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-banner { inset: 7vh 5vw 7vh 31%; opacity: 0.9; border: 1px solid rgba(244,211,94,0.55); box-shadow: 24px 24px 0 rgba(0,0,0,0.24); }
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-overlay { background: linear-gradient(90deg, #120b08 0%, #120b08 29%, rgba(18,11,8,0.82) 43%, rgba(18,11,8,0.1) 78%, rgba(18,11,8,0.7) 100%); }
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-content { width: min(40%, 520px); min-width: 340px; margin: 0; padding: 4vh 0; text-align: left; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-avatar-wrap { justify-content: flex-start; }
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-name, .rz-theme-royalglow.rz-premium-showcase .rz-grand-text { text-align: left; font-family: Georgia, serif; letter-spacing: 0.01em; text-transform: none; }
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-badge { border-radius: 2px; padding: 7px 11px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.7rem; }
+.rz-theme-royalglow.rz-premium-showcase .rz-story-card { border-radius: 3px; }
+.rz-theme-royalglow.rz-premium-showcase .rz-sound-toggle { border-radius: 3px; border: 1px solid rgba(244,211,94,0.6); background: #120b08; color: #f4d35e; }
+.rz-theme-royalglow.rz-premium-showcase .rz-sound-label { font-family: Georgia, serif; text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.68rem; }
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-badge > span[aria-hidden="true"], .rz-theme-royalglow.rz-premium-showcase .rz-hero-views > span[aria-hidden="true"], .rz-theme-royalglow.rz-premium-showcase .rz-detail-icon { display: none; }
+@media (max-width: 700px) {
+  .rz-theme-royalglow.rz-premium-showcase .rz-hero-banner { inset: 0; opacity: 0.3; }
+  .rz-theme-royalglow.rz-premium-showcase .rz-hero-section { padding: 0 24px; }
+  .rz-theme-royalglow.rz-premium-showcase .rz-hero-content { width: auto; min-width: 0; padding: 28vh 0 12vh; }
+}
+
+/* Keep the first impression quiet and legible: one portrait, one title block. */
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-section { min-height: 88vh; padding: 6vh clamp(28px, 8vw, 120px); }
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-banner { inset: 8vh 8vw 8vh 46%; opacity: 0.62; border: 0; box-shadow: none; }
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-overlay { background: linear-gradient(90deg, #120b08 0%, #120b08 41%, rgba(18,11,8,0.75) 58%, rgba(18,11,8,0.08) 100%); }
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-content { width: min(390px, 42vw); min-width: 0; padding: 0; }
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-avatar { width: 118px; height: 118px; }
+.rz-theme-royalglow.rz-premium-showcase .rz-hero-name { font-size: clamp(2.6rem, 5vw, 4.8rem); line-height: 0.96; margin: 14px 0 10px; }
+.rz-theme-royalglow.rz-premium-showcase .rz-story-card { padding: 16px 18px; margin-top: 14px !important; }
+@media (max-width: 700px) { .rz-theme-royalglow.rz-premium-showcase .rz-hero-banner { inset: 0; opacity: 0.24; } .rz-theme-royalglow.rz-premium-showcase .rz-hero-section { padding: 23vh 24px 10vh; } .rz-theme-royalglow.rz-premium-showcase .rz-hero-content { width: auto; } }

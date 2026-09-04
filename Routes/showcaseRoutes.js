@@ -8,6 +8,7 @@ router.get("/", showcaseController.landing);
 router.get("/privacy-policy", showcaseController.privacyPolicy);
 router.get("/terms", showcaseController.terms);
 router.get("/about-developer", showcaseController.aboutDeveloper);
+router.get("/contact", showcaseController.contact);
 router.get("/docs", showcaseController.documentation);
 router.get("/documentation", showcaseController.documentation);
 router.get("/faq", showcaseController.documentation);

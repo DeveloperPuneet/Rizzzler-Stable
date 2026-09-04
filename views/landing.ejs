@@ -191,6 +191,34 @@
   </div>
 </section>
 
+<!-- ========== SHOWCASE EXAMPLES ========== -->
+<section class="rz-section rz-showcase-examples" id="showcase-examples">
+  <div class="rz-section-header">
+    <span class="rz-section-eyebrow">Real showcase examples</span>
+    <h2>Make your first impression <span class="rz-gradient-text">count</span></h2>
+    <p class="rz-section-sub">Browse a few of the visual directions you can build with Rizzzler.</p>
+  </div>
+  <div class="rz-screenshot-slider" data-screenshot-slider tabindex="0" aria-label="Showcase examples carousel">
+    <div class="rz-screenshot-viewport">
+      <% [487, 488, 489, 490, 491, 492].forEach(function (number, index) { %>
+        <figure class="rz-screenshot-slide <%= index === 0 ? 'is-active' : '' %>">
+          <img src="/showcase/Screenshot%20(<%= number %>).png" alt="Rizzzler showcase example <%= index + 1 %>" <%= index === 0 ? '' : 'loading="lazy"' %> width="1024" height="768" />
+          <figcaption class="rz-screenshot-caption">Showcase example <%= index + 1 %> of 6</figcaption>
+        </figure>
+      <% }); %>
+    </div>
+    <div class="rz-screenshot-controls">
+      <button type="button" class="rz-screenshot-control" data-slider-previous aria-label="Previous showcase example">&#8592;</button>
+      <div class="rz-screenshot-dots" role="tablist" aria-label="Choose showcase example">
+        <% [487, 488, 489, 490, 491, 492].forEach(function (number, index) { %>
+          <button type="button" role="tab" class="rz-screenshot-dot <%= index === 0 ? 'is-active' : '' %>" aria-label="Show showcase example <%= index + 1 %>" aria-current="<%= index === 0 ? 'true' : 'false' %>" aria-selected="<%= index === 0 ? 'true' : 'false' %>"></button>
+        <% }); %>
+      </div>
+      <button type="button" class="rz-screenshot-control" data-slider-next aria-label="Next showcase example">&#8594;</button>
+    </div>
+  </div>
+</section>
+
 <!-- ========== STATS ========== -->
 <section class="rz-section rz-stats-section" id="stats-section">
   <div class="rz-stats-grid">

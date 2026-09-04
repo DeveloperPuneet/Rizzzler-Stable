@@ -3,9 +3,6 @@ const ProfileView = require("../models/ProfileView");
 const storageRouter = require("../config/storageRouter");
 const registry = require("../shared/registry");
 const themes = registry.themes;
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || process.env.SEC_KEY || null;
-const stripePublicKey = process.env.STRIPE_PUBLISHABLE_KEY || process.env.PUB_KEY || null;
-const stripe = stripeSecretKey ? require("stripe")(stripeSecretKey) : null;
 const visuals = {
   avatarEffects: registry.avatarEffects,
   titleEffects: registry.titleEffects,
@@ -155,103 +152,39 @@ exports.getSettings = (req, res) => {
     error,
     info,
     isPremiumAccessActive: isPremiumAccessActive(req.user),
+    premiumPlans: registry.getPremiumPlans(),
   });
 };
 
-exports.createPremiumCheckout = async (req, res) => {
+exports.purchasePremiumWithRizz = async (req, res) => {
   try {
-    if (!stripe) {
-      return res.status(400).json({ success: false, error: "Stripe is not configured. Add STRIPE_SECRET_KEY to your environment." });
-    }
-
     const { plan } = req.body || {};
     const selectedPlan = registry.getPremiumPlan(plan);
     if (!selectedPlan) {
-      return res.status(400).json({ success: false, error: "Invalid premium plan selected." });
-    }
-
-    const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
-    const user = req.user;
-
-    let customerId = user.stripeCustomerId;
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        name: user.displayName || user.username,
-        metadata: { userId: String(user._id) },
-      });
-      customerId = customer.id;
-      user.stripeCustomerId = customerId;
-    }
-
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer: customerId,
-      line_items: [
-        {
-          price_data: {
-            currency: "inr",
-            unit_amount: selectedPlan.amount * 100,
-            product_data: {
-              name: `Rizzzler Premium - ${selectedPlan.label}`,
-              description: selectedPlan.description,
-            },
-          },
-          quantity: 1,
-        },
-      ],
-      success_url: `${baseUrl}/dashboard/premium/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/dashboard/premium/cancel`,
-      metadata: {
-        userId: String(user._id),
-        planKey: selectedPlan.key,
-      },
-    });
-
-    await user.save();
-    res.json({ success: true, url: session.url });
-  } catch (err) {
-    console.error("Premium checkout failed:", err);
-    res.status(500).json({ success: false, error: "Unable to create checkout session." });
-  }
-};
-
-exports.handlePremiumSuccess = async (req, res) => {
-  try {
-    if (!stripe) {
-      return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Stripe is not configured on this server."));
-    }
-
-    const sessionId = req.query.session_id;
-    if (!sessionId) {
-      return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Payment verification failed."));
-    }
-
-    const stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
-    if (stripeSession.payment_status !== "paid") {
-      return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Your payment was not completed yet."));
-    }
-
-    const planKey = stripeSession.metadata && stripeSession.metadata.planKey;
-    const selectedPlan = registry.getPremiumPlan(planKey);
-    if (!selectedPlan) {
-      return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Unknown premium plan."));
+      return res.redirect("/dashboard/settings?error=" + encodeURIComponent("Invalid premium plan selected."));
     }
 
     const user = req.user;
-    user.isPremium = true;
-    user.premiumPlan = selectedPlan.key;
-    user.premiumUntil = new Date(Date.now() + selectedPlan.durationDays * 24 * 60 * 60 * 1000);
-    await user.save();
-    res.redirect("/dashboard/settings?info=" + encodeURIComponent(`Premium activated! Your Royal Glow access is active until ${new Date(user.premiumUntil).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}.`));
-  } catch (err) {
-    console.error("Premium success handling failed:", err);
-    res.redirect("/dashboard/settings?error=" + encodeURIComponent("Something went wrong while confirming your premium access."));
-  }
-};
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: user._id, rizz: { $gte: selectedPlan.rizzCost } },
+      { $inc: { rizz: -selectedPlan.rizzCost } },
+      { new: true }
+    );
+    if (!updatedUser) {
+      return res.redirect("/dashboard/settings?error=" + encodeURIComponent(`You need ${selectedPlan.rizzCost} Rizz to unlock this plan.`));
+    }
 
-exports.handlePremiumCancel = (req, res) => {
-  res.redirect("/dashboard/settings?error=" + encodeURIComponent("Premium checkout was cancelled. No charge was made."));
+    const now = Date.now();
+    const currentEnd = user.premiumUntil && new Date(user.premiumUntil).getTime() > now ? new Date(user.premiumUntil).getTime() : now;
+    updatedUser.isPremium = true;
+    updatedUser.premiumPlan = selectedPlan.key;
+    updatedUser.premiumUntil = new Date(currentEnd + selectedPlan.durationDays * 24 * 60 * 60 * 1000);
+    await updatedUser.save();
+    res.redirect("/dashboard/settings?info=" + encodeURIComponent(`Premium unlocked with ${selectedPlan.rizzCost} Rizz. All premium themes are available until ${updatedUser.premiumUntil.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}.`));
+  } catch (err) {
+    console.error("Premium Rizz purchase failed:", err);
+    res.redirect("/dashboard/settings?error=" + encodeURIComponent("Unable to unlock premium right now."));
+  }
 };
 
 // Update text/profile fields (bio, display name, links, theme, audio choice, badge)
@@ -273,7 +206,6 @@ exports.updateProfile = async (req, res) => {
       avatarEffect,
       titleEffect,
       showcaseEffect,
-      messagesEnabled,
       heroEyebrow,
       momentTitle1,
       momentTitle2,
@@ -335,12 +267,6 @@ exports.updateProfile = async (req, res) => {
 
     if (req.body.hasOwnProperty("showLegacyBadge")) {
       user.showLegacyBadge = showLegacyBadge === "on" || showLegacyBadge === "true";
-    }
-
-    if (req.body.hasOwnProperty("messagesEnabled")) {
-      user.messagesEnabled = Array.isArray(messagesEnabled)
-        ? messagesEnabled.includes("on") || messagesEnabled.includes("true")
-        : messagesEnabled === "on" || messagesEnabled === "true";
     }
 
     if (req.body.hasOwnProperty("audioKey") || req.body.hasOwnProperty("audioAutoplay") || req.body.hasOwnProperty("audioLoop")) {
@@ -408,24 +334,6 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// Owner-set price (in Rizz) for someone else to send them a message.
-exports.updateMessageRate = async (req, res) => {
-  try {
-    const user = req.user;
-    let rate = parseInt(req.body.messageRate, 10);
-    if (!Number.isFinite(rate) || rate < 0) rate = 20;
-    rate = Math.min(rate, 100000); // sanity cap
-    user.messageRate = rate;
-    await user.save();
-    const { emitUserStateUpdate } = require("../config/socket");
-    emitUserStateUpdate(user._id, { type: "settings" });
-    res.redirect("/dashboard/settings?saved=1");
-  } catch (err) {
-    console.error(err);
-    res.redirect("/dashboard/settings?error=1");
-  }
-};
-
 // Update email preferences
 //
 // IMPORTANT: unchecked HTML checkboxes are simply omitted from the POST
@@ -442,7 +350,6 @@ exports.updateEmailPreferences = async (req, res) => {
     user.emailPreferences.newsletter = req.body.emailNewsletter === "on" || req.body.emailNewsletter === "true";
     user.emailPreferences.aiMail = req.body.emailAiMail === "on" || req.body.emailAiMail === "true";
     user.emailPreferences.milestoneEmails = req.body.emailMilestone === "on" || req.body.emailMilestone === "true";
-    user.emailPreferences.messageMail = req.body.emailMessageMail === "on" || req.body.emailMessageMail === "true";
 
     await user.save();
     const { emitUserStateUpdate } = require("../config/socket");
@@ -670,6 +577,8 @@ exports.getSecurity = async (req, res) => {
       sharedApps,
       recentLogins,
       activeSessionsCount,
+      passwordError: req.query.passwordError || null,
+      passwordInfo: req.query.passwordInfo || null,
     });
   } catch (err) {
     console.error("Get security dashboard error:", err);
@@ -678,8 +587,43 @@ exports.getSecurity = async (req, res) => {
       sharedApps: [],
       recentLogins: [],
       activeSessionsCount: 1,
+      passwordError: req.query.passwordError || null,
+      passwordInfo: req.query.passwordInfo || null,
       error: "Failed to load security information",
     });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  const { currentPassword, newPassword, confirmPassword } = req.body || {};
+  const redirectWithError = (message) => res.redirect(`/dashboard/security?passwordError=${encodeURIComponent(message)}#password-section`);
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    return redirectWithError("All password fields are required.");
+  }
+  if (newPassword.length < 8) {
+    return redirectWithError("Your new password must be at least 8 characters.");
+  }
+  if (newPassword !== confirmPassword) {
+    return redirectWithError("New passwords do not match.");
+  }
+  if (currentPassword === newPassword) {
+    return redirectWithError("Your new password must be different from the current password.");
+  }
+
+  try {
+    if (!(await req.user.comparePassword(currentPassword))) {
+      return redirectWithError("Your current password is incorrect.");
+    }
+
+    req.user.password = newPassword;
+    req.user.resetCode = undefined;
+    req.user.resetCodeExpires = undefined;
+    await req.user.save();
+    res.redirect("/dashboard/security?passwordInfo=" + encodeURIComponent("Your password was changed successfully.") + "#password-section");
+  } catch (err) {
+    console.error("Change password failed:", err);
+    redirectWithError("Unable to change your password right now. Please try again.");
   }
 };
 

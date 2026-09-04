@@ -3,6 +3,7 @@
 <% const avatarEffectKey = avatarEffect || 'none'; %>
 <% const titleEffectKey = titleEffect || 'none'; %>
 <% const showcaseEffectKey = showcaseEffect || 'none'; %>
+<% const isPremiumTheme = !!theme.premium; %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,8 +82,18 @@
     <div class="rz-loader-bar"><span></span></div>
   </div>
 </div>
-<div class="rz-showcase rz-theme-<%= themeKey %> rz-effect-<%= showcaseEffectKey %>">
+<div class="rz-showcase rz-theme-<%= themeKey %> <%= isPremiumTheme ? 'rz-premium-showcase' : '' %> rz-effect-<%= showcaseEffectKey %>">
   <div class="rz-showcase-bg"></div>
+  <% if (themeKey === 'wildriver') { %>
+    <div class="rz-jungle-scene" aria-hidden="true">
+      <div class="rz-jungle-canopy rz-jungle-canopy--back"></div>
+      <div class="rz-jungle-mist"></div>
+      <div class="rz-jungle-monkey rz-jungle-monkey--one"><i></i></div>
+      <div class="rz-jungle-monkey rz-jungle-monkey--two"><i></i></div>
+      <div class="rz-jungle-water"></div>
+      <div class="rz-jungle-canopy rz-jungle-canopy--front"></div>
+    </div>
+  <% } %>
   <canvas class="rz-rock-canvas" id="rockCanvas"></canvas>
   <div class="rz-floating-particles" id="floatingParticles"></div>
 
@@ -158,7 +169,7 @@
       <div class="rz-section-content">
         <div class="rz-story-card">
           <p class="rz-section-eyebrow">Connect</p>
-          <h2 class="rz-grand-text">follow the trail</h2>
+          <h2 class="rz-grand-text">FOLLOW THE TRAIL</h2>
           <div class="rz-links-grid" style="margin-top:24px;">
             <% profile.links.forEach(link => { %>
               <a href="<%= link.url %>" target="_blank" rel="noopener" class="rz-link-item"><%= link.label %></a>
@@ -188,56 +199,6 @@
     </section>
   <% } %>
 
-  <% if (typeof isOwnProfile !== 'undefined' && isOwnProfile) { %>
-    <section class="rz-section rz-message-section">
-      <div class="rz-section-content">
-        <div class="rz-story-card rz-message-card">
-          <p class="rz-section-eyebrow">This is your page</p>
-          <h2 class="rz-grand-text" style="font-size:1.6rem;">Your Rizz balance</h2>
-          <div class="rz-coin-balance" style="margin-top:16px;">
-            <img src="/images/coins.png" alt="Rizz" class="rz-coin-icon" style="width:26px;height:26px;" />
-            <%= (profile.rizz || 0).toLocaleString() %> Rizz
-          </div>
-          <p class="rz-muted" style="margin-top:12px;">Views don't count while you're viewing your own page — only real visitors earn you Rizz.</p>
-        </div>
-      </div>
-    </section>
-  <% } else { %>
-    <section class="rz-section rz-message-section">
-      <div class="rz-section-content">
-        <div class="rz-story-card rz-message-card">
-          <p class="rz-section-eyebrow">Say something</p>
-          <h2 class="rz-grand-text" style="font-size:1.6rem;">Message <%= profile.displayName || profile.username %></h2>
-          <p class="rz-muted" style="margin-top:8px;">
-            Costs <strong><img src="/images/coins.png" alt="Rizz" class="rz-coin-icon" /> <%= profile.messageRate != null ? profile.messageRate : 20 %> Rizz</strong> to send —
-            <%= profile.displayName || profile.username %> can reply to you for free, once.
-          </p>
-
-          <% if (messagesDisabled) { %>
-            <p class="rz-muted" style="margin-top:14px;">Messages are currently turned off for this profile.</p>
-          <% } else if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
-            <% if (typeof msgError !== 'undefined' && msgError) { %>
-              <p class="rz-error" style="margin-top:14px;"><%= msgError %></p>
-            <% } %>
-            <p class="rz-muted" style="margin-top:8px;">
-              Your balance: <strong><img src="/images/coins.png" alt="Rizz" class="rz-coin-icon" /> <%= (typeof viewerRizz === 'number' ? viewerRizz : 0).toLocaleString() %> Rizz</strong>
-            </p>
-            <form action="/dashboard/messages/send" method="POST" class="rz-message-form" style="margin-top:14px;">
-              <input type="hidden" name="toUsername" value="<%= profile.username %>" />
-              <input type="hidden" name="redirectTo" value="/<%= profile.username %>" />
-              <textarea name="body" maxlength="1000" rows="3" placeholder="Write your message…" required></textarea>
-              <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" style="margin-top:10px;">Send message</button>
-            </form>
-          <% } else { %>
-            <p class="rz-muted" style="margin-top:14px;">
-              <a href="/login">Log in</a> or <a href="/register">sign up</a> to send <%= profile.displayName || profile.username %> a message.
-            </p>
-          <% } %>
-        </div>
-      </div>
-    </section>
-  <% } %>
-
   <section class="rz-section rz-credits-section">
     <div class="rz-section-content" style="text-align:center;">
       <div class="rz-credits-logo">Rizzzler</div>
@@ -262,7 +223,7 @@
   >
     <source src="<%= audioUrl %>" type="<%= audioMimeMap[audioExt] || 'audio/mpeg' %>" />
   </audio>
-  <button type="button" class="rz-sound-toggle" id="rzSoundToggle" aria-label="Toggle sound" title="Toggle sound"><span class="material-symbols-rounded" aria-hidden="true">volume_up</span></button>
+  <button type="button" class="rz-sound-toggle" id="rzSoundToggle" aria-label="Toggle sound" title="Toggle sound"><span class="material-symbols-rounded rz-sound-icon" aria-hidden="true">volume_up</span><span class="rz-sound-label">Sound on</span></button>
 <% } %>
 
 <script>
@@ -306,6 +267,16 @@
   const showcase = document.querySelector('.rz-showcase');
   const sections = document.querySelectorAll('.rz-section');
   const rockCanvas = document.getElementById('rockCanvas');
+  if (showcase && showcase.classList.contains('rz-theme-wildriver')) {
+    let jungleFrame = null;
+    window.addEventListener('scroll', () => {
+      if (jungleFrame) return;
+      jungleFrame = window.requestAnimationFrame(() => {
+        showcase.style.setProperty('--jungle-scroll', window.scrollY);
+        jungleFrame = null;
+      });
+    }, { passive: true });
+  }
 
   if (rockCanvas && showcase && showcase.classList.contains('rz-theme-rocky')) {
     const ctx = rockCanvas.getContext('2d');
@@ -386,6 +357,15 @@
 
   const bgAudio = document.getElementById('rz-bg-audio');
   const soundToggle = document.getElementById('rzSoundToggle');
+  const soundIcon = soundToggle && soundToggle.querySelector('.rz-sound-icon');
+  const soundLabel = soundToggle && soundToggle.querySelector('.rz-sound-label');
+  const setSoundState = (isPlaying) => {
+    if (!soundToggle) return;
+    soundToggle.setAttribute('aria-label', isPlaying ? 'Turn sound off' : 'Turn sound on');
+    soundToggle.title = isPlaying ? 'Turn sound off' : 'Turn sound on';
+    if (soundIcon) soundIcon.textContent = isPlaying ? 'volume_up' : 'volume_off';
+    if (soundLabel) soundLabel.textContent = isPlaying ? 'Sound on' : 'Sound off';
+  };
   if (bgAudio) {
     bgAudio.addEventListener('error', () => {
       if (soundToggle) soundToggle.style.display = 'none';
@@ -394,9 +374,9 @@
     const tryPlay = () => {
       bgAudio.volume = 0.4;
       bgAudio.play().then(() => {
-        if (soundToggle) { soundToggle.classList.remove('rz-needs-tap'); soundToggle.textContent = '🔊'; }
+        if (soundToggle) { soundToggle.classList.remove('rz-needs-tap'); setSoundState(true); }
       }).catch(() => {
-        if (soundToggle) { soundToggle.classList.add('rz-needs-tap'); soundToggle.textContent = '🔈'; }
+        if (soundToggle) { soundToggle.classList.add('rz-needs-tap'); setSoundState(false); }
       });
     };
     tryPlay();
@@ -408,10 +388,10 @@
     if (soundToggle) {
       soundToggle.addEventListener('click', () => {
         if (bgAudio.paused) {
-          bgAudio.play().then(() => { soundToggle.textContent = '🔊'; soundToggle.classList.remove('rz-needs-tap'); }).catch(() => {});
+          bgAudio.play().then(() => { setSoundState(true); soundToggle.classList.remove('rz-needs-tap'); }).catch(() => {});
         } else {
           bgAudio.pause();
-          soundToggle.textContent = '🔈';
+          setSoundState(false);
         }
       });
     }

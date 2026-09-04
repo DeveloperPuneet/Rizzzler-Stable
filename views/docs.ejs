@@ -354,6 +354,7 @@
         <a href="#all-themes">Theme library</a>
         <a href="#theme-comparison">Theme comparison</a>
         <a href="#customization">Customization</a>
+        <a href="#showcase-examples">Showcase examples</a>
         <a href="#media">Media & uploads</a>
         <a href="#visibility">Privacy & visibility</a>
         <a href="#seo">SEO & sharing</a>
@@ -426,7 +427,11 @@
           </article>
           <article class="rz-doc-card">
             <h3>Theme and style</h3>
-            <p>Choose the visual appearance of your showcase. Rizzzler includes multiple themes with different moods, from bright and playful to dark, neon, and premium.</p>
+            <p>Choose the visual appearance of your showcase. Standard themes use the shared showcase flow; premium themes use a distinct side-profile composition with a stronger editorial or gallery treatment.</p>
+          </article>
+          <article class="rz-doc-card">
+            <h3>Premium usage</h3>
+            <p>Your settings page shows your Rizz balance and active plan. Subscribers see their access period and do not see a repeated purchase prompt. Locked premium themes remain visible so you can preview what is available after upgrading.</p>
           </article>
           <article class="rz-doc-card">
             <h3>Links and contacts</h3>
@@ -537,6 +542,18 @@
             <div class="rz-theme-card-header"><span class="rz-theme-swatch" style="background:#00f5ff"></span><h3>Neon Pulse</h3></div>
             <p>Dark cyber nightlife style with vibrant neon gradients and dramatic contrast. Best for bold modern creators.</p>
           </article>
+          <article class="rz-theme-card">
+            <div class="rz-theme-card-header"><span class="rz-theme-swatch" style="background:#f4d35e"></span><h3>Royal Glow · Premium</h3></div>
+            <p>A classic luxury layout with the avatar and profile details arranged beside the banner, with gold rules and restrained sound controls.</p>
+          </article>
+          <article class="rz-theme-card">
+            <div class="rz-theme-card-header"><span class="rz-theme-swatch" style="background:#c9a66b"></span><h3>Heritage · Premium</h3></div>
+            <p>An editorial side-profile composition using serif type, ink panels, brass accents, and a deliberate, quiet visual hierarchy.</p>
+          </article>
+          <article class="rz-theme-card">
+            <div class="rz-theme-card-header"><span class="rz-theme-swatch" style="background:#b85c38"></span><h3>Atelier · Premium</h3></div>
+            <p>A warm gallery-inspired layout with framed imagery, paper tones, ink typography, and generous space around profile details.</p>
+          </article>
         </div>
       </section>
 
@@ -629,6 +646,30 @@
 
         <div class="rz-callout">
           If a newly added theme does not appear in Customize, the usual reason is that the app is still running with an older in-memory registry. Restart the app and refresh the dashboard. The theme must also exist in the shared registry and have a matching CSS file.
+        </div>
+      </section>
+
+      <section class="rz-doc-panel" id="showcase-examples">
+        <h2>Showcase examples</h2>
+        <p>These screenshots show the range of moods and layouts you can create with a Rizzzler profile. Use them as starting points for your own theme, imagery, and profile voice.</p>
+        <div class="rz-screenshot-slider" data-screenshot-slider tabindex="0" aria-label="Rizzzler showcase examples carousel">
+          <div class="rz-screenshot-viewport">
+            <% [487, 488, 489, 490, 491, 492].forEach(function (number, index) { %>
+              <figure class="rz-screenshot-slide <%= index === 0 ? 'is-active' : '' %>">
+                <img src="/showcase/Screenshot%20(<%= number %>).png" alt="Rizzzler showcase example <%= index + 1 %>" <%= index === 0 ? '' : 'loading="lazy"' %> width="1024" height="768" />
+                <figcaption class="rz-screenshot-caption">Showcase example <%= index + 1 %> of 6</figcaption>
+              </figure>
+            <% }); %>
+          </div>
+          <div class="rz-screenshot-controls">
+            <button type="button" class="rz-screenshot-control" data-slider-previous aria-label="Previous showcase example">&#8592;</button>
+            <div class="rz-screenshot-dots" role="tablist" aria-label="Choose showcase example">
+              <% [487, 488, 489, 490, 491, 492].forEach(function (number, index) { %>
+                <button type="button" class="rz-screenshot-dot <%= index === 0 ? 'is-active' : '' %>" aria-label="Show showcase example <%= index + 1 %>" aria-current="<%= index === 0 ? 'true' : 'false' %>"></button>
+              <% }); %>
+            </div>
+            <button type="button" class="rz-screenshot-control" data-slider-next aria-label="Next showcase example">&#8594;</button>
+          </div>
         </div>
       </section>
 

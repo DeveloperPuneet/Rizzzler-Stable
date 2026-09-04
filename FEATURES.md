@@ -196,14 +196,6 @@ Customizable link section with:
 - Newsletter opt-in/out
 - AI mail opt-in/out (fun generated emails)
 - Milestone celebration emails opt-in/out
-- Message notifications opt-in/out
-
-### Message Settings
-- Set message rate (how many Rizz coins to message you)
-- Enable/disable messaging entirely
-- View all received messages
-- Reply to messages
-
 ### Connected Apps
 - View all apps authorized via "Login with Rizzzler"
 - See when each app was authorized
@@ -217,29 +209,7 @@ Customizable link section with:
 
 ---
 
-## Messaging & Community
-
-### Rizz-Paid Messaging
-
-#### Sending Messages
-- Users can send paid messages to other users
-- Cost: Configurable per recipient (default 20 Rizz coins)
-- Can't message yourself
-- Can't message someone with messaging disabled
-
-#### Receiving Messages
-- Messages appear in `/dashboard/messages`
-- Inbox threaded view
-- Reply to messages
-- Message rate configurable by recipient
-- Opt-in/out of messaging entirely
-
-### Message Notifications
-- Real-time notification when you receive a message
-- Email notification (if opted in)
-- Unread badge in dashboard header
-
-### Community Chat
+## Community Chat
 - Real-time chat powered by Socket.io
 - Threaded conversations
 - User presence (online/offline status)
@@ -411,7 +381,6 @@ Rizzzler is now an OAuth 2.0 provider. Other developers can integrate "Login wit
 
 #### Real-Time Features
 - Live notifications
-- Message delivery confirmations
 - User presence (online/offline)
 - Typing indicators in chat
 - Profile state updates
@@ -419,7 +388,6 @@ Rizzzler is now an OAuth 2.0 provider. Other developers can integrate "Login wit
 #### Events
 - `user:state:update` — Profile visibility or settings changed
 - `notification:new` — Unread notification received
-- `message:new` — New message received
 - `user:presence` — Online/offline status
 
 ### Configuration
@@ -442,7 +410,6 @@ GITHUB_CLIENT_ID/SECRET — GitHub OAuth provider
 
 ADMIN_PASSWORD — Admin panel access
 MISTRAL_API_KEY — AI mail generation
-STRIPE_SECRET_KEY — Payment processing
 ```
 
 ---

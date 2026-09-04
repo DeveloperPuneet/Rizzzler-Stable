@@ -1,0 +1,33 @@
+/* Heritage premium theme: editorial, restrained, and deliberately asymmetric. */
+.rz-theme-heritage { --accent: #c9a66b; color: #efe7d6; background: #202b2b; font-family: Georgia, 'Times New Roman', serif; }
+.rz-theme-heritage .rz-showcase-bg { background: linear-gradient(120deg, #202b2b 0 58%, #d6c7a8 58% 100%); }
+.rz-theme-heritage .rz-floating-particles { opacity: 0; }
+.rz-theme-heritage .rz-hero-section { align-items: flex-end; justify-content: center; padding: 9vh 8vw; min-height: 82vh; }
+.rz-theme-heritage .rz-hero-banner { inset: 9vh 11vw 16vh 11vw; opacity: 0.88; filter: grayscale(0.2) contrast(1.08); border: 12px solid #e8dec6; box-shadow: 18px 18px 0 rgba(20,28,28,0.38); }
+.rz-theme-heritage .rz-hero-overlay { background: linear-gradient(180deg, rgba(32,43,43,0.08) 0%, rgba(32,43,43,0.18) 55%, #202b2b 100%); }
+.rz-theme-heritage .rz-hero-content { width: min(780px, 100%); min-width: 0; margin: 0 auto; padding: 0 0 2vh; text-align: left; display: grid; grid-template-columns: 190px minmax(0, 1fr); column-gap: 32px; align-items: end; }
+.rz-theme-heritage .rz-hero-avatar-wrap { justify-content: flex-start; grid-row: span 4; margin: 0; }
+.rz-theme-heritage .rz-hero-avatar { border-radius: 4px; border: 1px solid #c9a66b; box-shadow: 12px 12px 0 rgba(201,166,107,0.18); }
+.rz-theme-heritage .rz-hero-badge { border-radius: 0; border: 1px solid rgba(201,166,107,0.6); color: #c9a66b; background: transparent; text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.68rem; }
+.rz-theme-heritage .rz-hero-badge > span[aria-hidden="true"], .rz-theme-heritage .rz-hero-views > span[aria-hidden="true"], .rz-theme-heritage .rz-detail-icon { display: none; }
+.rz-theme-heritage .rz-hero-name, .rz-theme-heritage .rz-grand-text { text-align: left; font-weight: 400; letter-spacing: 0; text-transform: none; }
+.rz-theme-heritage .rz-hero-name { font-size: clamp(3rem, 8vw, 6.4rem); line-height: 0.9; margin: 10px 0 16px; }
+.rz-theme-heritage .rz-hero-name { color: #f5eee0; }
+.rz-theme-heritage .rz-hero-username, .rz-theme-heritage .rz-hero-views { color: #c9a66b; }
+.rz-theme-heritage .rz-story-card { border: 1px solid rgba(201,166,107,0.36); border-radius: 0; background: #201e1a; box-shadow: none; }
+.rz-theme-heritage .rz-section-eyebrow { color: #c9a66b; background: transparent; border-left: 3px solid #c9a66b; border-radius: 0; }
+.rz-theme-heritage .rz-link-item, .rz-theme-heritage .rz-detail-item { border-radius: 0; border: 1px solid rgba(201,166,107,0.35); background: transparent; color: #efe7d6; }
+.rz-theme-heritage .rz-sound-toggle { border-radius: 0; background: #202b2b; border: 1px solid #c9a66b; color: #c9a66b; }
+.rz-theme-heritage .rz-sound-label { font-family: Georgia, serif; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.68rem; }
+@media (max-width: 700px) { .rz-theme-heritage .rz-hero-banner { inset: 0; opacity: 0.2; border-width: 0; } .rz-theme-heritage .rz-hero-section { padding: 20vh 24px 8vh; } .rz-theme-heritage .rz-hero-content { width: auto; grid-template-columns: 1fr; gap: 0; } .rz-theme-heritage .rz-hero-avatar-wrap { grid-row: auto; margin-bottom: 24px; } }
+
+/* Heritage is a magazine cover, with a single readable column over the image. */
+.rz-theme-heritage .rz-hero-section { min-height: 88vh; align-items: flex-end; padding: 10vh clamp(28px, 10vw, 150px); }
+.rz-theme-heritage .rz-hero-banner { inset: 7vh 7vw 7vh 27%; border: 10px solid #e8dec6; box-shadow: 22px 22px 0 rgba(20,28,28,0.32); }
+.rz-theme-heritage .rz-hero-overlay { background: linear-gradient(90deg, rgba(32,43,43,0.98) 0%, rgba(32,43,43,0.86) 30%, rgba(32,43,43,0.05) 78%), linear-gradient(0deg, #202b2b 0%, transparent 32%); }
+.rz-theme-heritage .rz-hero-content { width: min(500px, 100%); display: block; padding: 0; margin: 0; }
+.rz-theme-heritage .rz-hero-avatar-wrap { margin-bottom: 24px; }
+.rz-theme-heritage .rz-hero-avatar { width: 116px; height: 116px; }
+.rz-theme-heritage .rz-hero-name { font-size: clamp(2.8rem, 6vw, 5.5rem); margin: 14px 0; }
+.rz-theme-heritage .rz-story-card { padding: 16px 18px; margin-top: 14px !important; }
+@media (max-width: 700px) { .rz-theme-heritage .rz-hero-banner { inset: 0; border-width: 0; } .rz-theme-heritage .rz-hero-section { padding: 24vh 24px 10vh; } }

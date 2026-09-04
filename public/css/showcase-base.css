@@ -85,32 +85,7 @@
 .rz-showcase .rz-section:not(.rz-hero-section) { opacity: 0; transition: opacity 0.9s ease, transform 0.9s ease; }
 .rz-showcase .rz-section.in-view { opacity: 1; }
 
-/* ---------- Shared controls for showcase forms and sound toggle ---------- */
-.rz-showcase .rz-message-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.rz-showcase .rz-message-form textarea {
-  width: 100%;
-  min-height: 110px;
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.16);
-  background: rgba(8, 8, 16, 0.66);
-  color: inherit;
-  padding: 14px 16px;
-  resize: vertical;
-  font: inherit;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-}
-.rz-showcase .rz-message-form textarea:focus {
-  outline: none;
-  border-color: rgba(255,255,255,0.4);
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
-}
-.rz-showcase .rz-message-form .rz-btn {
-  align-self: flex-start;
-}
+/* ---------- Shared controls for showcase details and sound toggle ---------- */
 .rz-showcase .rz-detail-icon {
   display: inline-flex;
   align-items: center;
@@ -215,7 +190,6 @@
 .rz-showcase .rz-hero-views,
 .rz-showcase .rz-detail-item a,
 .rz-showcase .rz-detail-item span,
-.rz-showcase .rz-message-form textarea,
 .rz-showcase .rz-link-item,
 .rz-showcase .rz-story-card {
   font-family: "Inter", "Segoe UI", sans-serif;

@@ -32,6 +32,7 @@
               <% if (!u.isVerified) { %><span class="rz-admin-tag rz-admin-tag-warn">Unverified</span><% } %>
               <% if (u.isActive === false) { %><span class="rz-admin-tag rz-admin-tag-off">Paused</span><% } %>
               <% if (u.isVerified && u.isActive !== false) { %><span class="rz-admin-tag rz-admin-tag-on">Live</span><% } %>
+              <% if (u.isPremium && (!u.premiumUntil || new Date(u.premiumUntil) > new Date())) { %><span class="rz-admin-tag rz-admin-tag-on">Premium</span><% } %>
             </td>
             <td><%= (u.profileViews || 0).toLocaleString() %></td>
             <td class="rz-admin-cell-muted"><%= new Date(u.createdAt).toLocaleDateString() %></td>

@@ -17,19 +17,25 @@
         <span class="rz-status-pill <%= user.isActive === false ? '' : 'rz-status-pill--accent' %>"><%= user.isActive === false ? 'Paused' : 'Live' %></span>
       </div>
     </div>
+    <div class="rz-settings-guide" role="note">
+      <strong>How to use Customize</strong>
+      <span>Edit your page details below, then choose <b>Save page settings</b>. Image and audio uploads have their own <b>Upload now</b> buttons and are saved immediately.</span>
+    </div>
     <% if (typeof info !== 'undefined' && info) { %><p class="rz-info rz-info-animated"><%= info %></p><% } %>
     <% if (typeof error !== 'undefined' && error) { %><p class="rz-error"><%= error %></p><% } %>
 
     <!-- Theme picker -->
     <div class="rz-panel rz-panel-glass">
-      <h2>🎨 Theme</h2>
+      <h2>Theme</h2>
       <form action="/dashboard/settings" method="POST" class="rz-theme-grid">
         <% themes.forEach(t => { %>
-          <label class="rz-theme-option <%= user.theme === t.key ? 'rz-theme-selected' : '' %>" style="--accent: <%= t.accent %>">
-            <input type="radio" name="theme" value="<%= t.key %>" <%= user.theme === t.key ? 'checked' : '' %> onchange="this.form.submit()" />
+          <% const locked = !!t.premium && !isPremiumAccessActive; %>
+          <label class="rz-theme-option <%= user.theme === t.key ? 'rz-theme-selected' : '' %> <%= t.premium ? 'rz-theme-premium' : '' %> <%= locked ? 'rz-theme-locked' : 'rz-theme-unlocked' %>" style="--accent: <%= t.accent %>">
+            <input type="radio" name="theme" value="<%= t.key %>" <%= user.theme === t.key ? 'checked' : '' %> <%= locked ? 'disabled' : '' %> onchange="this.form.submit()" />
             <span class="rz-theme-swatch"></span>
             <strong><%= t.label %></strong>
             <small><%= t.desc %></small>
+            <% if (locked) { %><span class="material-symbols-rounded rz-theme-lock" aria-label="Premium theme locked">lock</span><% } else if (t.premium) { %><span class="rz-theme-shine">Premium active</span><% } %>
             <span class="rz-theme-checkmark">✓</span>
           </label>
         <% }) %>
@@ -37,6 +43,25 @@
         <input type="hidden" name="displayName" value="<%= user.displayName %>" />
         <input type="hidden" name="bio" value="<%= user.bio %>" />
       </form>
+    </div>
+
+    <div class="rz-panel rz-panel-glass">
+      <h2><img src="/images/coins.png" alt="Rizz" class="rz-coin-icon" /> Premium themes</h2>
+      <% if (isPremiumAccessActive) { %>
+        <p class="rz-muted">Premium active: <strong><%= user.premiumPlan || 'managed access' %></strong>. All premium themes are unlocked<% if (user.premiumUntil) { %> until <strong><%= new Date(user.premiumUntil).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></strong><% } else { %> indefinitely<% } %>.</p>
+        <p class="rz-muted">Current balance: <strong><%= (user.rizz || 0).toLocaleString() %> Rizz</strong>. Your premium usage is active; no purchase is needed.</p>
+      <% } else { %>
+        <p class="rz-muted">Unlock all premium themes with Rizz. Money payments, including UPI, are not enabled yet.</p>
+      <% } %>
+      <div class="rz-settings-columns" style="margin-top:16px;">
+        <% if (!isPremiumAccessActive) { premiumPlans.forEach(plan => { %>
+          <form action="/dashboard/premium/purchase-rizz" method="POST" class="rz-panel rz-panel-glass">
+            <h3><%= plan.label %></h3>
+            <p class="rz-muted"><%= plan.description %></p>
+            <button type="submit" name="plan" value="<%= plan.key %>" class="rz-btn rz-btn-primary rz-btn-glow">Unlock for <%= plan.rizzCost %> Rizz</button>
+          </form>
+        <% }) } %>
+      </div>
     </div>
 
     <div class="rz-settings-columns">
@@ -110,15 +135,8 @@
               Show my join badge (#<%= user.legacyNumber || '-' %>) on my showcase page
             </label>
 
-            <h3>💬 Messaging</h3>
-            <label class="rz-checkbox">
-              <input type="hidden" name="messagesEnabled" value="false" />
-              <input type="checkbox" name="messagesEnabled" <%= user.messagesEnabled !== false ? 'checked' : '' %> value="true" />
-              Allow direct messages on my showcase page
-            </label>
-            <small class="rz-muted">Uncheck this box to hide the message form from visitors and stop new direct messages.</small>
-
             <h3>🎵 Audio</h3>
+            <p class="rz-field-help">Choose one preset track, or upload your own below. Your custom upload and preset cannot be active at the same time.</p>
             <label>Background track
               <div class="rz-audio-picker-row">
                 <select name="audioKey" id="audioKeySelect" data-has-custom-audio="<%= user.audio && user.audio.fileId ? 'true' : 'false' %>">
@@ -163,10 +181,12 @@
               </label>
             </div>
 
-            <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" style="margin-top:16px;">Save all changes</button>
+            <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" style="margin-top:16px;">Save page settings</button>
           </form>
 
-          <div style="margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.12);">
+          <div class="rz-upload-box">
+            <h4>Custom audio upload</h4>
+            <p class="rz-field-help">This button uploads the selected file immediately. It does not use the Save page settings button.</p>
             <% if (user.audio && user.audio.fileId) { %>
               <p class="rz-muted" style="margin-bottom:10px;">Custom audio loaded: <strong><%= user.audio.filename || 'uploaded-audio' %></strong></p>
               <audio controls preload="none" src="/file/<%= user.audio.fileId %>" style="width:100%; margin-bottom:10px;"></audio>
@@ -176,7 +196,7 @@
             <% } %>
             <form action="/dashboard/upload/audio" method="POST" enctype="multipart/form-data" class="rz-inline-form" style="margin-top: 12px;">
               <input type="file" name="audio" accept=".mp3,.wav,.ogg,.m4a,.aac,.mp4,.weba,.webm,audio/*" required />
-              <button type="submit" class="rz-btn rz-btn-ghost">Upload custom audio (under 1MB)</button>
+              <button type="submit" class="rz-btn rz-btn-ghost">Upload audio now</button>
             </form>
           </div>
         </div>
@@ -186,7 +206,7 @@
       <div class="rz-settings-right">
         <div class="rz-panel rz-panel-glass rz-live-preview-panel">
           <h2>👀 Live Preview</h2>
-          <p class="rz-muted" style="margin-top:-8px; font-size:13px;">Updates instantly as you edit. This is just a preview — nothing here is public until you hit Save.</p>
+          <p class="rz-muted rz-live-preview-copy">Updates instantly as you edit. Preview changes become public when you choose Save page settings.</p>
           <% const currentTheme = themes.find(t => t.key === user.theme) || themes[0]; %>
           <% const currentDecoration = visuals.avatarEffects.find(e => e.value === (user.avatarEffect || 'none')); %>
           <div class="rz-live-preview-phone" id="lpPhone" style="--lp-accent: <%= currentTheme.accent %>;">
@@ -221,28 +241,31 @@
 
         <div class="rz-panel rz-panel-glass">
           <h2>🖼️ Avatar</h2>
+          <p class="rz-field-help">Choose an image, then click Upload now. This is separate from Save page settings.</p>
           <% if (user.avatar && user.avatar.fileId) { %>
             <img src="/file/<%= user.avatar.fileId %>" class="rz-preview rz-preview-round" />
           <% } %>
           <form action="/dashboard/upload/avatar" method="POST" enctype="multipart/form-data" class="rz-inline-form">
             <input type="file" name="avatar" accept="image/*" required />
-            <button type="submit" class="rz-btn rz-btn-ghost">Upload (max 2MB)</button>
+            <button type="submit" class="rz-btn rz-btn-ghost">Upload avatar now</button>
           </form>
         </div>
 
         <div class="rz-panel rz-panel-glass">
           <h2>🌄 Banner</h2>
+          <p class="rz-field-help">Choose an image, then click Upload now. This is separate from Save page settings.</p>
           <% if (user.banner && user.banner.fileId) { %>
             <img src="/file/<%= user.banner.fileId %>" class="rz-preview rz-preview-wide" />
           <% } %>
           <form action="/dashboard/upload/banner" method="POST" enctype="multipart/form-data" class="rz-inline-form">
             <input type="file" name="banner" accept="image/*" required />
-            <button type="submit" class="rz-btn rz-btn-ghost">Upload (max 2MB)</button>
+            <button type="submit" class="rz-btn rz-btn-ghost">Upload banner now</button>
           </form>
         </div>
 
         <div class="rz-panel rz-panel-glass">
           <h2>📸 Showcase photos (max 2)</h2>
+          <p class="rz-field-help">Add photos here one at a time. Each upload is saved immediately.</p>
           <div class="rz-showcase-preview-row">
             <% user.showcaseImages.forEach(img => { %>
               <div class="rz-showcase-thumb-wrap">
@@ -256,7 +279,7 @@
           <% if (user.showcaseImages.length < 2) { %>
             <form action="/dashboard/upload/showcase" method="POST" enctype="multipart/form-data" class="rz-inline-form">
               <input type="file" name="showcaseImage" accept="image/*" required />
-              <button type="submit" class="rz-btn rz-btn-ghost">Add photo (max 2MB)</button>
+              <button type="submit" class="rz-btn rz-btn-ghost">Upload photo now</button>
             </form>
           <% } else { %>
             <p class="rz-muted">2/2 used — remove one to add another.</p>
@@ -285,30 +308,7 @@
           <strong>Milestone celebrations</strong><br/>
           <small class="rz-muted">Notifications when your showcase reaches view milestones</small>
         </label>
-        <label class="rz-checkbox">
-          <input type="checkbox" name="emailMessageMail" <%= user.emailPreferences && user.emailPreferences.messageMail !== false ? 'checked' : '' %> value="true" />
-          <strong>New message emails</strong><br/>
-          <small class="rz-muted">Get an email when someone messages you or replies to your message</small>
-        </label>
         <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" style="margin-top:16px;">Save preferences</button>
-      </form>
-    </div>
-
-    <!-- Rizz messaging price -->
-    <div class="rz-panel rz-panel-glass">
-      <h2><img src="/images/coins.png" alt="Rizz" class="rz-coin-icon" /> Rizz &amp; messaging</h2>
-      <p class="rz-muted" style="margin-top:-8px;">You earn 2 Rizz per genuine profile view. Set what it costs someone to message you — they pay this out of their own Rizz, and it lands straight in your balance.</p>
-      <div class="rz-coin-balance-row">
-        <span class="rz-coin-balance">
-          <img src="/images/coins.png" alt="Rizz" class="rz-coin-icon" />
-          <%= (user.rizz || 0).toLocaleString() %> Rizz
-        </span>
-      </div>
-      <form action="/dashboard/settings/message-rate" method="POST" class="rz-inline-form" style="margin-top:12px;">
-        <label style="max-width:220px;">Price to message you (Rizz)
-          <input type="number" name="messageRate" min="0" max="100000" value="<%= user.messageRate != null ? user.messageRate : 20 %>" />
-        </label>
-        <button type="submit" class="rz-btn rz-btn-ghost">Save rate</button>
       </form>
     </div>
 

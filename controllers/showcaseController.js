@@ -130,7 +130,8 @@ exports.showProfile = async (req, res) => {
     }
   }
 
-  const RIZZ_PER_VIEW = 2;
+  const hasActivePremium = user.isPremium && (!user.premiumUntil || new Date(user.premiumUntil).getTime() > Date.now());
+  const RIZZ_PER_VIEW = hasActivePremium ? 4 : 2;
 
   if (countView) {
     const updated = await User.findOneAndUpdate(
@@ -186,21 +187,10 @@ exports.showProfile = async (req, res) => {
     ? `${displayName} — ${user.bio}`
     : `${displayName} is sharing a stylish Rizzzler showcase page with links, themes, and media.`;
 
-  // Viewer's own Rizz balance, shown next to the "message" composer so
-  // they can see up front whether they can afford this profile's rate.
-  let viewerRizz = null;
-  if (viewerId && !isSelfView) {
-    const viewer = await User.findById(viewerId).select("rizz").lean();
-    viewerRizz = viewer ? viewer.rizz || 0 : null;
-  }
-
   res.render("showcase", {
     profile: user,
     viewId,
     isOwnProfile: isSelfView,
-    viewerRizz,
-    msgError: req.query.msgError || null,
-    messagesDisabled: user.messagesEnabled === false,
     theme,
     avatarEffect: user.avatarEffect || "none",
     avatarDecoration: selectedDecoration?.file || null,
@@ -242,6 +232,14 @@ exports.aboutDeveloper = (req, res) => {
     pageTitle: "About Developer — Rizzzler",
     metaDescription: "Learn more about the creator behind Rizzzler and the vision for beautiful one-link showcases.",
     metaKeywords: "about Rizzzler, developer, one-link showcase, creator profile",
+  });
+};
+
+exports.contact = (req, res) => {
+  res.render("contact", {
+    pageTitle: "Contact Rizzzler — Support",
+    metaDescription: "Contact the Rizzzler team for support, security reports, and product feedback.",
+    metaKeywords: "Rizzzler contact, Rizzzler support, report security issue",
   });
 };
 

@@ -50,6 +50,25 @@
         Featured (shows on /featured-creators)
       </label>
 
+      <h3>Rizz and premium access</h3>
+      <label>Rizz balance
+        <input type="number" name="rizz" min="0" step="1" value="<%= u.rizz || 0 %>" />
+      </label>
+      <label>Premium plan
+        <select name="premiumPlan">
+          <option value="none" <%= !u.isPremium ? 'selected' : '' %>>No premium access</option>
+          <% (premiumPlans || []).forEach(plan => { %><option value="<%= plan.key %>" <%= u.premiumPlan === plan.key ? 'selected' : '' %>><%= plan.label %></option><% }) %>
+        </select>
+      </label>
+      <label>Premium expiry <small class="rz-muted">(leave blank for indefinite access)</small>
+        <input type="date" name="premiumUntil" value="<%= u.premiumUntil ? new Date(u.premiumUntil).toISOString().slice(0, 10) : '' %>" />
+      </label>
+
+      <h3>Mail preferences</h3>
+      <label class="rz-checkbox"><input type="checkbox" name="emailNewsletter" <%= u.emailPreferences && u.emailPreferences.newsletter ? 'checked' : '' %> /> Newsletter mail enabled</label>
+      <label class="rz-checkbox"><input type="checkbox" name="emailAiMail" <%= u.emailPreferences && u.emailPreferences.aiMail ? 'checked' : '' %> /> AI mail enabled</label>
+      <label class="rz-checkbox"><input type="checkbox" name="emailMilestone" <%= u.emailPreferences && u.emailPreferences.milestoneEmails ? 'checked' : '' %> /> Milestone mail enabled</label>
+
       <button type="submit" class="rz-btn rz-btn-primary rz-btn-glow" style="margin-top:12px;">Save changes</button>
     </form>
   </div>
@@ -145,6 +164,8 @@
     <h2>At a glance</h2>
     <div class="rz-admin-detail-grid">
       <div><span class="rz-muted">Profile views</span><strong><%= (u.profileViews || 0).toLocaleString() %></strong></div>
+      <div><span class="rz-muted">Rizz balance</span><strong><%= (u.rizz || 0).toLocaleString() %></strong></div>
+      <div><span class="rz-muted">Premium</span><strong><%= u.isPremium ? (u.premiumPlan || 'Active') : 'No' %></strong></div>
       <div><span class="rz-muted">Theme</span><strong><%= u.theme %></strong></div>
       <div><span class="rz-muted">Legacy #</span><strong><%= u.legacyNumber || '—' %></strong></div>
       <div><span class="rz-muted">Links</span><strong><%= (u.links || []).length %></strong></div>

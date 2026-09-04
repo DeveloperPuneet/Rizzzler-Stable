@@ -4,6 +4,19 @@ Rizzzler is a creator showcase and personal-brand platform built for people who 
 
 Profile demo: https://www.rizzzler.work.gd/puneet2010
 
+## Showcase examples
+
+These are real visual examples of the kinds of profile pages you can build with Rizzzler. Browse the interactive gallery on the [landing page](https://www.rizzzler.work.gd/) or in the [full docs](/docs).
+
+| Example | Preview |
+| --- | --- |
+| 1 | ![Rizzzler showcase example 1](public/showcase/Screenshot%20(487).png) |
+| 2 | ![Rizzzler showcase example 2](public/showcase/Screenshot%20(488).png) |
+| 3 | ![Rizzzler showcase example 3](public/showcase/Screenshot%20(489).png) |
+| 4 | ![Rizzzler showcase example 4](public/showcase/Screenshot%20(490).png) |
+| 5 | ![Rizzzler showcase example 5](public/showcase/Screenshot%20(491).png) |
+| 6 | ![Rizzzler showcase example 6](public/showcase/Screenshot%20(492).png) |
+
 The product is designed for creators, freelancers, founders, communities, and anyone who wants stronger visibility, better trust, and a cleaner online presence. Rizzzler helps people turn attention into follows, bookings, and opportunities.
 
 Built with Express, EJS, MongoDB/Mongoose, GridFS, and a centralized theme registry so themes and visual options stay consistent across the app.
@@ -57,6 +70,11 @@ The platform includes a growing theme library with a centralized registry so eve
 - Sticker Storm
 - Sticker Chaos
 - Neon Pulse
+- Royal Glow (premium)
+- Heritage (premium)
+- Atelier (premium)
+
+Premium themes use a distinct editorial layout rather than the standard centered showcase: the avatar and profile details sit in a strong side column while the banner and gallery carry the visual field. They use restrained classic controls and no decorative emoji styling. Users without active premium access see premium themes locked; subscribers see an active premium status and do not see a second purchase prompt.
 
 Additional visual settings include:
 - avatar effects: neon, burn, discord pulse, hologram, and decor-based effects
@@ -75,7 +93,9 @@ Additional visual settings include:
 
 ### Admin panel and moderation tools
 - Secure admin area at `/admin`
-- User management and analytics
+- User management and analytics, including premium status and mail preference visibility
+- Admin controls for Rizz balances, assigning either premium plan, setting expiry or indefinite access, and enabling or disabling each user's newsletter, AI, and milestone mail
+- Premium users earn 4 Rizz per counted showcase view; standard users earn 2
 - OAuth application management and usage stats
 - Security controls and IP/device lockout protections
 - Mail tools for newsletters, milestone announcements, and AI-assisted messaging
@@ -100,9 +120,9 @@ Node.js · Express · EJS · MongoDB + Mongoose · GridFS · express-session · 
 ```text
 app.js
 config/          accountCleanup.js, aiMailScheduler.js, db.js, mailer.js, passport.js, socket.js, storageRouter.js, themes.js, visuals.js
-controllers/     adminController.js, authController.js, dashboardController.js, exploreController.js, fileController.js, messageController.js, notificationController.js, showcaseController.js
+controllers/     adminController.js, authController.js, dashboardController.js, exploreController.js, fileController.js, notificationController.js, showcaseController.js
 middlewares/     adminMiddleware.js, asyncHandler.js, authMiddleware.js, ipAccessControl.js, rateLimiter.js, upload.js, visitorTracker.js
-models/          User.js, Visitor.js, Settings.js, AdminAccess.js, SecurityEvent.js, IpRule.js, Message.js, Notification.js, FileLocation.js, Counter.js, ProfileView.js
+models/          User.js, Visitor.js, Settings.js, AdminAccess.js, SecurityEvent.js, IpRule.js, Notification.js, FileLocation.js, Counter.js, ProfileView.js
 Routes/          adminRoutes.js, apiRoutes.js, authRoutes.js, dashboardRoutes.js, fileRoutes.js, showcaseRoutes.js
 services/        mistralService.js
 shared/          registry.js
@@ -215,6 +235,9 @@ Then open `http://localhost:3000`.
 3. Restart the app so the new theme appears in the dashboard and showcase chooser
 
 The registry is the main source of truth for themes, title effects, avatar effects, and showcase motion effects.
+
+### Premium access and Rizz
+The dashboard shows the user's current Rizz balance and active premium plan. Premium access unlocks every premium theme for the plan period. The available self-service plans are 1 month for 99 Rizz and 3 months for 249 Rizz. A genuine public view adds 2 Rizz to a standard account or 4 Rizz to an account with active premium access; self-views and suppressed spam views do not award coins.
 
 ---
 

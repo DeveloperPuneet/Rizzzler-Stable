@@ -162,7 +162,7 @@
         <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 1.5rem; border-radius: 6px;">
           <h4 style="margin-top: 0; color: #721c24;">⚠️ Don't Trust Unsolicited Emails</h4>
           <p style="margin: 0; color: #721c24; font-size: 0.9rem;">
-            Rizzzler will never ask for your password via email. If you receive a suspicious email claiming to be from Rizzzler, <a href="https://rizzzler.work.gd/contact" style="color: #721c24; text-decoration: underline;">report it</a>.
+            Rizzzler will never ask for your password via email. If you receive a suspicious email claiming to be from Rizzzler, <a href="/contact" style="color: #721c24; text-decoration: underline;">report it</a>.
           </p>
         </div>
       </div>
@@ -181,12 +181,27 @@
           Regularly changing your password helps keep your account secure.
         </p>
 
-        <a href="/forgot-password" style="display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 500; margin-bottom: 1rem;">
-          Reset Password
-        </a>
+        <% if (passwordError) { %>
+          <p style="color: #721c24; background: #f8d7da; padding: 0.75rem; border-radius: 4px;"><%= passwordError %></p>
+        <% } %>
+        <% if (passwordInfo) { %>
+          <p style="color: #155724; background: #d4edda; padding: 0.75rem; border-radius: 4px;"><%= passwordInfo %></p>
+        <% } %>
+
+        <form action="/dashboard/security/password" method="POST" class="rz-form">
+          <label for="currentPassword">Current password</label>
+          <input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required />
+          <label for="newPassword">New password</label>
+          <input id="newPassword" name="newPassword" type="password" minlength="8" autocomplete="new-password" required />
+          <label for="confirmPassword">Confirm new password</label>
+          <input id="confirmPassword" name="confirmPassword" type="password" minlength="8" autocomplete="new-password" required />
+          <button type="submit" style="background: #667eea; color: white; padding: 0.75rem 1.5rem; border: 0; border-radius: 6px; font-weight: 500; cursor: pointer;">
+            Change Password
+          </button>
+        </form>
 
         <p style="margin: 1rem 0 0 0; font-size: 0.85rem; color: #999;">
-          You'll receive an email with instructions to reset your password securely.
+          Use a unique password you do not reuse on other services.
         </p>
       </div>
     </div>
@@ -227,3 +242,5 @@
     text-decoration: none;
   }
 </style>
+
+<%- include('../partials/footer') %>
