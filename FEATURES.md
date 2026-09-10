@@ -69,7 +69,14 @@ Rizzzler is a creator showcase and personal-brand platform. This document descri
 ### Landing Page
 - Beautiful entry point at `/`
 - Showcases platform features
+- Displays the five newest published Rizzzler Spotlight Stories
 - Call-to-action to sign up or explore
+
+### Rizzzler Spotlight Stories
+- Public collection at `/spotlight-stories`, sorted newest first
+- Each story shows its title, short description, source domain, publication date, and original link
+- The landing page automatically shows the five newest published stories
+- Empty collections have a friendly fallback state
 
 ---
 
@@ -284,6 +291,13 @@ Customizable link section with:
 - Toggle features on/off
 - Site-wide announcements
 - Admin password management
+
+#### Spotlight Stories
+- Open `/admin/spotlight-stories` from the admin sidebar
+- Enter an article or page URL and fetch its title and description automatically
+- Review and edit the extracted metadata before publishing
+- Delete published stories; deleted stories immediately disappear from public pages
+- Invalid URLs, non-HTML pages, and missing descriptions are reported or given editable fallbacks
 
 ---
 

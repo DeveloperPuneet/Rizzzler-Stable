@@ -16,6 +16,10 @@ router.post("/logout", adminController.logout);
 router.use(requireAdmin);
 
 router.get("/", asyncHandler(adminController.dashboard));
+router.get("/spotlight-stories", asyncHandler(adminController.listSpotlightStories));
+router.post("/spotlight-stories/preview", asyncHandler(adminController.previewSpotlightStory));
+router.post("/spotlight-stories", asyncHandler(adminController.createSpotlightStory));
+router.post("/spotlight-stories/:id/delete", asyncHandler(adminController.deleteSpotlightStory));
 router.get("/users", asyncHandler(adminController.listUsers));
 router.get("/users/:id", asyncHandler(adminController.viewUser));
 router.post("/users/:id", asyncHandler(adminController.updateUser));

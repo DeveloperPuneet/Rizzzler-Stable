@@ -160,6 +160,41 @@
   <% } %>
 </div>
 
+<div class="rz-admin-panel" style="margin-top: 24px;">
+  <div class="rz-admin-section-heading">
+    <div>
+      <h2>Uploaded media</h2>
+      <p class="rz-muted">Media currently attached to this user's profile.</p>
+    </div>
+    <span class="rz-admin-tag rz-admin-tag-muted"><%= (uploadedMedia || []).length %> uploads</span>
+  </div>
+  <% if (uploadedMedia && uploadedMedia.length) { %>
+    <div class="rz-admin-media-grid">
+      <% uploadedMedia.forEach((media) => { %>
+        <article class="rz-admin-media-card">
+          <% if (media.type === 'image') { %>
+            <a href="/file/<%= media.fileId %>" target="_blank" rel="noopener">
+              <img src="/file/<%= media.fileId %>" alt="<%= media.label %>" class="rz-admin-media-image" />
+            </a>
+          <% } else { %>
+            <div class="rz-admin-media-audio-icon" aria-hidden="true">♫</div>
+            <audio controls preload="metadata" src="/file/<%= media.fileId %>"></audio>
+          <% } %>
+          <div class="rz-admin-media-meta">
+            <strong><%= media.label %></strong>
+            <span class="rz-muted"><%= media.filename || 'Unnamed file' %></span>
+            <% if (media.location && media.location.size) { %>
+              <span class="rz-muted"><%= (media.location.size / 1024 / 1024).toFixed(2) %> MB</span>
+            <% } %>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <p class="rz-muted">This user has not uploaded any images or audio.</p>
+  <% } %>
+</div>
+
   <div class="rz-admin-panel">
     <h2>At a glance</h2>
     <div class="rz-admin-detail-grid">

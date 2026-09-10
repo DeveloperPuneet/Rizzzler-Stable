@@ -219,6 +219,30 @@
   </div>
 </section>
 
+<!-- ========== SPOTLIGHT STORIES ========== -->
+<section class="rz-section rz-spotlight-section" id="spotlight-stories">
+  <div class="rz-section-header">
+    <span class="rz-section-eyebrow">Fresh from the web</span>
+    <h2>Rizzzler <span class="rz-gradient-text">Spotlight Stories</span></h2>
+    <p class="rz-section-sub">Interesting ideas, projects, and stories selected for the Rizzzler community.</p>
+  </div>
+  <% if (spotlightStories.length) { %>
+    <div class="rz-spotlight-grid">
+      <% spotlightStories.forEach(function(story) { %>
+        <article class="rz-spotlight-card">
+          <span class="material-symbols-rounded rz-spotlight-icon" aria-hidden="true">auto_stories</span>
+          <h3><%= story.title %></h3>
+          <p><%= story.description %></p>
+          <a href="<%= story.url %>" target="_blank" rel="noopener noreferrer">Read story <span class="material-symbols-rounded" aria-hidden="true">arrow_outward</span></a>
+        </article>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <p class="rz-section-sub rz-spotlight-empty">New stories are on the way.</p>
+  <% } %>
+  <a href="/spotlight-stories" class="rz-text-link">Browse all Spotlight Stories <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>
+</section>
+
 <!-- ========== STATS ========== -->
 <section class="rz-section rz-stats-section" id="stats-section">
   <div class="rz-stats-grid">

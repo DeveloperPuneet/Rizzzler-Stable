@@ -1,0 +1,59 @@
+<% var pageTitle = "Spotlight Stories — Admin"; var activeNav = "spotlight-stories"; %>
+<%- include('partials/header') %>
+
+<div class="rz-admin-topbar">
+  <h1>Spotlight Stories</h1>
+  <p class="rz-muted">Publish useful stories and links to the Rizzzler community.</p>
+</div>
+
+<% if (error) { %><div class="rz-admin-alert rz-admin-alert-error"><%= error %></div><% } %>
+<% if (info) { %><div class="rz-admin-alert rz-admin-alert-info"><%= info %></div><% } %>
+
+<section class="rz-admin-panel">
+  <h2>Add a story</h2>
+  <p class="rz-muted">Enter a URL to fetch its page metadata, then review and edit it before publishing.</p>
+  <form action="/admin/spotlight-stories/preview" method="POST" class="rz-story-admin-form">
+    <label for="story-url">Original URL</label>
+    <div class="rz-story-url-row">
+      <input id="story-url" name="url" type="url" required value="<%= preview ? preview.url : '' %>" placeholder="https://example.com/article" />
+      <button type="submit" class="rz-btn rz-btn-primary">Fetch metadata</button>
+    </div>
+  </form>
+
+  <% if (preview) { %>
+    <form action="/admin/spotlight-stories" method="POST" class="rz-story-admin-form rz-story-review-form">
+      <input type="hidden" name="url" value="<%= preview.url %>" />
+      <label for="story-title">Title</label>
+      <input id="story-title" name="title" type="text" maxlength="200" required value="<%= preview.title %>" />
+      <label for="story-description">Short description</label>
+      <textarea id="story-description" name="description" maxlength="500" rows="4" required><%= preview.description %></textarea>
+      <button type="submit" class="rz-btn rz-btn-primary">Publish story</button>
+    </form>
+  <% } %>
+</section>
+
+<section class="rz-admin-panel">
+  <div class="rz-admin-section-heading">
+    <div><h2>Published stories</h2><p class="rz-muted">Newest stories appear first and on the landing page.</p></div>
+  </div>
+  <% if (!spotlightStories.length) { %>
+    <p class="rz-muted">No stories published yet.</p>
+  <% } else { %>
+    <div class="rz-admin-story-list">
+      <% spotlightStories.forEach(function(story) { %>
+        <article class="rz-admin-story-item">
+          <div>
+            <h3><%= story.title %></h3>
+            <p><%= story.description %></p>
+            <a href="<%= story.url %>" target="_blank" rel="noopener noreferrer"><%= story.url %></a>
+          </div>
+          <form action="/admin/spotlight-stories/<%= story._id %>/delete" method="POST" onsubmit="return confirm('Delete this spotlight story?');">
+            <button type="submit" class="rz-btn rz-btn-danger rz-btn-sm">Delete</button>
+          </form>
+        </article>
+      <% }); %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>

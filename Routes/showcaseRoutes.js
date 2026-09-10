@@ -4,7 +4,7 @@ const showcaseController = require("../controllers/showcaseController");
 const exploreController = require("../controllers/exploreController");
 const asyncHandler = require("../middlewares/asyncHandler");
 
-router.get("/", showcaseController.landing);
+router.get("/", asyncHandler(showcaseController.landing));
 router.get("/privacy-policy", showcaseController.privacyPolicy);
 router.get("/terms", showcaseController.terms);
 router.get("/about-developer", showcaseController.aboutDeveloper);
@@ -12,6 +12,7 @@ router.get("/contact", showcaseController.contact);
 router.get("/docs", showcaseController.documentation);
 router.get("/documentation", showcaseController.documentation);
 router.get("/faq", showcaseController.documentation);
+router.get("/spotlight-stories", asyncHandler(showcaseController.spotlightStories));
 router.get("/developer-docs", (req, res) => res.render("developer-docs"));
 router.get("/api/stats", asyncHandler(showcaseController.getStats));
 

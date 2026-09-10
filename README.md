@@ -51,6 +51,7 @@ Rizzzler gives people:
 - `/explore` — browse public profiles with search and sorting
 - `/featured-creators` — curated creator highlights
 - `/trending-developers` — weekly ranking based on profile views
+- `/spotlight-stories` — browse admin-published stories and links, newest first
 - `/about-developer` — founder story and project information
 - `/docs` — complete onboarding and product manual
 - `/privacy-policy` and `/terms` — public policy pages
@@ -93,6 +94,7 @@ Additional visual settings include:
 
 ### Admin panel and moderation tools
 - Secure admin area at `/admin`
+- Spotlight Stories management at `/admin/spotlight-stories`: paste a URL, fetch its title and description, review/edit the metadata, publish, and delete stories
 - User management and analytics, including premium status and mail preference visibility
 - Admin controls for Rizz balances, assigning either premium plan, setting expiry or indefinite access, and enabling or disabling each user's newsletter, AI, and milestone mail
 - Premium users earn 4 Rizz per counted showcase view; standard users earn 2
@@ -122,11 +124,11 @@ app.js
 config/          accountCleanup.js, aiMailScheduler.js, db.js, mailer.js, passport.js, socket.js, storageRouter.js, themes.js, visuals.js
 controllers/     adminController.js, authController.js, dashboardController.js, exploreController.js, fileController.js, notificationController.js, showcaseController.js
 middlewares/     adminMiddleware.js, asyncHandler.js, authMiddleware.js, ipAccessControl.js, rateLimiter.js, upload.js, visitorTracker.js
-models/          User.js, Visitor.js, Settings.js, AdminAccess.js, SecurityEvent.js, IpRule.js, Notification.js, FileLocation.js, Counter.js, ProfileView.js
+models/          User.js, Visitor.js, Settings.js, AdminAccess.js, SecurityEvent.js, IpRule.js, Notification.js, FileLocation.js, Counter.js, ProfileView.js, SpotlightStory.js
 Routes/          adminRoutes.js, apiRoutes.js, authRoutes.js, dashboardRoutes.js, fileRoutes.js, showcaseRoutes.js
-services/        mistralService.js
+services/        mistralService.js, spotlightMetadata.js
 shared/          registry.js
-views/           landing, auth, dashboard, admin, docs, showcase, privacy/terms pages
+views/           landing, spotlight-stories, auth, dashboard, admin, docs, showcase, privacy/terms pages
 public/          css, audios, decor, images
 scripts/         backfillFileLocations.js
 tests/           app-level validation and cleanup checks

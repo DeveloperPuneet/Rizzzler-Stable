@@ -13,6 +13,8 @@ const { sendNewsletterEmail, sendInviteEmail, sendBulk } = require("../config/ma
 const { maybeSendAIMail } = require("../config/aiMailScheduler");
 const { getSystemHealthSnapshot, runCleanupCycle, clearCleanupLog, DATA_RETENTION_DAYS } = require("../config/accountCleanup");
 const registry = require("../shared/registry");
+const SpotlightStory = require("../models/SpotlightStory");
+const { fetchSpotlightMetadata } = require("../services/spotlightMetadata");
 
 // ---------- Login ----------
 exports.getLogin = (req, res) => {
@@ -118,6 +120,56 @@ exports.dashboard = async (req, res) => {
   });
 };
 
+// ---------- Spotlight Stories ----------
+exports.listSpotlightStories = async (req, res) => {
+  const spotlightStories = await SpotlightStory.find({}).sort({ createdAt: -1 }).lean();
+  res.render("admin/spotlight-stories", {
+    layout: false,
+    spotlightStories,
+    preview: null,
+    error: req.query.error || null,
+    info: req.query.info || null,
+  });
+};
+
+exports.previewSpotlightStory = async (req, res) => {
+  const spotlightStories = await SpotlightStory.find({}).sort({ createdAt: -1 }).lean();
+  try {
+    const preview = await fetchSpotlightMetadata(req.body.url);
+    return res.render("admin/spotlight-stories", { layout: false, spotlightStories, preview, error: null, info: null });
+  } catch (err) {
+    return res.render("admin/spotlight-stories", {
+      layout: false,
+      spotlightStories,
+      preview: { url: (req.body.url || "").trim(), title: "", description: "" },
+      error: err.message || "Could not read that page.",
+      info: null,
+    });
+  }
+};
+
+exports.createSpotlightStory = async (req, res) => {
+  const url = (req.body.url || "").trim();
+  const title = (req.body.title || "").trim();
+  const description = (req.body.description || "").trim();
+  if (!url || !title || !description) {
+    return res.redirect("/admin/spotlight-stories?error=" + encodeURIComponent("URL, title, and description are required."));
+  }
+  try {
+    const parsedUrl = new URL(url);
+    if (!["http:", "https:"].includes(parsedUrl.protocol)) throw new Error("Only http and https URLs are supported.");
+    await SpotlightStory.create({ url: parsedUrl.toString(), title, description, published: true });
+    res.redirect("/admin/spotlight-stories?info=" + encodeURIComponent("Story published."));
+  } catch (err) {
+    res.redirect("/admin/spotlight-stories?error=" + encodeURIComponent(err.message || "Could not publish that story."));
+  }
+};
+
+exports.deleteSpotlightStory = async (req, res) => {
+  await SpotlightStory.deleteOne({ _id: req.params.id });
+  res.redirect("/admin/spotlight-stories?info=" + encodeURIComponent("Story deleted."));
+};
+
 // ---------- Users list ----------
 exports.listUsers = async (req, res) => {
   const q = (req.query.q || "").trim();
@@ -160,8 +212,15 @@ exports.viewUser = async (req, res) => {
     const user = await User.findById(req.params.id).lean();
     if (!user) return res.status(404).send("User not found");
 
+    const uploadedMediaIds = [
+      user.avatar?.fileId,
+      user.banner?.fileId,
+      user.audio?.fileId,
+      ...(user.showcaseImages || []).map((image) => image.fileId),
+    ].filter(Boolean);
+
     const windowStart = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
-    const [summaryAgg, dailyAgg, sourceAgg, deviceAgg, recentViews] = await Promise.all([
+    const [summaryAgg, dailyAgg, sourceAgg, deviceAgg, recentViews, mediaLocations] = await Promise.all([
       ProfileView.aggregate([
         { $match: { user: user._id, visitedAt: { $gte: windowStart } } },
         {
@@ -201,7 +260,23 @@ exports.viewUser = async (req, res) => {
         { $sort: { visits: -1, _id: 1 } },
       ]),
       ProfileView.find({ user: user._id }).sort({ visitedAt: -1 }).limit(60).lean(),
+      uploadedMediaIds.length ? FileLocation.find({ _id: { $in: uploadedMediaIds } }).lean() : [],
     ]);
+
+    const mediaById = new Map((mediaLocations || []).map((file) => [String(file._id), file]));
+    const uploadedMedia = [
+      user.avatar?.fileId ? { type: "image", label: "Avatar", fileId: user.avatar.fileId, filename: user.avatar.filename } : null,
+      user.banner?.fileId ? { type: "image", label: "Banner", fileId: user.banner.fileId, filename: user.banner.filename } : null,
+      ...(user.showcaseImages || []).map((image, index) => ({
+        type: "image",
+        label: `Showcase image ${index + 1}`,
+        fileId: image.fileId,
+        filename: image.filename,
+      })),
+      user.audio?.fileId ? { type: "audio", label: "Custom audio", fileId: user.audio.fileId, filename: user.audio.filename } : null,
+    ]
+      .filter((media) => media && media.fileId)
+      .map((media) => ({ ...media, location: mediaById.get(String(media.fileId)) || null }));
 
     const summary = summaryAgg[0] || { totalVisits: 0, totalSeconds: 0, avgSeconds: 0 };
     const dailyMap = new Map((dailyAgg || []).map((day) => [day._id, day]));
@@ -232,6 +307,7 @@ exports.viewUser = async (req, res) => {
         devices: deviceAgg,
         recentViews,
       },
+      uploadedMedia,
       error: null,
       info: req.query.saved ? "Changes saved." : null,
     });
@@ -243,6 +319,7 @@ exports.viewUser = async (req, res) => {
       layout: false,
       u: user,
       premiumPlans: registry.getPremiumPlans(),
+      uploadedMedia: [],
       userAnalytics: { summary: { totalVisits: 0, totalSeconds: 0, avgSeconds: 0 }, dailyTrend: [], sources: [], devices: [], recentViews: [] },
       error: "Could not load analytics for this user.",
       info: null,

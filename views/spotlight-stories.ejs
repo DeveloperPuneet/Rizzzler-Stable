@@ -1,0 +1,62 @@
+<% pageTitle = "Rizzzler Spotlight Stories" %>
+<%- include('partials/header') %>
+
+<main class="rz-story-page">
+  <section class="rz-section rz-story-hero">
+    <div class="rz-story-hero-grid">
+      <div class="rz-story-hero-copy">
+        <span class="rz-section-eyebrow">From around the web</span>
+        <h1>Rizzzler <span class="rz-gradient-text">Spotlight Stories</span></h1>
+        <p class="rz-section-sub">A hand-picked stream of ideas, projects, and stories worth your attention.</p>
+        <a href="#published-stories" class="rz-story-jump">Explore the collection <span class="material-symbols-rounded" aria-hidden="true">south</span></a>
+      </div>
+      <div class="rz-story-hero-note">
+        <span class="material-symbols-rounded" aria-hidden="true">auto_stories</span>
+        <strong><%= spotlightStories.length %></strong>
+        <span>published <%= spotlightStories.length === 1 ? 'story' : 'stories' %></span>
+        <% if (spotlightStories.length) { %>
+          <small>Newest first</small>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <section class="rz-section rz-story-list-section" id="published-stories" aria-label="Published spotlight stories">
+    <div class="rz-story-list-heading">
+      <div>
+        <span class="rz-section-eyebrow">The archive</span>
+        <h2>Latest picks</h2>
+      </div>
+      <span class="rz-story-sort"><span class="material-symbols-rounded" aria-hidden="true">sort</span> Newest first</span>
+    </div>
+    <% if (!spotlightStories.length) { %>
+      <div class="rz-story-empty">
+        <span class="material-symbols-rounded" aria-hidden="true">auto_stories</span>
+        <h2>Stories are coming soon</h2>
+        <p>Check back shortly for the latest Rizzzler spotlights.</p>
+      </div>
+    <% } else { %>
+      <div class="rz-story-list">
+        <% spotlightStories.forEach(function(story, index) { %>
+          <article class="rz-story-card <%= index === 0 ? 'rz-story-card-featured' : '' %>">
+            <div class="rz-story-card-topline">
+              <div class="rz-story-card-meta"><span class="material-symbols-rounded" aria-hidden="true">auto_stories</span> <%= index === 0 ? 'Latest spotlight' : 'Spotlight story' %></div>
+              <span class="rz-story-number"><%= String(index + 1).padStart(2, '0') %></span>
+            </div>
+            <h2><%= story.title %></h2>
+            <p><%= story.description %></p>
+            <div class="rz-story-card-footer">
+              <span class="rz-story-source"><%= new URL(story.url).hostname.replace(/^www\./, '') %></span>
+              <time datetime="<%= new Date(story.createdAt).toISOString() %>"><%= new Date(story.createdAt).toLocaleDateString() %></time>
+              <a class="rz-story-link" href="<%= story.url %>" target="_blank" rel="noopener noreferrer" aria-label="Read <%= story.title %>">
+                <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
+              </a>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } %>
+  </section>
+</main>
+
+<%- include('partials/footer') %>

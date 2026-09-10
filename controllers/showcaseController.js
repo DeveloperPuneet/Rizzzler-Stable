@@ -11,6 +11,7 @@ const { sendMilestoneEmail } = require("../config/mailer");
 const { getClientIp } = require("../middlewares/visitorTracker");
 const { invalidateCache } = require("../middlewares/ipAccessControl");
 const { emitUserStateUpdate } = require("../config/socket");
+const SpotlightStory = require("../models/SpotlightStory");
 
 // One-way, same-day visitor fingerprint for the "unique visitors" stat on
 // the owner's dashboard — see models/ProfileView.js for why this is safe
@@ -78,13 +79,15 @@ async function blockSpammyIp(ip, username) {
   }
 }
 
-exports.landing = (req, res) => {
+exports.landing = async (req, res) => {
+  const spotlightStories = await SpotlightStory.find({ published: true }).sort({ createdAt: -1 }).limit(5).lean();
   res.render("landing", {
     pageTitle: "Rizzzler — Create a beautiful one-link showcase",
     metaDescription:
       "Create a stunning one-link showcase page with themes, music, photos, and links on Rizzzler.",
     metaKeywords:
       "Rizzzler, one-link showcase, link in bio, creator page, personal profile, custom themes",
+    spotlightStories,
     structuredData: {
       "@context": "https://schema.org",
       "@type": "WebSite",
@@ -93,6 +96,15 @@ exports.landing = (req, res) => {
       description:
         "Create a beautiful one-link showcase page with themes, music, photos, and links on Rizzzler.",
     },
+  });
+};
+
+exports.spotlightStories = async (req, res) => {
+  const spotlightStories = await SpotlightStory.find({ published: true }).sort({ createdAt: -1 }).lean();
+  res.render("spotlight-stories", {
+    pageTitle: "Rizzzler Spotlight Stories",
+    metaDescription: "Discover the latest stories and links shared by Rizzzler.",
+    spotlightStories,
   });
 };
 
