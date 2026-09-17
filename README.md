@@ -2,7 +2,8 @@
 
 Rizzzler is a creator showcase and personal-brand platform built for people who want a premium public identity without building a custom website from scratch. Every user gets a public profile at `/username` with a customizable theme, social links, media, stories, bio, and brand styling that feels closer to a real digital portfolio than a basic link-in-bio.
 
-Profile demo: https://www.rizzzler.work.gd/rizzzler
+Profile demo: https://www.rizzzler.work.gd/rizzzler <br>
+
 Rizzzler Github account: https://github.com/rizzzler-official
 
 ## Showcase examples
